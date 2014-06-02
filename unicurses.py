@@ -2138,6 +2138,16 @@ def reset_shell_mode():
         return pdlib.reset_shell_mode()
 
 
+def wresize(scr_id, lines, columns):
+    if NCURSES:
+        try:
+            return scr_id.resize(lines, columns)
+        except curses.error:
+            return ERR
+    else:
+        return pdlib.wresize(scr_id, lines, columns)
+
+
 def wscrl(scr_id, lines=1):
     if NCURSES:
         try:
