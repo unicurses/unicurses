@@ -2,7 +2,7 @@ UNICURSES v1.2
 (C) 2010 by Michael Kamensky (Agetian)
 Released as Free Software under the terms of General Public License (GPL) v3
 
-unicurses
+Unicurses
 =========
 
 Unified Curses Wrapper for Python on Windows, Linux, and Mac OS X
@@ -51,15 +51,15 @@ Using unicurses
 While UniCurses tries to stay as faithful to the original C++ syntax of curses functions as possible, there are certain important differences and peculiarities that you must be aware of when writing programs using UniCurses.
 First of all, the function used to initialize curses (initscr) must be called in a special way with an assignment to a variable named `stdscr`. Therefore, instead of just calling `initscr()` you must use the following expression verbatim:
 
-```
+```python
 stdscr = initscr()
 ```
 
 In case you do not follow the above-mentioned convention and do not assign the result of initscr to the variable stdscr, or change the name of the variable from stdscr to anything else, your script or program will fail to work properly and will terminate with an exception. Therefore:
 
-```
-initscr()	        # This will NOT work
-myscr = initscr()	# This will NOT work
+```python
+initscr()	          # This will NOT work
+myscr = initscr()	  # This will NOT work
 stdscr = initscr()	# This will work correctly
 ```
 
@@ -74,7 +74,7 @@ NOTE 2: If you use any functions that are listed as not cross-platform, your pro
 
 The functions that are cross-platform and safe to use:
 
-```
+```python
 addch(ch, [attr])
 addnstr(str, n, [attr])
 addstr(str, [attr])
@@ -281,7 +281,7 @@ wvline(WINDOW, ch, n)
 ```
 
 The functions from the Panel module of Curses (fully cross-platform):
-```
+```python
 bottom_panel(PANEL)
 del_panel(PANEL)
 hide_panel(PANEL)
@@ -297,10 +297,11 @@ set_panel_userptr(PANEL, obj)
 show_panel(PANEL)
 top_panel(PANEL)
 update_panels()
+```
 
 The following functions are specific to UniCurses, they are completely cross-
 platform and they make the Curses functions easier to use:
-
+```python
 ALTCHAR(ch) # NOTE: this function returns a C character from the alternate set (use it when inserting an alternate character wherever a 'ch' is required). This is effectively the same as CCHAR(ch | A_ALTCHARSET).
 
 CCHAR(ch) # NOTE: this function returns a C character from the standard set (use it when inserting a character wherever a 'ch' is required)
@@ -312,7 +313,7 @@ KEY_F(n) # NOTE: this function mimics the NCurses macro with the same name that 
 
 The functions that are NOT cross-platform and are only available on Linux:
 
-```
+```python
 getwin(file) # NOTE: this function will throw exception on Windows
 putp(str) # NOTE: this function is a stub on Windows
 putwin(WINDOW, file) # NOTE: this function will throw exception on Win
@@ -328,7 +329,8 @@ IMPORTANT: The following functions are generally portable and may be used on all
 
 insdelln, insertln, winsdelln, winsertln, noutrefresh, setscrreg, unctrl.
 
-5.Constants provided by UniCurses.
+Constants provided by UniCurses
+-------------------------------
 
 UniCurses provides the following constants on all platforms:
 
@@ -412,7 +414,7 @@ ACS_SSSS
 ```
 
 Keyboard and Mouse:
-```
+```python
 KEY_MIN
 KEY_BREAK
 KEY_SRESET
@@ -423,7 +425,7 @@ KEY_LEFT
 KEY_RIGHT
 KEY_HOME
 KEY_BACKSPACE
-KEY_F0 # NOTE: Function keys 1-64 are provided via a function KEY_F(n)
+KEY_F0        # NOTE: Function keys 1-64 are provided via a function KEY_F(n)
 KEY_DL
 KEY_IL
 KEY_DC
@@ -549,6 +551,6 @@ The following features are not yet completely implemented or may have bugs:
 Some final technical considerations
 -----------------------------------
 
-1) Many UniCurses functions return ERR in case an error occurs while executing them. This behavior is the same across all platforms (note that it's different from the method used in the original "curses" Python module, where an exception is thrown in case of an error).
+1) Many UniCurses functions return `ERR` in case an error occurs while executing them. This behavior is the same across all platforms (note that it's different from the method used in the original "curses" Python module, where an exception is thrown in case of an error).
 2) Even though UniCurses tends to unify the behavior of commands across various platforms, certain functions may in rare cases provide slightly different output depending on the implementation of Curses used on each particular platform. While such cases are relatively rare and are typically not fatal, it's the responsibility of the author of each particular program that uses UniCurses to test and ensure that his/her program works consistently across various platforms.
 3) Even though UniCurses itself is compatible both with Python 2.x and Python 3.x, the target programs written using UniCurses don't have to be (and most often won't be). It's possible to write an exclusively Python 2 and an exclusively Python 3 program using UniCurses, as well as a Python-independent one in case your program does not use any language syntax or modules that are only present in either Python 2 or Python 3.
