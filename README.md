@@ -1,7 +1,8 @@
-UNICURSES v1.2 (C) 2010 by Michael Kamensky (Agetian)  return
+UNICURSES v1.2 (C) 2010 by Michael Kamensky (Agetian)  
 Released as Free Software under the terms of General Public License (GPL) v3
 
-Unicurses
+
+UniCurses
 =========
 Unified Curses Wrapper for Python on Windows, Linux, and Mac OS X
 
