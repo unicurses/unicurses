@@ -1,0 +1,17 @@
+v1.0:
+-----
+
+- Corrections in the readme
+- Some minor fixes to the wrapper (don't deserve to be mentioned).
+- Corrections to the test scripts so that they work fine on Mac OS X.
+
+v1.1:
+-----
+
+- Changed the way UniCurses behaves if a module import error occurs (it now raises an exception instead of calling the 'exit' function).
+- Released the module as a distutils package
+
+v1.2:
+-----
+
+- Implemented a patch by Florian Stohr that fixes compatibility with Win64 pdcurses/Python. Big thanks to Florian Stohr for the fix!

@@ -1,0 +1,16 @@
+Metadata-Version: 1.0
+Name: UniCurses
+Version: 1.2
+Summary: Unified Curses Wrapper for Python
+Home-page: http://pyunicurses.sourceforge.net
+Author: Michael Kamensky
+Author-email: stavdev@mail.ru
+License: General Public License v3
+Description: A universal Curses wrapper for Python on Windows, Linux, and
+        Mac OS X, with syntax close to the original NCurses. In order
+        to provide Curses functionality on Windows it utilizes the ctype
+        foreign function interface to wrap PDCurses, a free and open-source
+        Curses implementation for Windows.
+Platform: Windows
+Platform: Linux
+Platform: Mac OS X
