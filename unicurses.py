@@ -23,12 +23,12 @@ global NCURSES
 global PDC_LEAVEOK
 global pdlib
 
-PDC_LEAVEOK = False       # LeaveOK emulation in PDC
-NCURSES = False           # Native curses support
+PDC_LEAVEOK = False        # LeaveOK emulation in PDC
+NCURSES = False            # Native curses support
 NCURSES_AVAILABLE = False  # True if the NCurses is available natively
-pdlib = None              # PD library, if applicable
-UCS_DEFAULT_WRAPPER = ""  # A constant for the default wrapper (ucs_reconfigure)
-stdscr = -1               # A pointer to the standard screen
+pdlib = None               # PD library, if applicable
+UCS_DEFAULT_WRAPPER = ""   # A constant for the default wrapper (ucs_reconfigure)
+stdscr = -1                # A pointer to the standard screen
 
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()   # TODO: fix this to actually work on native ncurses
@@ -36,12 +36,11 @@ code = locale.getpreferredencoding()   # TODO: fix this to actually work on nati
 try:
     import ctypes
 except ImportError:
-    print("""
-    Fatal error: this Python release does not support ctypes.
-    Please upgrade your Python distribution
-    if you want to use UniCurses on a {} platform.\n
-    """.format(sys.platform))
-    raise ImportError("UniCurses initialization error - ctypes FFI not supported.")
+    raise ImportError("""
+        Fatal error: this Python release does not support ctypes.
+        Please upgrade your Python distribution
+        if you want to use UniCurses on a {} platform.
+        """.format(sys.platform))
 
 try:
     # See if the platform supports curses natively
@@ -51,22 +50,20 @@ try:
     NCURSES = True
 except ImportError:
     if sys.platform.find('win') == -1:
-        print("""
+        raise ImportError("""
             Fatal error: this platform is not supported by UniCurses.
             Either you're running a very old Python distribution below v2.6,
-            or you're using an exotic operating system that's neither Win nor *nix.\n""")
-        raise ImportError("UniCurses initialization error - unsupported platform.")
+            or you're using an exotic operating system that's neither Win nor *nix.""")
     else:
         current_dir = os.path.dirname(os.path.realpath(__file__))
         path_to_pdcurses = current_dir + "/pdc34dllu/pdcurses.dll"
         print(path_to_pdcurses)
         if not os.access(path_to_pdcurses, os.F_OK):
-            print("""
-            Fatal error: can't find pdcurses.dll for linking.
-            Make sure PDCurses v3.4+ is in the same folder as UniCurses
-            if you want to use UniCurses on a {} platform.\n
-            """.format(sys.platform))
-            raise ImportError("UniCurses initialization error - pdcurses.dll not found.")
+            raise ImportError("""
+                Fatal error: can't find pdcurses.dll for linking.
+                Make sure PDCurses v3.4+ is in the same folder as UniCurses
+                if you want to use UniCurses on a {} platform.
+                """.format(sys.platform))
         # We're on winXX, use pdcurses instead of native ncurses
         pdlib = ctypes.CDLL(path_to_pdcurses)
 
@@ -103,23 +100,26 @@ def ucs_reconfigure(wrapper_ncurses, wrapper_pdcurses):
             try:
                 pdlib = ctypes.CDLL(wrapper_ncurses)
             except:
-                raise Exception(
-                    "UCS_CONFIGURE: There was an error configuring the NCurses wrapper using the library " + wrapper_ncurses + ".")
+                raise Exception("""
+                    UCS_CONFIGURE: There was an error configuring the
+                    NCurses wrapper using the library {}""".format(wrapper_ncurses))
     else:
         if wrapper_pdcurses == UCS_DEFAULT_WRAPPER:
             NCURSES = False
             try:
                 pdlib = ctypes.CDLL("pdcurses.dll")
             except:
-                raise Exception(
-                    "UCS_CONFIGURE: There was an error configuring the default PDCurses wrapper, make sure pdcurses.dll is available in the same folder as UniCurses.")
+                raise Exception("""
+                    UCS_CONFIGURE: There was an error configuring the default PDCurses
+                    wrapper, make sure pdcurses.dll is available in the same folder as UniCurses.""")
         else:
             NCURSES = False
             try:
                 pdlib = ctypes.CDLL(wrapper_pdcurses)
             except:
-                raise Exception(
-                    "UCS_CONFIGURE: There was an error configuring the PDCurses wrappr using th library " + wrapper_pdcurses + ".")
+                raise Exception("""
+                    UCS_CONFIGURE: There was an error configuring the
+                    NCurses wrapper using the library {}""".format(wrapper_ncurses))
 
 
 # Return a bytes-encoded C style string from anything that's convertable with str.
@@ -363,8 +363,8 @@ else:
     COLOR_WHITE = 7
 
 
-# Get a C character
 def CCHAR(ch):
+    """Get a C character"""
     if type(ch) == str:
         return ord(ch)
     elif type(ch) == int:
@@ -372,10 +372,9 @@ def CCHAR(ch):
     else:
         raise Exception("CCHAR: can't parse a non-char/non-int value.")
 
-# Alternate character set
-
 
 def ALTCHAR(ch):
+    """Alternate character set"""
     if type(ch) == str:
         return ord(ch) | A_ALTCHARSET
     elif type(ch) == int:
