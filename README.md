@@ -1,25 +1,21 @@
-UNICURSES v1.2
-(C) 2010 by Michael Kamensky (Agetian)
+UNICURSES v1.2 (C) 2010 by Michael Kamensky (Agetian)  return
 Released as Free Software under the terms of General Public License (GPL) v3
 
 Unicurses
 =========
-
 Unified Curses Wrapper for Python on Windows, Linux, and Mac OS X
-
-
 
 What is UniCurses?
 ------------------
-
 UniCurses is a Python module that is aimed at providing the Curses functionality on all operating systems (MS Windows, Linux, and Mac OS X) using a unified set of commands that are syntactically close to the native C++ Curses functions. UniCurses strives to be as platform-independent as possible, not only by working on all operating systems (as opposed to the original `curses` module which does not work on Microsoft Windows) but also by ensuring compatibility both with the older (v2.x) and the newer (v3.x) versions of Python.
 UniCurses is compatible with any Python distribution starting with version 2.6.1, including the newly released v2.7 and all the versions released so far in the Python 3 line, including v3.0.x and v3.1.x.
-IMPORTANT: On Microsoft Windows, UniCurses operates by wrapping a curses library known as `Public Domain Curses`, or PDCurses. In order to make UniCurses work on Microsoft Windows, you need download a PDCurses binary from its official website (see the link below) # you need version 3.4 or newer - and put it in the same folder as the UniCurses wrapper itself (unicurses.py). The dynamic link library for PDCurses is called `pdcurses.dll`. 
+
+IMPORTANT: On Microsoft Windows, UniCurses operates by wrapping a curses library known as `Public Domain Curses`, or PDCurses. In order to make UniCurses work on Microsoft Windows, you need download a PDCurses binary from its official website (see the link below) # you need version 3.4 or newer - and put it in the same folder as the UniCurses wrapper itself (unicurses.py). The dynamic link library for PDCurses is called `pdcurses.dll`.
 UniCurses is compatible with all flavors of PDCurses downloadable from the official website, including:
-The standard terminal PDCurses (pdc34dll.zip)
-The PDCurses with Unicode support (pdc34dllw.zip)
-The PDCurses with Unicode/UTF-8 support (pdc34dllu.zip)
-The SDL PDCurses running in a fake terminal (pdc34dlls.zip)
+- The standard terminal PDCurses (pdc34dll.zip)
+- The PDCurses with Unicode support (pdc34dllw.zip)
+- The PDCurses with Unicode/UTF-8 support (pdc34dllu.zip)
+- The SDL PDCurses running in a fake terminal (pdc34dlls.zip)
 If you're not sure which version to download, download either the standard one or the SDL one, depending on whether you want your applications to run in a real Windows terminal window or in an emulated fake SDL window.
 Public Domain Curses can be downloaded from here:
 http://pdcurses.sourceforge.net
@@ -47,7 +43,6 @@ HINT: In order to make sure that UniCurses works correctly on your platform, run
 
 Using unicurses
 ---------------
-
 While UniCurses tries to stay as faithful to the original C++ syntax of curses functions as possible, there are certain important differences and peculiarities that you must be aware of when writing programs using UniCurses.
 First of all, the function used to initialize curses (initscr) must be called in a special way with an assignment to a variable named `stdscr`. Therefore, instead of just calling `initscr()` you must use the following expression verbatim:
 
@@ -58,9 +53,9 @@ stdscr = initscr()
 In case you do not follow the above-mentioned convention and do not assign the result of initscr to the variable stdscr, or change the name of the variable from stdscr to anything else, your script or program will fail to work properly and will terminate with an exception. Therefore:
 
 ```python
-initscr()	          # This will NOT work
-myscr = initscr()	  # This will NOT work
-stdscr = initscr()	# This will work correctly
+initscr()           # This will NOT work
+myscr = initscr()   # This will NOT work
+stdscr = initscr()  # This will work correctly
 ```
 
 After the curses is initialized with an expression above, you can use any of the functions provided by UniCurses in a manner similar to the way you would use them with any other standard curses implementation, such as NCurses or PDCurses. Please take a look at the example test scripts (`test_*.py`) and read the Curses manuals, such as the NCurses HOWTO, in order to learn about how to work with curses.
@@ -302,13 +297,10 @@ update_panels()
 The following functions are specific to UniCurses, they are completely cross-
 platform and they make the Curses functions easier to use:
 ```python
-ALTCHAR(ch) # NOTE: this function returns a C character from the alternate set (use it when inserting an alternate character wherever a 'ch' is required). This is effectively the same as CCHAR(ch | A_ALTCHARSET).
-
-CCHAR(ch) # NOTE: this function returns a C character from the standard set (use it when inserting a character wherever a 'ch' is required)
-
-COLOR_PAIR(n) # NOTE: this is a synonym for the lowercase color_pair(n) for better NCurses/PDCurses compliance.
-
-KEY_F(n) # NOTE: this function mimics the NCurses macro with the same name that is used to return a keycode for different function keys, e.g. KEY_F(1) returns the keycode for the F1 key.
+ALTCHAR(ch)     # NOTE: this function returns a C character from the alternate set (use it when inserting an alternate character wherever a 'ch' is required). This is effectively the same as CCHAR(ch | A_ALTCHARSET).
+CCHAR(ch)       # NOTE: this function returns a C character from the standard set (use it when inserting a character wherever a 'ch' is required)
+COLOR_PAIR(n)   # NOTE: this is a synonym for the lowercase color_pair(n) for better NCurses/PDCurses compliance.
+KEY_F(n)        # NOTE: this function mimics the NCurses macro with the same name that is used to return a keycode for different function keys, e.g. KEY_F(1) returns the keycode for the F1 key.
 ```
 
 The functions that are NOT cross-platform and are only available on Linux:
@@ -326,22 +318,20 @@ typeahead(fd) # NOTE: this function is a stub on Windows
 ```
 
 IMPORTANT: The following functions are generally portable and may be used on all platforms, but their output or effect may differ depending on the platform. It is up to the programmer to ascertain that the program behaves in the same way on all necessary platforms if these functions are used:
-
 insdelln, insertln, winsdelln, winsertln, noutrefresh, setscrreg, unctrl.
 
 Constants provided by UniCurses
 -------------------------------
-
 UniCurses provides the following constants on all platforms:
 
 Function return values:
-```
+```python
 OK
 ERR
 ```
 
 Attributes:
-```
+```python
 A_ALTCHARSET
 A_BLINK
 A_BOLD
@@ -358,7 +348,7 @@ A_INVIS
 ```
 
 Colors:
-```
+```python
 COLOR_BLACK
 COLOR_BLUE
 COLOR_CYAN
@@ -367,7 +357,10 @@ COLOR_MAGENTA
 COLOR_RED
 COLOR_WHITE
 COLOR_YELLOW
+```
+
 Alternate Character Set:
+```python
 ACS_ULCORNER
 ACS_LLCORNER
 ACS_URCORNER
@@ -543,14 +536,12 @@ REPORT_MOUSE_POSITION
 
 Unimplemented things
 ---------------------
-
 The following features are not yet completely implemented or may have bugs:
 - Using localized characters in text strings (tested on PDCurses in Windows but may cause problems under Linux and Mac OS X).
 - The module `textpad` (curses.textpad) has not yet been ported to UniCurses.
 
 Some final technical considerations
 -----------------------------------
-
-1) Many UniCurses functions return `ERR` in case an error occurs while executing them. This behavior is the same across all platforms (note that it's different from the method used in the original "curses" Python module, where an exception is thrown in case of an error).
-2) Even though UniCurses tends to unify the behavior of commands across various platforms, certain functions may in rare cases provide slightly different output depending on the implementation of Curses used on each particular platform. While such cases are relatively rare and are typically not fatal, it's the responsibility of the author of each particular program that uses UniCurses to test and ensure that his/her program works consistently across various platforms.
-3) Even though UniCurses itself is compatible both with Python 2.x and Python 3.x, the target programs written using UniCurses don't have to be (and most often won't be). It's possible to write an exclusively Python 2 and an exclusively Python 3 program using UniCurses, as well as a Python-independent one in case your program does not use any language syntax or modules that are only present in either Python 2 or Python 3.
+1. Many UniCurses functions return `ERR` in case an error occurs while executing them. This behavior is the same across all platforms (note that it's different from the method used in the original "curses" Python module, where an exception is thrown in case of an error).
+2. Even though UniCurses tends to unify the behavior of commands across various platforms, certain functions may in rare cases provide slightly different output depending on the implementation of Curses used on each particular platform. While such cases are relatively rare and are typically not fatal, it's the responsibility of the author of each particular program that uses UniCurses to test and ensure that his/her program works consistently across various platforms.
+3. Even though UniCurses itself is compatible both with Python 2.x and Python 3.x, the target programs written using UniCurses don't have to be (and most often won't be). It's possible to write an exclusively Python 2 and an exclusively Python 3 program using UniCurses, as well as a Python-independent one in case your program does not use any language syntax or modules that are only present in either Python 2 or Python 3.
