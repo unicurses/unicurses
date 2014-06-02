@@ -25,38 +25,50 @@ global pdlib
 
 PDC_LEAVEOK = False       # LeaveOK emulation in PDC
 NCURSES = False           # Native curses support
-NCURSES_AVAILABLE = False # True if the NCurses is available natively
+NCURSES_AVAILABLE = False  # True if the NCurses is available natively
 pdlib = None              # PD library, if applicable
 UCS_DEFAULT_WRAPPER = ""  # A constant for the default wrapper (ucs_reconfigure)
 stdscr = -1               # A pointer to the standard screen
 
-locale.setlocale(locale.LC_ALL,'')
+locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()   # TODO: fix this to actually work on native ncurses
 
 try:
     import ctypes
 except ImportError:
-    print("Fatal error: this Python release does not support ctypes, please upgrade your Python distribution if you want to use UniCurses on a "+sys.platform+" platform.\n")
+    print("""
+    Fatal error: this Python release does not support ctypes.
+    Please upgrade your Python distribution
+    if you want to use UniCurses on a {} platform.\n
+    """.format(sys.platform))
     raise ImportError("UniCurses initialization error - ctypes FFI not supported.")
 
 try:
-    import curses   # see if the platform supports curses natively 
+    # See if the platform supports curses natively
+    import curses
     import curses.panel
     NCURSES_AVAILABLE = True
     NCURSES = True
 except ImportError:
-    if sys.platform.find('win') == -1: 
-        print("Fatal error: this platform is not supported by UniCurses (either you're running a very old Python distribution below v2.6, or you're using an exotic operating system that's neither Win nor *nix).\n")
+    if sys.platform.find('win') == -1:
+        print("""
+            Fatal error: this platform is not supported by UniCurses.
+            Either you're running a very old Python distribution below v2.6,
+            or you're using an exotic operating system that's neither Win nor *nix.\n""")
         raise ImportError("UniCurses initialization error - unsupported platform.")
     else:
         current_dir = os.path.dirname(os.path.realpath(__file__))
         path_to_pdcurses = current_dir + "/pdc34dllu/pdcurses.dll"
         print(path_to_pdcurses)
         if not os.access(path_to_pdcurses, os.F_OK):
-            print("Fatal error: can't find pdcurses.dll for linking, make sure PDCurses v3.4+ is in the same folder as UniCurses if you want to use UniCurses on a "+sys.platform+" platform.\n")
+            print("""
+            Fatal error: can't find pdcurses.dll for linking.
+            Make sure PDCurses v3.4+ is in the same folder as UniCurses
+            if you want to use UniCurses on a {} platform.\n
+            """.format(sys.platform))
             raise ImportError("UniCurses initialization error - pdcurses.dll not found.")
-        pdlib = ctypes.CDLL(path_to_pdcurses)   # we're on winXX, use pdcurses instead of native ncurses
-
+        # We're on winXX, use pdcurses instead of native ncurses
+        pdlib = ctypes.CDLL(path_to_pdcurses)
 
 
 # +++ PDCurses/NCurses curses.h marco wrappers and other prereqs +++
@@ -76,6 +88,8 @@ if not NCURSES:
 # !!! THIS IS NOT FOR GENERAL USE AND WILL IN MOST CASES BREAK UNICURSES !!!
 # !!! EVEN IF IT DOESN'T MAKE YOUR APP CRASH OR HANG, IT MAY BREAK PORTABILITY !!!
 # !!! IF YOU DON'T KNOW WHAT THIS MAY BE USED FOR, YOU DON'T NEED TO USE IT !!!
+
+
 def ucs_reconfigure(wrapper_ncurses, wrapper_pdcurses):
     global NCURSES
     global NCURSES_AVAILABLE
@@ -89,20 +103,23 @@ def ucs_reconfigure(wrapper_ncurses, wrapper_pdcurses):
             try:
                 pdlib = ctypes.CDLL(wrapper_ncurses)
             except:
-                raise Exception("UCS_CONFIGURE: There was an error configuring the NCurses wrapper using the library "+wrapper_ncurses+".")
+                raise Exception(
+                    "UCS_CONFIGURE: There was an error configuring the NCurses wrapper using the library " + wrapper_ncurses + ".")
     else:
         if wrapper_pdcurses == UCS_DEFAULT_WRAPPER:
             NCURSES = False
             try:
                 pdlib = ctypes.CDLL("pdcurses.dll")
             except:
-                raise Exception("UCS_CONFIGURE: There was an error configuring the default PDCurses wrapper, make sure pdcurses.dll is available in the same folder as UniCurses.")
+                raise Exception(
+                    "UCS_CONFIGURE: There was an error configuring the default PDCurses wrapper, make sure pdcurses.dll is available in the same folder as UniCurses.")
         else:
             NCURSES = False
             try:
                 pdlib = ctypes.CDLL(wrapper_pdcurses)
             except:
-                raise Exception("UCS_CONFIGURE: There was an error configuring the PDCurses wrappr using th library "+wrapper_pdcurses+".")
+                raise Exception(
+                    "UCS_CONFIGURE: There was an error configuring the PDCurses wrappr using th library " + wrapper_pdcurses + ".")
 
 
 # Return a bytes-encoded C style string from anything that's convertable with str.
@@ -111,19 +128,24 @@ def CSTR(s):
     return str(s).encode(code)
 
 # Choose a color pair
+
+
 def PD_COLOR_PAIR(n):
     return (n << PDC_COLOR_SHIFT) & PDC_A_COLOR
 
 # Pair number from curses.h
+
+
 def PD_PAIR_NUMBER(n):
     return (n & PDC_A_COLOR) >> PDC_COLOR_SHIFT
 
 # Get the PDC curscr (NOT PORTABLE!)
+
+
 def PD_GET_CURSCR():
     return ctypes.c_int.in_dll(pdlib, "curscr")
 
 # --- PDCurses/NCurses curses.h macro wrappers and other prereqs ---
-
 
 
 # +++ CONSTANTS: PDCurses curses.h +++
@@ -152,133 +174,133 @@ if not NCURSES:
 
 # Key mapping (PDC)
 if not NCURSES:
-    PDC_KEY_CODE_YES =  0x100  # If get_wch() gives a key code 
-    PDC_KEY_BREAK    =  0x101  # Not on PC KBD 
-    PDC_KEY_DOWN     =  0x102  # Down arrow key 
-    PDC_KEY_UP       =  0x103  # Up arrow key 
-    PDC_KEY_LEFT     =  0x104  # Left arrow key 
-    PDC_KEY_RIGHT    =  0x105  # Right arrow key 
-    PDC_KEY_HOME     =  0x106  # home key 
-    PDC_KEY_BACKSPACE=  0x107  # not on pc 
-    PDC_KEY_F0       =  0x108  # function keys; 64 reserved 
-    PDC_KEY_DL       =  0x148  # delete line 
-    PDC_KEY_IL       =  0x149  # insert line 
-    PDC_KEY_DC       =  0x14a  # delete character 
-    PDC_KEY_IC       =  0x14b  # insert char or enter ins mode 
-    PDC_KEY_EIC      =  0x14c  # exit insert char mode 
-    PDC_KEY_CLEAR    =  0x14d  # clear screen 
-    PDC_KEY_EOS      =  0x14e  # clear to end of screen 
-    PDC_KEY_EOL      =  0x14f  # clear to end of line 
-    PDC_KEY_SF       =  0x150  # scroll 1 line forward 
-    PDC_KEY_SR       =  0x151  # scroll 1 line back (reverse) 
-    PDC_KEY_NPAGE    =  0x152  # next page 
-    PDC_KEY_PPAGE    =  0x153  # previous page 
-    PDC_KEY_STAB     =  0x154  # set tab 
-    PDC_KEY_CTAB     =  0x155  # clear tab 
-    PDC_KEY_CATAB    =  0x156  # clear all tabs 
-    PDC_KEY_ENTER    =  0x157  # enter or send (unreliable) 
-    PDC_KEY_SRESET   =  0x158  # soft/reset (partial/unreliable) 
-    PDC_KEY_RESET    =  0x159  # reset/hard reset (unreliable) 
-    PDC_KEY_PRINT    =  0x15a  # print/copy 
-    PDC_KEY_LL       =  0x15b  # home down/bottom (lower left) 
-    PDC_KEY_ABORT    =  0x15c  # abort/terminate key (any) 
-    PDC_KEY_SHELP    =  0x15d  # short help 
-    PDC_KEY_LHELP    =  0x15e  # long help 
-    PDC_KEY_BTAB     =  0x15f  # Back tab key 
-    PDC_KEY_BEG      =  0x160  # beg(inning) key 
-    PDC_KEY_CANCEL   =  0x161  # cancel key 
-    PDC_KEY_CLOSE    =  0x162  # close key 
-    PDC_KEY_COMMAND  =  0x163  # cmd (command) key 
-    PDC_KEY_COPY     =  0x164  # copy key 
-    PDC_KEY_CREATE   =  0x165  # create key 
-    PDC_KEY_END      =  0x166  # end key 
-    PDC_KEY_EXIT     =  0x167  # exit key 
-    PDC_KEY_FIND     =  0x168  # find key 
-    PDC_KEY_HELP     =  0x169  # help key 
-    PDC_KEY_MARK     =  0x16a  # mark key 
-    PDC_KEY_MESSAGE  =  0x16b  # message key 
-    PDC_KEY_MOVE     =  0x16c  # move key 
-    PDC_KEY_NEXT     =  0x16d  # next object key 
-    PDC_KEY_OPEN     =  0x16e  # open key 
-    PDC_KEY_OPTIONS  =  0x16f  # options key 
-    PDC_KEY_PREVIOUS =  0x170  # previous object key 
-    PDC_KEY_REDO     =  0x171  # redo key 
-    PDC_KEY_REFERENCE=  0x172  # ref(erence) key 
-    PDC_KEY_REFRESH  =  0x173  # refresh key 
-    PDC_KEY_REPLACE  =  0x174  # replace key 
-    PDC_KEY_RESTART  =  0x175  # restart key 
-    PDC_KEY_RESUME   =  0x176  # resume key 
-    PDC_KEY_SAVE     =  0x177  # save key 
-    PDC_KEY_SBEG     =  0x178  # shifted beginning key 
-    PDC_KEY_SCANCEL  =  0x179  # shifted cancel key 
-    PDC_KEY_SCOMMAND =  0x17a  # shifted command key 
-    PDC_KEY_SCOPY    =  0x17b  # shifted copy key 
-    PDC_KEY_SCREATE  =  0x17c  # shifted create key 
-    PDC_KEY_SDC      =  0x17d  # shifted delete char key 
-    PDC_KEY_SDL      =  0x17e  # shifted delete line key 
-    PDC_KEY_SELECT   =  0x17f  # select key 
-    PDC_KEY_SEND     =  0x180  # shifted end key 
-    PDC_KEY_SEOL     =  0x181  # shifted clear line key 
-    PDC_KEY_SEXIT    =  0x182  # shifted exit key 
-    PDC_KEY_SFIND    =  0x183  # shifted find key 
-    PDC_KEY_SHOME    =  0x184  # shifted home key 
-    PDC_KEY_SIC      =  0x185  # shifted input key 
-    PDC_KEY_SLEFT    =  0x187  # shifted left arrow key 
-    PDC_KEY_SMESSAGE =  0x188  # shifted message key 
-    PDC_KEY_SMOVE    =  0x189  # shifted move key 
-    PDC_KEY_SNEXT    =  0x18a  # shifted next key 
-    PDC_KEY_SOPTIONS =  0x18b  # shifted options key 
-    PDC_KEY_SPREVIOUS=  0x18c  # shifted prev key 
-    PDC_KEY_SPRINT   =  0x18d  # shifted print key 
-    PDC_KEY_SREDO    =  0x18e  # shifted redo key 
-    PDC_KEY_SREPLACE =  0x18f  # shifted replace key 
-    PDC_KEY_SRIGHT   =  0x190  # shifted right arrow 
-    PDC_KEY_SRSUME   =  0x191  # shifted resume key 
-    PDC_KEY_SSAVE    =  0x192  # shifted save key 
-    PDC_KEY_SSUSPEND =  0x193  # shifted suspend key 
-    PDC_KEY_SUNDO    =  0x194  # shifted undo key 
-    PDC_KEY_SUSPEND  =  0x195  # suspend key 
-    PDC_KEY_UNDO     =  0x196  # undo key 
-    PDC_KEY_A1       =  0x1c1
-    PDC_KEY_A3       =  0x1c3
-    PDC_KEY_B2       =  0x1c5
-    PDC_KEY_C1       =  0x1c7
-    PDC_KEY_C3       =  0x1c9
-    PDC_KEY_MOUSE    =  0x21b
-    PDC_KEY_RESIZE   =  0x222
+    PDC_KEY_CODE_YES = 0x100  # If get_wch() gives a key code
+    PDC_KEY_BREAK = 0x101  # Not on PC KBD
+    PDC_KEY_DOWN = 0x102  # Down arrow key
+    PDC_KEY_UP = 0x103  # Up arrow key
+    PDC_KEY_LEFT = 0x104  # Left arrow key
+    PDC_KEY_RIGHT = 0x105  # Right arrow key
+    PDC_KEY_HOME = 0x106  # home key
+    PDC_KEY_BACKSPACE = 0x107  # not on pc
+    PDC_KEY_F0 = 0x108  # function keys; 64 reserved
+    PDC_KEY_DL = 0x148  # delete line
+    PDC_KEY_IL = 0x149  # insert line
+    PDC_KEY_DC = 0x14a  # delete character
+    PDC_KEY_IC = 0x14b  # insert char or enter ins mode
+    PDC_KEY_EIC = 0x14c  # exit insert char mode
+    PDC_KEY_CLEAR = 0x14d  # clear screen
+    PDC_KEY_EOS = 0x14e  # clear to end of screen
+    PDC_KEY_EOL = 0x14f  # clear to end of line
+    PDC_KEY_SF = 0x150  # scroll 1 line forward
+    PDC_KEY_SR = 0x151  # scroll 1 line back (reverse)
+    PDC_KEY_NPAGE = 0x152  # next page
+    PDC_KEY_PPAGE = 0x153  # previous page
+    PDC_KEY_STAB = 0x154  # set tab
+    PDC_KEY_CTAB = 0x155  # clear tab
+    PDC_KEY_CATAB = 0x156  # clear all tabs
+    PDC_KEY_ENTER = 0x157  # enter or send (unreliable)
+    PDC_KEY_SRESET = 0x158  # soft/reset (partial/unreliable)
+    PDC_KEY_RESET = 0x159  # reset/hard reset (unreliable)
+    PDC_KEY_PRINT = 0x15a  # print/copy
+    PDC_KEY_LL = 0x15b  # home down/bottom (lower left)
+    PDC_KEY_ABORT = 0x15c  # abort/terminate key (any)
+    PDC_KEY_SHELP = 0x15d  # short help
+    PDC_KEY_LHELP = 0x15e  # long help
+    PDC_KEY_BTAB = 0x15f  # Back tab key
+    PDC_KEY_BEG = 0x160  # beg(inning) key
+    PDC_KEY_CANCEL = 0x161  # cancel key
+    PDC_KEY_CLOSE = 0x162  # close key
+    PDC_KEY_COMMAND = 0x163  # cmd (command) key
+    PDC_KEY_COPY = 0x164  # copy key
+    PDC_KEY_CREATE = 0x165  # create key
+    PDC_KEY_END = 0x166  # end key
+    PDC_KEY_EXIT = 0x167  # exit key
+    PDC_KEY_FIND = 0x168  # find key
+    PDC_KEY_HELP = 0x169  # help key
+    PDC_KEY_MARK = 0x16a  # mark key
+    PDC_KEY_MESSAGE = 0x16b  # message key
+    PDC_KEY_MOVE = 0x16c  # move key
+    PDC_KEY_NEXT = 0x16d  # next object key
+    PDC_KEY_OPEN = 0x16e  # open key
+    PDC_KEY_OPTIONS = 0x16f  # options key
+    PDC_KEY_PREVIOUS = 0x170  # previous object key
+    PDC_KEY_REDO = 0x171  # redo key
+    PDC_KEY_REFERENCE = 0x172  # ref(erence) key
+    PDC_KEY_REFRESH = 0x173  # refresh key
+    PDC_KEY_REPLACE = 0x174  # replace key
+    PDC_KEY_RESTART = 0x175  # restart key
+    PDC_KEY_RESUME = 0x176  # resume key
+    PDC_KEY_SAVE = 0x177  # save key
+    PDC_KEY_SBEG = 0x178  # shifted beginning key
+    PDC_KEY_SCANCEL = 0x179  # shifted cancel key
+    PDC_KEY_SCOMMAND = 0x17a  # shifted command key
+    PDC_KEY_SCOPY = 0x17b  # shifted copy key
+    PDC_KEY_SCREATE = 0x17c  # shifted create key
+    PDC_KEY_SDC = 0x17d  # shifted delete char key
+    PDC_KEY_SDL = 0x17e  # shifted delete line key
+    PDC_KEY_SELECT = 0x17f  # select key
+    PDC_KEY_SEND = 0x180  # shifted end key
+    PDC_KEY_SEOL = 0x181  # shifted clear line key
+    PDC_KEY_SEXIT = 0x182  # shifted exit key
+    PDC_KEY_SFIND = 0x183  # shifted find key
+    PDC_KEY_SHOME = 0x184  # shifted home key
+    PDC_KEY_SIC = 0x185  # shifted input key
+    PDC_KEY_SLEFT = 0x187  # shifted left arrow key
+    PDC_KEY_SMESSAGE = 0x188  # shifted message key
+    PDC_KEY_SMOVE = 0x189  # shifted move key
+    PDC_KEY_SNEXT = 0x18a  # shifted next key
+    PDC_KEY_SOPTIONS = 0x18b  # shifted options key
+    PDC_KEY_SPREVIOUS = 0x18c  # shifted prev key
+    PDC_KEY_SPRINT = 0x18d  # shifted print key
+    PDC_KEY_SREDO = 0x18e  # shifted redo key
+    PDC_KEY_SREPLACE = 0x18f  # shifted replace key
+    PDC_KEY_SRIGHT = 0x190  # shifted right arrow
+    PDC_KEY_SRSUME = 0x191  # shifted resume key
+    PDC_KEY_SSAVE = 0x192  # shifted save key
+    PDC_KEY_SSUSPEND = 0x193  # shifted suspend key
+    PDC_KEY_SUNDO = 0x194  # shifted undo key
+    PDC_KEY_SUSPEND = 0x195  # suspend key
+    PDC_KEY_UNDO = 0x196  # undo key
+    PDC_KEY_A1 = 0x1c1
+    PDC_KEY_A3 = 0x1c3
+    PDC_KEY_B2 = 0x1c5
+    PDC_KEY_C1 = 0x1c7
+    PDC_KEY_C3 = 0x1c9
+    PDC_KEY_MOUSE = 0x21b
+    PDC_KEY_RESIZE = 0x222
 
 # Mouse mapping (PDC)
 if not NCURSES:
-    PDC_BUTTON1_RELEASED       =  0x00000001
-    PDC_BUTTON1_PRESSED        =  0x00000002
-    PDC_BUTTON1_CLICKED        =  0x00000004
-    PDC_BUTTON1_DOUBLE_CLICKED =  0x00000008
-    PDC_BUTTON1_TRIPLE_CLICKED =  0x00000010
+    PDC_BUTTON1_RELEASED = 0x00000001
+    PDC_BUTTON1_PRESSED = 0x00000002
+    PDC_BUTTON1_CLICKED = 0x00000004
+    PDC_BUTTON1_DOUBLE_CLICKED = 0x00000008
+    PDC_BUTTON1_TRIPLE_CLICKED = 0x00000010
 
-    PDC_BUTTON2_RELEASED       =  0x00000020
-    PDC_BUTTON2_PRESSED        =  0x00000040
-    PDC_BUTTON2_CLICKED        =  0x00000080
-    PDC_BUTTON2_DOUBLE_CLICKED =  0x00000100
-    PDC_BUTTON2_TRIPLE_CLICKED =  0x00000200
+    PDC_BUTTON2_RELEASED = 0x00000020
+    PDC_BUTTON2_PRESSED = 0x00000040
+    PDC_BUTTON2_CLICKED = 0x00000080
+    PDC_BUTTON2_DOUBLE_CLICKED = 0x00000100
+    PDC_BUTTON2_TRIPLE_CLICKED = 0x00000200
 
-    PDC_BUTTON3_RELEASED       =  0x00000400
-    PDC_BUTTON3_PRESSED        =  0x00000800
-    PDC_BUTTON3_CLICKED        =  0x00001000
-    PDC_BUTTON3_DOUBLE_CLICKED =  0x00002000
-    PDC_BUTTON3_TRIPLE_CLICKED =  0x00004000
+    PDC_BUTTON3_RELEASED = 0x00000400
+    PDC_BUTTON3_PRESSED = 0x00000800
+    PDC_BUTTON3_CLICKED = 0x00001000
+    PDC_BUTTON3_DOUBLE_CLICKED = 0x00002000
+    PDC_BUTTON3_TRIPLE_CLICKED = 0x00004000
 
-    PDC_BUTTON4_RELEASED       =  0x00008000
-    PDC_BUTTON4_PRESSED        =  0x00010000
-    PDC_BUTTON4_CLICKED        =  0x00020000
-    PDC_BUTTON4_DOUBLE_CLICKED =  0x00040000
-    PDC_BUTTON4_TRIPLE_CLICKED =  0x00080000
+    PDC_BUTTON4_RELEASED = 0x00008000
+    PDC_BUTTON4_PRESSED = 0x00010000
+    PDC_BUTTON4_CLICKED = 0x00020000
+    PDC_BUTTON4_DOUBLE_CLICKED = 0x00040000
+    PDC_BUTTON4_TRIPLE_CLICKED = 0x00080000
 
-    PDC_BUTTON_SHIFT           =  0x04000000
-    PDC_BUTTON_CTRL            =  0x08000000
-    PDC_BUTTON_ALT             =  0x10000000
+    PDC_BUTTON_SHIFT = 0x04000000
+    PDC_BUTTON_CTRL = 0x08000000
+    PDC_BUTTON_ALT = 0x10000000
 
-    PDC_ALL_MOUSE_EVENTS       =  0x1fffffff
-    PDC_REPORT_MOUSE_POSITION  =  0x20000000
+    PDC_ALL_MOUSE_EVENTS = 0x1fffffff
+    PDC_REPORT_MOUSE_POSITION = 0x20000000
 
 
 # +++ CONSTANTS: Platform-independent +++
@@ -303,7 +325,7 @@ if NCURSES:
     A_CHARTEXT = curses.A_CHARTEXT
     try:
         A_INVIS = curses.A_INVIS
-    except:
+    except AttributeError:
         A_INVIS = A_NORMAL
 else:
     A_ALTCHARSET = PDC_A_ALTCHARSET
@@ -322,14 +344,14 @@ else:
 
 # Colors
 if NCURSES:
-    COLOR_BLACK=curses.COLOR_BLACK
-    COLOR_BLUE=curses.COLOR_BLUE
-    COLOR_CYAN=curses.COLOR_CYAN
-    COLOR_GREEN=curses.COLOR_GREEN
-    COLOR_MAGENTA=curses.COLOR_MAGENTA
-    COLOR_RED=curses.COLOR_RED
-    COLOR_WHITE=curses.COLOR_WHITE
-    COLOR_YELLOW=curses.COLOR_YELLOW
+    COLOR_BLACK = curses.COLOR_BLACK
+    COLOR_BLUE = curses.COLOR_BLUE
+    COLOR_CYAN = curses.COLOR_CYAN
+    COLOR_GREEN = curses.COLOR_GREEN
+    COLOR_MAGENTA = curses.COLOR_MAGENTA
+    COLOR_RED = curses.COLOR_RED
+    COLOR_WHITE = curses.COLOR_WHITE
+    COLOR_YELLOW = curses.COLOR_YELLOW
 else:
     COLOR_BLACK = 0
     COLOR_BLUE = 1
@@ -343,18 +365,20 @@ else:
 
 # Get a C character
 def CCHAR(ch):
-    if type(ch)==str:
+    if type(ch) == str:
         return ord(ch)
-    elif type(ch)==int:
+    elif type(ch) == int:
         return ch
     else:
         raise Exception("CCHAR: can't parse a non-char/non-int value.")
 
 # Alternate character set
+
+
 def ALTCHAR(ch):
-    if type(ch)==str:
+    if type(ch) == str:
         return ord(ch) | A_ALTCHARSET
-    elif type(ch)==int:
+    elif type(ch) == int:
         return ch | A_ALTCHARSET
     else:
         raise Exception("ALTCHAR: can't parse a non-char/non-int value.")
@@ -452,268 +476,268 @@ SCS_SSSS = ACS_PLUS
 
 # Keymap
 if NCURSES:
-#   KEY_CODE_YES = curses.KEY_CODE_YES
-    KEY_MIN      = curses.KEY_MIN
-    KEY_BREAK    = curses.KEY_BREAK
-    KEY_SRESET   = curses.KEY_SRESET
-    KEY_RESET    = curses.KEY_RESET
-    KEY_DOWN     = curses.KEY_DOWN
-    KEY_UP       = curses.KEY_UP
-    KEY_LEFT     = curses.KEY_LEFT
-    KEY_RIGHT    = curses.KEY_RIGHT
-    KEY_HOME     = curses.KEY_HOME
-    KEY_BACKSPACE= curses.KEY_BACKSPACE
-    KEY_F0       = curses.KEY_F0
-    KEY_DL       = curses.KEY_DL
-    KEY_IL       = curses.KEY_IL
-    KEY_DC       = curses.KEY_DC
-    KEY_IC       = curses.KEY_IC
-    KEY_EIC      = curses.KEY_EIC
-    KEY_CLEAR    = curses.KEY_CLEAR
-    KEY_EOS      = curses.KEY_EOS
-    KEY_EOL      = curses.KEY_EOL
-    KEY_SF       = curses.KEY_SF
-    KEY_SR       = curses.KEY_SR
-    KEY_NPAGE    = curses.KEY_NPAGE
-    KEY_PPAGE    = curses.KEY_PPAGE
-    KEY_STAB     = curses.KEY_STAB
-    KEY_CTAB     = curses.KEY_CTAB
-    KEY_CATAB    = curses.KEY_CATAB
-    KEY_ENTER    = curses.KEY_ENTER
-    KEY_PRINT    = curses.KEY_PRINT
-    KEY_LL       = curses.KEY_LL
-    KEY_A1       = curses.KEY_A1
-    KEY_A3       = curses.KEY_A3
-    KEY_B2       = curses.KEY_B2
-    KEY_C1       = curses.KEY_C1
-    KEY_C3       = curses.KEY_C3
-    KEY_BTAB     = curses.KEY_BTAB
-    KEY_BEG      = curses.KEY_BEG
-    KEY_CANCEL   = curses.KEY_CANCEL
-    KEY_CLOSE    = curses.KEY_CLOSE
-    KEY_COMMAND  = curses.KEY_COMMAND
-    KEY_COPY     = curses.KEY_COPY
-    KEY_CREATE   = curses.KEY_CREATE
-    KEY_END      = curses.KEY_END
-    KEY_EXIT     = curses.KEY_EXIT
-    KEY_FIND     = curses.KEY_FIND
-    KEY_HELP     = curses.KEY_HELP
-    KEY_MARK     = curses.KEY_MARK
-    KEY_MESSAGE  = curses.KEY_MESSAGE
-    KEY_MOVE     = curses.KEY_MOVE
-    KEY_NEXT     = curses.KEY_NEXT
-    KEY_OPEN     = curses.KEY_OPEN
-    KEY_OPTIONS  = curses.KEY_OPTIONS
+    #   KEY_CODE_YES = curses.KEY_CODE_YES
+    KEY_MIN = curses.KEY_MIN
+    KEY_BREAK = curses.KEY_BREAK
+    KEY_SRESET = curses.KEY_SRESET
+    KEY_RESET = curses.KEY_RESET
+    KEY_DOWN = curses.KEY_DOWN
+    KEY_UP = curses.KEY_UP
+    KEY_LEFT = curses.KEY_LEFT
+    KEY_RIGHT = curses.KEY_RIGHT
+    KEY_HOME = curses.KEY_HOME
+    KEY_BACKSPACE = curses.KEY_BACKSPACE
+    KEY_F0 = curses.KEY_F0
+    KEY_DL = curses.KEY_DL
+    KEY_IL = curses.KEY_IL
+    KEY_DC = curses.KEY_DC
+    KEY_IC = curses.KEY_IC
+    KEY_EIC = curses.KEY_EIC
+    KEY_CLEAR = curses.KEY_CLEAR
+    KEY_EOS = curses.KEY_EOS
+    KEY_EOL = curses.KEY_EOL
+    KEY_SF = curses.KEY_SF
+    KEY_SR = curses.KEY_SR
+    KEY_NPAGE = curses.KEY_NPAGE
+    KEY_PPAGE = curses.KEY_PPAGE
+    KEY_STAB = curses.KEY_STAB
+    KEY_CTAB = curses.KEY_CTAB
+    KEY_CATAB = curses.KEY_CATAB
+    KEY_ENTER = curses.KEY_ENTER
+    KEY_PRINT = curses.KEY_PRINT
+    KEY_LL = curses.KEY_LL
+    KEY_A1 = curses.KEY_A1
+    KEY_A3 = curses.KEY_A3
+    KEY_B2 = curses.KEY_B2
+    KEY_C1 = curses.KEY_C1
+    KEY_C3 = curses.KEY_C3
+    KEY_BTAB = curses.KEY_BTAB
+    KEY_BEG = curses.KEY_BEG
+    KEY_CANCEL = curses.KEY_CANCEL
+    KEY_CLOSE = curses.KEY_CLOSE
+    KEY_COMMAND = curses.KEY_COMMAND
+    KEY_COPY = curses.KEY_COPY
+    KEY_CREATE = curses.KEY_CREATE
+    KEY_END = curses.KEY_END
+    KEY_EXIT = curses.KEY_EXIT
+    KEY_FIND = curses.KEY_FIND
+    KEY_HELP = curses.KEY_HELP
+    KEY_MARK = curses.KEY_MARK
+    KEY_MESSAGE = curses.KEY_MESSAGE
+    KEY_MOVE = curses.KEY_MOVE
+    KEY_NEXT = curses.KEY_NEXT
+    KEY_OPEN = curses.KEY_OPEN
+    KEY_OPTIONS = curses.KEY_OPTIONS
     KEY_PREVIOUS = curses.KEY_PREVIOUS
-    KEY_REDO     = curses.KEY_REDO
-    KEY_REFERENCE= curses.KEY_REFERENCE
-    KEY_REFRESH  = curses.KEY_REFRESH
-    KEY_REPLACE  = curses.KEY_REPLACE
-    KEY_RESTART  = curses.KEY_RESTART
-    KEY_RESUME   = curses.KEY_RESUME
-    KEY_SAVE     = curses.KEY_SAVE
-    KEY_SBEG     = curses.KEY_SBEG
-    KEY_SCANCEL  = curses.KEY_SCANCEL
+    KEY_REDO = curses.KEY_REDO
+    KEY_REFERENCE = curses.KEY_REFERENCE
+    KEY_REFRESH = curses.KEY_REFRESH
+    KEY_REPLACE = curses.KEY_REPLACE
+    KEY_RESTART = curses.KEY_RESTART
+    KEY_RESUME = curses.KEY_RESUME
+    KEY_SAVE = curses.KEY_SAVE
+    KEY_SBEG = curses.KEY_SBEG
+    KEY_SCANCEL = curses.KEY_SCANCEL
     KEY_SCOMMAND = curses.KEY_SCOMMAND
-    KEY_SCOPY    = curses.KEY_SCOPY
-    KEY_SCREATE  = curses.KEY_SCREATE
-    KEY_SDC      = curses.KEY_SDC
-    KEY_SDL      = curses.KEY_SDL
-    KEY_SELECT   = curses.KEY_SELECT
-    KEY_SEND     = curses.KEY_SEND
-    KEY_SEOL     = curses.KEY_SEOL
-    KEY_SEXIT    = curses.KEY_SEXIT
-    KEY_SFIND    = curses.KEY_SFIND
-    KEY_SHELP    = curses.KEY_SHELP
-    KEY_SHOME    = curses.KEY_SHOME
-    KEY_SIC      = curses.KEY_SIC
-    KEY_SLEFT    = curses.KEY_SLEFT
+    KEY_SCOPY = curses.KEY_SCOPY
+    KEY_SCREATE = curses.KEY_SCREATE
+    KEY_SDC = curses.KEY_SDC
+    KEY_SDL = curses.KEY_SDL
+    KEY_SELECT = curses.KEY_SELECT
+    KEY_SEND = curses.KEY_SEND
+    KEY_SEOL = curses.KEY_SEOL
+    KEY_SEXIT = curses.KEY_SEXIT
+    KEY_SFIND = curses.KEY_SFIND
+    KEY_SHELP = curses.KEY_SHELP
+    KEY_SHOME = curses.KEY_SHOME
+    KEY_SIC = curses.KEY_SIC
+    KEY_SLEFT = curses.KEY_SLEFT
     KEY_SMESSAGE = curses.KEY_SMESSAGE
-    KEY_SMOVE    = curses.KEY_SMOVE
-    KEY_SNEXT    = curses.KEY_SNEXT
+    KEY_SMOVE = curses.KEY_SMOVE
+    KEY_SNEXT = curses.KEY_SNEXT
     KEY_SOPTIONS = curses.KEY_SOPTIONS
-    KEY_SPREVIOUS= curses.KEY_SPREVIOUS
-    KEY_SPRINT   = curses.KEY_SPRINT
-    KEY_SREDO    = curses.KEY_SREDO
+    KEY_SPREVIOUS = curses.KEY_SPREVIOUS
+    KEY_SPRINT = curses.KEY_SPRINT
+    KEY_SREDO = curses.KEY_SREDO
     KEY_SREPLACE = curses.KEY_SREPLACE
-    KEY_SRIGHT   = curses.KEY_SRIGHT
-    KEY_SRSUME   = curses.KEY_SRSUME
-    KEY_SSAVE    = curses.KEY_SSAVE
+    KEY_SRIGHT = curses.KEY_SRIGHT
+    KEY_SRSUME = curses.KEY_SRSUME
+    KEY_SSAVE = curses.KEY_SSAVE
     KEY_SSUSPEND = curses.KEY_SSUSPEND
-    KEY_SUNDO    = curses.KEY_SUNDO
-    KEY_SUSPEND  = curses.KEY_SUSPEND
-    KEY_UNDO     = curses.KEY_UNDO
-    KEY_MOUSE    = curses.KEY_MOUSE
-    KEY_RESIZE   = curses.KEY_RESIZE
+    KEY_SUNDO = curses.KEY_SUNDO
+    KEY_SUSPEND = curses.KEY_SUSPEND
+    KEY_UNDO = curses.KEY_UNDO
+    KEY_MOUSE = curses.KEY_MOUSE
+    KEY_RESIZE = curses.KEY_RESIZE
 #   KEY_EVENT    = curses.KEY_EVENT
-    KEY_MAX      = curses.KEY_MAX
+    KEY_MAX = curses.KEY_MAX
 
 else:
-#   KEY_CODE_YES = PDC_KEY_CODE_YES
-    KEY_MIN      = PDC_KEY_BREAK
-    KEY_BREAK    = PDC_KEY_BREAK
-    KEY_SRESET   = PDC_KEY_SRESET
-    KEY_RESET    = PDC_KEY_RESET
-    KEY_DOWN     = PDC_KEY_DOWN
-    KEY_UP       = PDC_KEY_UP
-    KEY_LEFT     = PDC_KEY_LEFT
-    KEY_RIGHT    = PDC_KEY_RIGHT
-    KEY_HOME     = PDC_KEY_HOME
-    KEY_BACKSPACE= PDC_KEY_BACKSPACE
-    KEY_F0       = PDC_KEY_F0
-    KEY_DL       = PDC_KEY_DL
-    KEY_IL       = PDC_KEY_IL
-    KEY_DC       = PDC_KEY_DC
-    KEY_IC       = PDC_KEY_IC
-    KEY_EIC      = PDC_KEY_EIC
-    KEY_CLEAR    = PDC_KEY_CLEAR
-    KEY_EOS      = PDC_KEY_EOS
-    KEY_EOL      = PDC_KEY_EOL
-    KEY_SF       = PDC_KEY_SF
-    KEY_SR       = PDC_KEY_SR
-    KEY_NPAGE    = PDC_KEY_NPAGE
-    KEY_PPAGE    = PDC_KEY_PPAGE
-    KEY_STAB     = PDC_KEY_STAB
-    KEY_CTAB     = PDC_KEY_CTAB
-    KEY_CATAB    = PDC_KEY_CATAB
-    KEY_ENTER    = PDC_KEY_ENTER
-    KEY_PRINT    = PDC_KEY_PRINT
-    KEY_LL       = PDC_KEY_LL
-    KEY_A1       = PDC_KEY_A1
-    KEY_A3       = PDC_KEY_A3
-    KEY_B2       = PDC_KEY_B2
-    KEY_C1       = PDC_KEY_C1
-    KEY_C3       = PDC_KEY_C3
-    KEY_BTAB     = PDC_KEY_BTAB
-    KEY_BEG      = PDC_KEY_BEG
-    KEY_CANCEL   = PDC_KEY_CANCEL
-    KEY_CLOSE    = PDC_KEY_CLOSE
-    KEY_COMMAND  = PDC_KEY_COMMAND
-    KEY_COPY     = PDC_KEY_COPY
-    KEY_CREATE   = PDC_KEY_CREATE
-    KEY_END      = PDC_KEY_END
-    KEY_EXIT     = PDC_KEY_EXIT
-    KEY_FIND     = PDC_KEY_FIND
-    KEY_HELP     = PDC_KEY_HELP
-    KEY_MARK     = PDC_KEY_MARK
-    KEY_MESSAGE  = PDC_KEY_MESSAGE
-    KEY_MOVE     = PDC_KEY_MOVE
-    KEY_NEXT     = PDC_KEY_NEXT
-    KEY_OPEN     = PDC_KEY_OPEN
-    KEY_OPTIONS  = PDC_KEY_OPTIONS
+    #   KEY_CODE_YES = PDC_KEY_CODE_YES
+    KEY_MIN = PDC_KEY_BREAK
+    KEY_BREAK = PDC_KEY_BREAK
+    KEY_SRESET = PDC_KEY_SRESET
+    KEY_RESET = PDC_KEY_RESET
+    KEY_DOWN = PDC_KEY_DOWN
+    KEY_UP = PDC_KEY_UP
+    KEY_LEFT = PDC_KEY_LEFT
+    KEY_RIGHT = PDC_KEY_RIGHT
+    KEY_HOME = PDC_KEY_HOME
+    KEY_BACKSPACE = PDC_KEY_BACKSPACE
+    KEY_F0 = PDC_KEY_F0
+    KEY_DL = PDC_KEY_DL
+    KEY_IL = PDC_KEY_IL
+    KEY_DC = PDC_KEY_DC
+    KEY_IC = PDC_KEY_IC
+    KEY_EIC = PDC_KEY_EIC
+    KEY_CLEAR = PDC_KEY_CLEAR
+    KEY_EOS = PDC_KEY_EOS
+    KEY_EOL = PDC_KEY_EOL
+    KEY_SF = PDC_KEY_SF
+    KEY_SR = PDC_KEY_SR
+    KEY_NPAGE = PDC_KEY_NPAGE
+    KEY_PPAGE = PDC_KEY_PPAGE
+    KEY_STAB = PDC_KEY_STAB
+    KEY_CTAB = PDC_KEY_CTAB
+    KEY_CATAB = PDC_KEY_CATAB
+    KEY_ENTER = PDC_KEY_ENTER
+    KEY_PRINT = PDC_KEY_PRINT
+    KEY_LL = PDC_KEY_LL
+    KEY_A1 = PDC_KEY_A1
+    KEY_A3 = PDC_KEY_A3
+    KEY_B2 = PDC_KEY_B2
+    KEY_C1 = PDC_KEY_C1
+    KEY_C3 = PDC_KEY_C3
+    KEY_BTAB = PDC_KEY_BTAB
+    KEY_BEG = PDC_KEY_BEG
+    KEY_CANCEL = PDC_KEY_CANCEL
+    KEY_CLOSE = PDC_KEY_CLOSE
+    KEY_COMMAND = PDC_KEY_COMMAND
+    KEY_COPY = PDC_KEY_COPY
+    KEY_CREATE = PDC_KEY_CREATE
+    KEY_END = PDC_KEY_END
+    KEY_EXIT = PDC_KEY_EXIT
+    KEY_FIND = PDC_KEY_FIND
+    KEY_HELP = PDC_KEY_HELP
+    KEY_MARK = PDC_KEY_MARK
+    KEY_MESSAGE = PDC_KEY_MESSAGE
+    KEY_MOVE = PDC_KEY_MOVE
+    KEY_NEXT = PDC_KEY_NEXT
+    KEY_OPEN = PDC_KEY_OPEN
+    KEY_OPTIONS = PDC_KEY_OPTIONS
     KEY_PREVIOUS = PDC_KEY_PREVIOUS
-    KEY_REDO     = PDC_KEY_REDO
-    KEY_REFERENCE= PDC_KEY_REFERENCE
-    KEY_REFRESH  = PDC_KEY_REFRESH
-    KEY_REPLACE  = PDC_KEY_REPLACE
-    KEY_RESTART  = PDC_KEY_RESTART
-    KEY_RESUME   = PDC_KEY_RESUME
-    KEY_SAVE     = PDC_KEY_SAVE
-    KEY_SBEG     = PDC_KEY_SBEG
-    KEY_SCANCEL  = PDC_KEY_SCANCEL
+    KEY_REDO = PDC_KEY_REDO
+    KEY_REFERENCE = PDC_KEY_REFERENCE
+    KEY_REFRESH = PDC_KEY_REFRESH
+    KEY_REPLACE = PDC_KEY_REPLACE
+    KEY_RESTART = PDC_KEY_RESTART
+    KEY_RESUME = PDC_KEY_RESUME
+    KEY_SAVE = PDC_KEY_SAVE
+    KEY_SBEG = PDC_KEY_SBEG
+    KEY_SCANCEL = PDC_KEY_SCANCEL
     KEY_SCOMMAND = PDC_KEY_SCOMMAND
-    KEY_SCOPY    = PDC_KEY_SCOPY
-    KEY_SCREATE  = PDC_KEY_SCREATE
-    KEY_SDC      = PDC_KEY_SDC
-    KEY_SDL      = PDC_KEY_SDL
-    KEY_SELECT   = PDC_KEY_SELECT
-    KEY_SEND     = PDC_KEY_SEND
-    KEY_SEOL     = PDC_KEY_SEOL
-    KEY_SEXIT    = PDC_KEY_SEXIT
-    KEY_SFIND    = PDC_KEY_SFIND
-    KEY_SHELP    = PDC_KEY_SHELP
-    KEY_SHOME    = PDC_KEY_SHOME
-    KEY_SIC      = PDC_KEY_SIC
-    KEY_SLEFT    = PDC_KEY_SLEFT
+    KEY_SCOPY = PDC_KEY_SCOPY
+    KEY_SCREATE = PDC_KEY_SCREATE
+    KEY_SDC = PDC_KEY_SDC
+    KEY_SDL = PDC_KEY_SDL
+    KEY_SELECT = PDC_KEY_SELECT
+    KEY_SEND = PDC_KEY_SEND
+    KEY_SEOL = PDC_KEY_SEOL
+    KEY_SEXIT = PDC_KEY_SEXIT
+    KEY_SFIND = PDC_KEY_SFIND
+    KEY_SHELP = PDC_KEY_SHELP
+    KEY_SHOME = PDC_KEY_SHOME
+    KEY_SIC = PDC_KEY_SIC
+    KEY_SLEFT = PDC_KEY_SLEFT
     KEY_SMESSAGE = PDC_KEY_SMESSAGE
-    KEY_SMOVE    = PDC_KEY_SMOVE
-    KEY_SNEXT    = PDC_KEY_SNEXT
+    KEY_SMOVE = PDC_KEY_SMOVE
+    KEY_SNEXT = PDC_KEY_SNEXT
     KEY_SOPTIONS = PDC_KEY_SOPTIONS
-    KEY_SPREVIOUS= PDC_KEY_SPREVIOUS
-    KEY_SPRINT   = PDC_KEY_SPRINT
-    KEY_SREDO    = PDC_KEY_SREDO
+    KEY_SPREVIOUS = PDC_KEY_SPREVIOUS
+    KEY_SPRINT = PDC_KEY_SPRINT
+    KEY_SREDO = PDC_KEY_SREDO
     KEY_SREPLACE = PDC_KEY_SREPLACE
-    KEY_SRIGHT   = PDC_KEY_SRIGHT
-    KEY_SRSUME   = PDC_KEY_SRSUME
-    KEY_SSAVE    = PDC_KEY_SSAVE
+    KEY_SRIGHT = PDC_KEY_SRIGHT
+    KEY_SRSUME = PDC_KEY_SRSUME
+    KEY_SSAVE = PDC_KEY_SSAVE
     KEY_SSUSPEND = PDC_KEY_SSUSPEND
-    KEY_SUNDO    = PDC_KEY_SUNDO
-    KEY_SUSPEND  = PDC_KEY_SUSPEND
-    KEY_UNDO     = PDC_KEY_UNDO
-    KEY_MOUSE    = PDC_KEY_MOUSE
-    KEY_RESIZE   = PDC_KEY_RESIZE
+    KEY_SUNDO = PDC_KEY_SUNDO
+    KEY_SUSPEND = PDC_KEY_SUSPEND
+    KEY_UNDO = PDC_KEY_UNDO
+    KEY_MOUSE = PDC_KEY_MOUSE
+    KEY_RESIZE = PDC_KEY_RESIZE
 #   KEY_EVENT    = PDC_KEY_EVENT
-    KEY_MAX      = 0x224 # == KEY_SDOWN, take that into account
+    KEY_MAX = 0x224  # == KEY_SDOWN, take that into account
 
-def KEY_F(n): return KEY_F0 + n    # function keys 1-64
+
+def KEY_F(n):
+    return KEY_F0 + n    # function keys 1-64
 
 # Mouse mapping
 if NCURSES:
-    BUTTON1_RELEASED = curses.BUTTON1_RELEASED      
+    BUTTON1_RELEASED = curses.BUTTON1_RELEASED
     BUTTON1_PRESSED = curses.BUTTON1_PRESSED
-    BUTTON1_CLICKED = curses.BUTTON1_CLICKED       
+    BUTTON1_CLICKED = curses.BUTTON1_CLICKED
     BUTTON1_DOUBLE_CLICKED = curses.BUTTON1_DOUBLE_CLICKED
     BUTTON1_TRIPLE_CLICKED = curses.BUTTON1_TRIPLE_CLICKED
-                          
-    BUTTON2_RELEASED = curses.BUTTON2_RELEASED     
-    BUTTON2_PRESSED = curses.BUTTON2_PRESSED       
-    BUTTON2_CLICKED = curses.BUTTON2_CLICKED       
+
+    BUTTON2_RELEASED = curses.BUTTON2_RELEASED
+    BUTTON2_PRESSED = curses.BUTTON2_PRESSED
+    BUTTON2_CLICKED = curses.BUTTON2_CLICKED
     BUTTON2_DOUBLE_CLICKED = curses.BUTTON2_DOUBLE_CLICKED
     BUTTON2_TRIPLE_CLICKED = curses.BUTTON2_TRIPLE_CLICKED
-                          
-    BUTTON3_RELEASED = curses.BUTTON3_RELEASED      
+
+    BUTTON3_RELEASED = curses.BUTTON3_RELEASED
     BUTTON3_PRESSED = curses.BUTTON3_PRESSED
-    BUTTON3_CLICKED = curses.BUTTON3_CLICKED       
+    BUTTON3_CLICKED = curses.BUTTON3_CLICKED
     BUTTON3_DOUBLE_CLICKED = curses.BUTTON3_DOUBLE_CLICKED
     BUTTON3_TRIPLE_CLICKED = curses.BUTTON3_TRIPLE_CLICKED
-                          
-    BUTTON4_RELEASED = curses.BUTTON4_RELEASED      
-    BUTTON4_PRESSED = curses.BUTTON4_PRESSED       
-    BUTTON4_CLICKED = curses.BUTTON4_CLICKED       
+
+    BUTTON4_RELEASED = curses.BUTTON4_RELEASED
+    BUTTON4_PRESSED = curses.BUTTON4_PRESSED
+    BUTTON4_CLICKED = curses.BUTTON4_CLICKED
     BUTTON4_DOUBLE_CLICKED = curses.BUTTON4_DOUBLE_CLICKED
     BUTTON4_TRIPLE_CLICKED = curses.BUTTON4_TRIPLE_CLICKED
-                          
-    BUTTON_SHIFT = curses.BUTTON_SHIFT          
-    BUTTON_CTRL = curses.BUTTON_CTRL           
-    BUTTON_ALT = curses.BUTTON_ALT            
-                          
-    ALL_MOUSE_EVENTS = curses.ALL_MOUSE_EVENTS      
-    REPORT_MOUSE_POSITION = curses.REPORT_MOUSE_POSITION 
+
+    BUTTON_SHIFT = curses.BUTTON_SHIFT
+    BUTTON_CTRL = curses.BUTTON_CTRL
+    BUTTON_ALT = curses.BUTTON_ALT
+
+    ALL_MOUSE_EVENTS = curses.ALL_MOUSE_EVENTS
+    REPORT_MOUSE_POSITION = curses.REPORT_MOUSE_POSITION
 else:
-    BUTTON1_RELEASED = PDC_BUTTON1_RELEASED      
+    BUTTON1_RELEASED = PDC_BUTTON1_RELEASED
     BUTTON1_PRESSED = PDC_BUTTON1_PRESSED
-    BUTTON1_CLICKED = PDC_BUTTON1_CLICKED       
+    BUTTON1_CLICKED = PDC_BUTTON1_CLICKED
     BUTTON1_DOUBLE_CLICKED = PDC_BUTTON1_DOUBLE_CLICKED
     BUTTON1_TRIPLE_CLICKED = PDC_BUTTON1_TRIPLE_CLICKED
-                          
-    BUTTON2_RELEASED = PDC_BUTTON2_RELEASED     
-    BUTTON2_PRESSED = PDC_BUTTON2_PRESSED       
-    BUTTON2_CLICKED = PDC_BUTTON2_CLICKED       
+
+    BUTTON2_RELEASED = PDC_BUTTON2_RELEASED
+    BUTTON2_PRESSED = PDC_BUTTON2_PRESSED
+    BUTTON2_CLICKED = PDC_BUTTON2_CLICKED
     BUTTON2_DOUBLE_CLICKED = PDC_BUTTON2_DOUBLE_CLICKED
     BUTTON2_TRIPLE_CLICKED = PDC_BUTTON2_TRIPLE_CLICKED
-                          
-    BUTTON3_RELEASED = PDC_BUTTON3_RELEASED      
+
+    BUTTON3_RELEASED = PDC_BUTTON3_RELEASED
     BUTTON3_PRESSED = PDC_BUTTON3_PRESSED
-    BUTTON3_CLICKED = PDC_BUTTON3_CLICKED       
+    BUTTON3_CLICKED = PDC_BUTTON3_CLICKED
     BUTTON3_DOUBLE_CLICKED = PDC_BUTTON3_DOUBLE_CLICKED
     BUTTON3_TRIPLE_CLICKED = PDC_BUTTON3_TRIPLE_CLICKED
-                          
-    BUTTON4_RELEASED = PDC_BUTTON4_RELEASED      
-    BUTTON4_PRESSED = PDC_BUTTON4_PRESSED       
-    BUTTON4_CLICKED = PDC_BUTTON4_CLICKED       
+
+    BUTTON4_RELEASED = PDC_BUTTON4_RELEASED
+    BUTTON4_PRESSED = PDC_BUTTON4_PRESSED
+    BUTTON4_CLICKED = PDC_BUTTON4_CLICKED
     BUTTON4_DOUBLE_CLICKED = PDC_BUTTON4_DOUBLE_CLICKED
     BUTTON4_TRIPLE_CLICKED = PDC_BUTTON4_TRIPLE_CLICKED
-                          
-    BUTTON_SHIFT = PDC_BUTTON_SHIFT          
-    BUTTON_CTRL = PDC_BUTTON_CTRL           
-    BUTTON_ALT = PDC_BUTTON_ALT            
-         
-    ALL_MOUSE_EVENTS = PDC_ALL_MOUSE_EVENTS      
-    REPORT_MOUSE_POSITION = PDC_REPORT_MOUSE_POSITION 
+
+    BUTTON_SHIFT = PDC_BUTTON_SHIFT
+    BUTTON_CTRL = PDC_BUTTON_CTRL
+    BUTTON_ALT = PDC_BUTTON_ALT
+
+    ALL_MOUSE_EVENTS = PDC_ALL_MOUSE_EVENTS
+    REPORT_MOUSE_POSITION = PDC_REPORT_MOUSE_POSITION
 
 # --- CONSTANTS ---
-
-
 
 
 # +++ FUNCTION DEFINITIONS (PDC) +++
@@ -741,8 +765,6 @@ if not NCURSES:
 # --- FUNCTION DEFINITIONS (PDC) ---
 
 
-
-
 # +++ UNIFIED CURSES +++
 
 
@@ -756,31 +778,42 @@ def waddch(scr_id, ch, attr=A_NORMAL):
     else:
         return pdlib.waddch(scr_id, ch | attr)
 
+
 def waddstr(scr_id, cstr, attr="NO_USE"):
     if NCURSES:
         try:
-            if (attr != "NO_USE"): return scr_id.addstr(str(cstr), attr)
+            if attr != "NO_USE":
+                return scr_id.addstr(str(cstr), attr)
             return scr_id.addstr(str(cstr))
         except curses.error:
             return ERR
     else:
-        if (attr != "NO_USE"): oldattr = pdlib.getattrs(scr_id); pdlib.wattrset(scr_id, attr)
+        if attr != "NO_USE":
+            oldattr = pdlib.getattrs(scr_id)
+            pdlib.wattrset(scr_id, attr)
         ret = pdlib.waddstr(scr_id, CSTR(cstr))
-        if (attr != "NO_USE"): pdlib.wattrset(scr_id, oldattr)
+        if attr != "NO_USE":
+            pdlib.wattrset(scr_id, oldattr)
         return ret
+
 
 def waddnstr(scr_id, cstr, n, attr="NO_USE"):
     if NCURSES:
         try:
-            if (attr != "NO_USE"): return scr_id.addnstr(str(cstr), n, int(attr))
+            if attr != "NO_USE":
+                return scr_id.addnstr(str(cstr), n, int(attr))
             return scr_id.addnstr(str(cstr), n)
         except curses.error:
             return ERR
     else:
-        if (attr != "NO_USE"): oldattr = pdlib.getattrs(scr_id); pdlib.wattrset(scr_id, attr)
+        if attr != "NO_USE":
+            oldattr = pdlib.getattrs(scr_id)
+            pdlib.wattrset(scr_id, attr)
         ret = pdlib.waddnstr(scr_id, CSTR(cstr), n)
-        if (attr != "NO_USE"): pdlib.wattrset(scr_id, oldattr)
+        if attr != "NO_USE":
+            pdlib.wattrset(scr_id, oldattr)
         return ret
+
 
 def wattroff(scr_id, attr):
     if NCURSES:
@@ -791,6 +824,7 @@ def wattroff(scr_id, attr):
     else:
         return pdlib.wattroff(scr_id, attr)
 
+
 def wattron(scr_id, attr):
     if NCURSES:
         try:
@@ -799,6 +833,7 @@ def wattron(scr_id, attr):
             return ERR
     else:
         return pdlib.wattron(scr_id, attr)
+
 
 def wattrset(scr_id, attr):
     if NCURSES:
@@ -809,6 +844,7 @@ def wattrset(scr_id, attr):
     else:
         return pdlib.wattrset(scr_id, attr)
 
+
 def baudrate():
     if NCURSES:
         try:
@@ -817,6 +853,7 @@ def baudrate():
             return ERR
     else:
         return pdlib.baudrate()
+
 
 def beep():
     if NCURSES:
@@ -827,6 +864,7 @@ def beep():
     else:
         return pdlib.beep()
 
+
 def wbkgd(scr_id, ch, attr=A_NORMAL):
     if NCURSES:
         try:
@@ -835,6 +873,7 @@ def wbkgd(scr_id, ch, attr=A_NORMAL):
             return ERR
     else:
         return pdlib.wbkgd(scr_id, ch | attr)
+
 
 def wbkgdset(scr_id, ch, attr=A_NORMAL):
     if NCURSES:
@@ -845,7 +884,9 @@ def wbkgdset(scr_id, ch, attr=A_NORMAL):
     else:
         return pdlib.wbkgdset(scr_id, ch | attr)
 
-def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE, tl=ACS_ULCORNER, tr=ACS_URCORNER, bl=ACS_LLCORNER, br=ACS_LRCORNER):
+
+def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE,
+            tl=ACS_ULCORNER, tr=ACS_URCORNER, bl=ACS_LLCORNER, br=ACS_LRCORNER):
     if NCURSES:
         try:
             return scr_id.border(ls, rs, ts, bs, tl, tr, bl, br)
@@ -853,6 +894,7 @@ def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE, tl=A
             return ERR
     else:
         return pdlib.wborder(scr_id, ls, rs, ts, bs, tl, tr, bl, br)
+
 
 def box(scr_id, verch=ACS_VLINE, horch=ACS_HLINE):
     if NCURSES:
@@ -863,6 +905,7 @@ def box(scr_id, verch=ACS_VLINE, horch=ACS_HLINE):
     else:
         return pdlib.box(scr_id, verch, horch)
 
+
 def can_change_color():
     if NCURSES:
         try:
@@ -870,7 +913,8 @@ def can_change_color():
         except curses.error:
             return ERR
     else:
-        return (pdlib.can_change_color() == 1)
+        return pdlib.can_change_color() == 1
+
 
 def cbreak():
     if NCURSES:
@@ -881,6 +925,7 @@ def cbreak():
     else:
         return pdlib.cbreak()
 
+
 def wchgat(scr_id, num, attr, color, opts=None):
     if NCURSES:
         try:
@@ -889,6 +934,7 @@ def wchgat(scr_id, num, attr, color, opts=None):
             return ERR
     else:
         return pdlib.wchgat(scr_id, num, attr, color, None)
+
 
 def color_content(color_number):
     if NCURSES:
@@ -903,6 +949,7 @@ def color_content(color_number):
         pdlib.color_content(color_number, ctypes.byref(r), ctypes.byref(g), ctypes.byref(b))
         return (r.value, g.value, b.value)
 
+
 def color_pair(color_number):
     if NCURSES:
         try:
@@ -910,9 +957,12 @@ def color_pair(color_number):
         except curses.error:
             return ERR
     else:
-        return PD_COLOR_PAIR(color_number)   
+        return PD_COLOR_PAIR(color_number)
 
-def COLOR_PAIR(n): return color_pair(n)
+
+def COLOR_PAIR(n):
+    return color_pair(n)
+
 
 def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay):
     if NCURSES:
@@ -925,7 +975,8 @@ def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxco
             return ERR
     else:
         return pdlib.copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay)
-    
+
+
 def wclear(scr_id):
     if NCURSES:
         try:
@@ -934,6 +985,7 @@ def wclear(scr_id):
             return ERR
     else:
         return pdlib.wclear(scr_id)
+
 
 def wclrtobot(scr_id):
     if NCURSES:
@@ -944,6 +996,7 @@ def wclrtobot(scr_id):
     else:
         return pdlib.wclrtobot(scr_id)
 
+
 def wclrtoeol(scr_id):
     if NCURSES:
         try:
@@ -952,6 +1005,7 @@ def wclrtoeol(scr_id):
             return ERR
     else:
         return pdlib.wclrtoeol(scr_id)
+
 
 def clearok(scr_id, yes):
     if NCURSES:
@@ -962,6 +1016,7 @@ def clearok(scr_id, yes):
     else:
         return pdlib.clearok(scr_id, yes)
 
+
 def curs_set(visibility):
     if NCURSES:
         try:
@@ -970,6 +1025,7 @@ def curs_set(visibility):
             return ERR
     else:
         return pdlib.curs_set(visibility)
+
 
 def cursyncup(scr_id):
     if NCURSES:
@@ -980,6 +1036,7 @@ def cursyncup(scr_id):
     else:
         return pdlib.wcursyncup(scr_id)
 
+
 def def_prog_mode():
     if NCURSES:
         try:
@@ -988,6 +1045,7 @@ def def_prog_mode():
             return ERR
     else:
         return pdlib.def_prog_mode()
+
 
 def def_shell_mode():
     if NCURSES:
@@ -998,6 +1056,7 @@ def def_shell_mode():
     else:
         return pdlib.def_shell_mode()
 
+
 def delay_output(ms):
     if NCURSES:
         try:
@@ -1006,6 +1065,7 @@ def delay_output(ms):
             return ERR
     else:
         return pdlib.delay_output(ms)
+
 
 def wdelch(scr_id):
     if NCURSES:
@@ -1016,6 +1076,7 @@ def wdelch(scr_id):
     else:
         return pdlib.wdelch(scr_id)
 
+
 def wdeleteln(scr_id):
     if NCURSES:
         try:
@@ -1025,15 +1086,17 @@ def wdeleteln(scr_id):
     else:
         return pdlib.wdeleteln(scr_id)
 
+
 def delwin(scr_id):
     if NCURSES:
         try:
-            del(scr_id)
+            del scr_id
             return OK
         except curses.error:
             return ERR
     else:
         return pdlib.delwin(scr_id)
+
 
 def derwin(srcwin, nlines, ncols, begin_y, begin_x):
     if NCURSES:
@@ -1042,8 +1105,9 @@ def derwin(srcwin, nlines, ncols, begin_y, begin_x):
         except curses.error:
             return ERR
     else:
-        pdlib.derwin.restype = ctypes.c_void_p	
+        pdlib.derwin.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.derwin(srcwin, nlines, ncols, begin_y, begin_x))
+
 
 def doupdate():
     if NCURSES:
@@ -1054,6 +1118,7 @@ def doupdate():
     else:
         return pdlib.doupdate()
 
+
 def echo():
     if NCURSES:
         try:
@@ -1062,6 +1127,7 @@ def echo():
             return ERR
     else:
         return pdlib.echo()
+
 
 def wechochar(scr_id, ch, attr=A_NORMAL):
     if NCURSES:
@@ -1072,6 +1138,7 @@ def wechochar(scr_id, ch, attr=A_NORMAL):
     else:
         return pdlib.wechochar(scr_id, ch | attr)
 
+
 def wenclose(scr_id, y, x):
     if NCURSES:
         try:
@@ -1080,6 +1147,7 @@ def wenclose(scr_id, y, x):
             return ERR
     else:
         return pdlib.wenclose(scr_id, y, x)
+
 
 def endwin():
     if NCURSES:
@@ -1090,6 +1158,7 @@ def endwin():
     else:
         return pdlib.endwin()
 
+
 def werase(scr_id):
     if NCURSES:
         try:
@@ -1098,6 +1167,7 @@ def werase(scr_id):
             return ERR
     else:
         return pdlib.werase(scr_id)
+
 
 def erasechar():   # TODO: this might not be portable across platforms yet
     if NCURSES:
@@ -1108,6 +1178,7 @@ def erasechar():   # TODO: this might not be portable across platforms yet
     else:
         return pdlib.erasechar()
 
+
 def filter():
     if NCURSES:
         try:
@@ -1116,6 +1187,7 @@ def filter():
             return ERR
     else:
         return pdlib.filter()
+
 
 def flash():
     if NCURSES:
@@ -1126,6 +1198,7 @@ def flash():
     else:
         return pdlib.flash()
 
+
 def flushinp():
     if NCURSES:
         try:
@@ -1134,6 +1207,7 @@ def flushinp():
             return ERR
     else:
         return pdlib.flushinp()
+
 
 def getbegyx(scr_id):
     if NCURSES:
@@ -1146,6 +1220,7 @@ def getbegyx(scr_id):
         x = pdlib.getbegx(scr_id)
         return (y, x)
 
+
 def wgetch(scr_id):
     if NCURSES:
         try:
@@ -1155,15 +1230,18 @@ def wgetch(scr_id):
     else:
         return pdlib.wgetch(scr_id)
 
+
 def wgetkey(scr_id, y=-1, x=-1):
     if NCURSES:
         try:
-            if (y == -1) or (x == -1): return scr_id.getkey()
+            if (y == -1) or (x == -1):
+                return scr_id.getkey()
             return scr_id.getkey(y, x)
         except curses.error:
             return ERR
     else:
-        if (y == -1) or (x == -1): return pdlib.keyname(wgetch(scr_id))
+        if (y == -1) or (x == -1):
+            return pdlib.keyname(wgetch(scr_id))
         return pdlib.keyname(mvwgetch(scr_id, y, x)).decode()
 
 
@@ -1178,6 +1256,7 @@ def getmaxyx(scr_id):
         x = pdlib.getmaxx(scr_id)
         return (y, x)
 
+
 def getmouse():
     if NCURSES:
         try:
@@ -1187,6 +1266,7 @@ def getmouse():
     else:
         m_event = pdlib.nc_getmouse()
         return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.mmask_t)
+
 
 def getparyx(scr_id):
     if NCURSES:
@@ -1199,6 +1279,7 @@ def getparyx(scr_id):
         x = pdlib.getparx(scr_id)
         return (y, x)
 
+
 def wgetstr(scr_id):
     if NCURSES:
         try:
@@ -1210,6 +1291,7 @@ def wgetstr(scr_id):
         pdlib.wgetstr(scr_id, ctypes.byref(t_str))
         return t_str.value.decode()
 
+
 def getsyx():
     global PDC_LEAVEOK
     if NCURSES:
@@ -1218,9 +1300,11 @@ def getsyx():
         except curses.error:
             return ERR
     else:
-        if PDC_LEAVEOK: return (-1, -1)
+        if PDC_LEAVEOK:
+            return (-1, -1)
         curscr = PD_GET_CURSCR()
         return getyx(curscr)
+
 
 def getwin(file):   # THIS IS NOT CROSS-PLATFORM YET, AVOID IF POSSIBLE
     if NCURSES:
@@ -1231,6 +1315,7 @@ def getwin(file):   # THIS IS NOT CROSS-PLATFORM YET, AVOID IF POSSIBLE
     else:
         raise Exception("UNICURSES_GETWIN: 'getwin' is unavailable under Windows!")
 
+
 def getyx(scr_id):
     if NCURSES:
         try:
@@ -1240,7 +1325,8 @@ def getyx(scr_id):
     else:
         cy = pdlib.getcury(scr_id)
         cx = pdlib.getcurx(scr_id)
-        return (cy,cx)
+        return (cy, cx)
+
 
 def halfdelay(tenths):
     if NCURSES:
@@ -1251,6 +1337,7 @@ def halfdelay(tenths):
     else:
         return pdlib.halfdelay(tenths)
 
+
 def has_colors():
     if NCURSES:
         try:
@@ -1258,7 +1345,8 @@ def has_colors():
         except curses.error:
             return ERR
     else:
-        return (pdlib.has_colors() == 1)
+        return pdlib.has_colors() == 1
+
 
 def has_ic():
     if NCURSES:
@@ -1267,7 +1355,8 @@ def has_ic():
         except curses.error:
             return ERR
     else:
-        return (pdlib.has_ic() == 1)
+        return pdlib.has_ic() == 1
+
 
 def has_il():
     if NCURSES:
@@ -1276,7 +1365,8 @@ def has_il():
         except curses.error:
             return ERR
     else:
-        return (pdlib.has_il() == 1)
+        return pdlib.has_il() == 1
+
 
 def has_key(ch):
     if NCURSES:
@@ -1285,7 +1375,8 @@ def has_key(ch):
         except curses.error:
             return ERR
     else:
-        return (pdlib.has_key(ch) == 1)
+        return pdlib.has_key(ch) == 1
+
 
 def whline(scr_id, ch, n):
     if NCURSES:
@@ -1296,6 +1387,7 @@ def whline(scr_id, ch, n):
     else:
         return pdlib.whline(scr_id, ch, n)
 
+
 def idcok(scr_id, flag):    # THIS IS NOT PORTABLE (IT'S NOP ON PDCURSES)
     if NCURSES:
         try:
@@ -1304,6 +1396,7 @@ def idcok(scr_id, flag):    # THIS IS NOT PORTABLE (IT'S NOP ON PDCURSES)
             return ERR
     else:
         return pdlib.idcok(scr_id, flag)
+
 
 def idlok(scr_id, yes):     # THIS IS NOT PORTABLE (IT'S NOP ON PDCURSES)
     if NCURSES:
@@ -1314,6 +1407,7 @@ def idlok(scr_id, yes):     # THIS IS NOT PORTABLE (IT'S NOP ON PDCURSES)
     else:
         return pdlib.idlok(scr_id, yes)
 
+
 def immedok(scr_id, flag):
     if NCURSES:
         try:
@@ -1322,6 +1416,7 @@ def immedok(scr_id, flag):
             return ERR
     else:
         return pdlib.immedok(scr_id, flag)
+
 
 def winch(scr_id):
     if NCURSES:
@@ -1332,6 +1427,7 @@ def winch(scr_id):
     else:
         return pdlib.winch(scr_id)
 
+
 def init_color(color, r, g, b):
     if NCURSES:
         try:
@@ -1341,6 +1437,7 @@ def init_color(color, r, g, b):
     else:
         return pdlib.init_color(color, r, g, b)
 
+
 def init_pair(pair_number, fg, bg):
     if NCURSES:
         try:
@@ -1349,6 +1446,7 @@ def init_pair(pair_number, fg, bg):
             return ERR
     else:
         return pdlib.init_pair(pair_number, fg, bg)
+
 
 def initscr():
     global stdscr
@@ -1363,6 +1461,7 @@ def initscr():
         stdscr = ctypes.c_void_p(pdlib.initscr())
         return stdscr
 
+
 def winsch(scr_id, ch, attr=A_NORMAL):
     if NCURSES:
         try:
@@ -1371,6 +1470,7 @@ def winsch(scr_id, ch, attr=A_NORMAL):
             return ERR
     else:
         return pdlib.winsch(scr_id, ch | attr)
+
 
 def winsdelln(scr_id, nlines):
     if NCURSES:
@@ -1381,33 +1481,44 @@ def winsdelln(scr_id, nlines):
     else:
         return pdlib.winsdelln(scr_id, nlines)
 
-def winsstr(scr_id, strn, attr = "NO_USE"):
+
+def winsstr(scr_id, strn, attr="NO_USE"):
     if NCURSES:
         try:
-            if (attr != "NO_USE"): return scr_id.insstr(str(strn), attr)
+            if attr != "NO_USE":
+                return scr_id.insstr(str(strn), attr)
             return scr_id.insstr(str(strn))
         except curses.error:
             return ERR
     else:
         oldattr = 0
-        if (attr != "NO_USE"): oldattr = pdlib.getattrs(scr_id); pdlib.wattrset(scr_id, attr)
+        if attr != "NO_USE":
+            oldattr = pdlib.getattrs(scr_id)
+            pdlib.wattrset(scr_id, attr)
         ret = pdlib.winsstr(scr_id, CSTR(strn))
-        if (attr != "NO_USE"): pdlib.wattrset(scr_id, oldattr)
+        if attr != "NO_USE":
+            pdlib.wattrset(scr_id, oldattr)
         return ret
 
-def winsnstr(scr_id, strn, n, attr = "NO_USE"):
+
+def winsnstr(scr_id, strn, n, attr="NO_USE"):
     if NCURSES:
         try:
-            if (attr != "NO_USE"): return scr_id.insnstr(str(strn), n, attr)
+            if attr != "NO_USE":
+                return scr_id.insnstr(str(strn), n, attr)
             return scr_id.insnstr(str(strn), n)
         except curses.error:
             return ERR
     else:
         oldattr = 0
-        if (attr != "NO_USE"): oldattr = pdlib.getattrs(scr_id); pdlib.wattrset(scr_id, attr)
+        if attr != "NO_USE":
+            oldattr = pdlib.getattrs(scr_id)
+            pdlib.wattrset(scr_id, attr)
         ret = pdlib.winsnstr(scr_id, CSTR(strn), n)
-        if (attr != "NO_USE"): pdlib.wattrset(scr_id, oldattr)
+        if attr != "NO_USE":
+            pdlib.wattrset(scr_id, oldattr)
         return ret
+
 
 def winstr(scr_id, n=-1):
     if NCURSES:
@@ -1420,6 +1531,7 @@ def winstr(scr_id, n=-1):
         pdlib.winnstr(scr_id, ctypes.byref(t_str), n)
         return t_str.value.decode()
 
+
 def isendwin():
     if NCURSES:
         try:
@@ -1427,7 +1539,8 @@ def isendwin():
         except curses.error:
             return ERR
     else:
-        return (pdlib.isendwin() == 1)
+        return pdlib.isendwin() == 1
+
 
 def winsertln(scr_id):
     if NCURSES:
@@ -1438,6 +1551,7 @@ def winsertln(scr_id):
     else:
         return pdlib.winsertln(scr_id)
 
+
 def is_linetouched(scr_id, line):
     if NCURSES:
         try:
@@ -1445,7 +1559,8 @@ def is_linetouched(scr_id, line):
         except curses.error:
             return ERR
     else:
-        return (pdlib.is_linetouched(scr_id, line) == 1)
+        return pdlib.is_linetouched(scr_id, line) == 1
+
 
 def is_wintouched(scr_id):
     if NCURSES:
@@ -1454,7 +1569,8 @@ def is_wintouched(scr_id):
         except curses.error:
             return ERR
     else:
-        return (pdlib.is_wintouched(scr_id) == 1)
+        return pdlib.is_wintouched(scr_id) == 1
+
 
 def keyname(k):
     if NCURSES:
@@ -1465,6 +1581,7 @@ def keyname(k):
     else:
         return pdlib.keyname(k).decode()
 
+
 def keypad(scr_id, yes):
     if NCURSES:
         try:
@@ -1474,6 +1591,7 @@ def keypad(scr_id, yes):
     else:
         return pdlib.keypad(scr_id, yes)
 
+
 def killchar():   # TODO: this might not be portable across platforms yet
     if NCURSES:
         try:
@@ -1482,6 +1600,7 @@ def killchar():   # TODO: this might not be portable across platforms yet
             return ERR
     else:
         return pdlib.killchar()
+
 
 def leaveok(scr_id, yes):
     global PDC_LEAVEOK
@@ -1495,6 +1614,7 @@ def leaveok(scr_id, yes):
             PDC_LEAVEOK = yes
         return pdlib.leaveok(scr_id, yes)
 
+
 def longname():
     if NCURSES:
         try:
@@ -1503,6 +1623,7 @@ def longname():
             return ERR
     else:
         return pdlib.longname().decode()
+
 
 def meta(scr_id, yes):
     if NCURSES:
@@ -1513,6 +1634,7 @@ def meta(scr_id, yes):
     else:
         return pdlib.meta(scr_id, yes)
 
+
 def mouseinterval(interval):
     if NCURSES:
         try:
@@ -1521,6 +1643,7 @@ def mouseinterval(interval):
             return ERR
     else:
         return pdlib.mouseinterval(interval)
+
 
 def mousemask(mmask):
     if NCURSES:
@@ -1531,6 +1654,7 @@ def mousemask(mmask):
     else:
         return pdlib.mousemask(mmask, None)
 
+
 def wmove(scr_id, new_y, new_x):
     if NCURSES:
         try:
@@ -1539,6 +1663,7 @@ def wmove(scr_id, new_y, new_x):
             return ERR
     else:
         return pdlib.wmove(scr_id, new_y, new_x)
+
 
 def mvwaddch(scr_id, y, x, ch, attr=A_NORMAL):
     if NCURSES:
@@ -1549,31 +1674,42 @@ def mvwaddch(scr_id, y, x, ch, attr=A_NORMAL):
     else:
         return pdlib.mvwaddch(scr_id, y, x, ch | attr)
 
+
 def mvwaddstr(scr_id, y, x, cstr, attr="NO_USE"):
     if NCURSES:
         try:
-            if (attr != "NO_USE"): return scr_id.addstr(y, x, str(cstr), attr)
+            if attr != "NO_USE":
+                return scr_id.addstr(y, x, str(cstr), attr)
             return scr_id.addstr(y, x, str(cstr))
         except curses.error:
             return ERR
     else:
-        if (attr != "NO_USE"): oldattr = pdlib.getattrs(scr_id); pdlib.wattrset(scr_id, attr)
+        if attr != "NO_USE":
+            oldattr = pdlib.getattrs(scr_id)
+            pdlib.wattrset(scr_id, attr)
         ret = pdlib.mvwaddstr(scr_id, y, x, CSTR(cstr))
-        if (attr != "NO_USE"): pdlib.wattrset(scr_id, oldattr)
+        if attr != "NO_USE":
+            pdlib.wattrset(scr_id, oldattr)
         return ret
+
 
 def mvwaddnstr(scr_id, y, x, cstr, n, attr="NO_USE"):
     if NCURSES:
         try:
-            if (attr != "NO_USE"): return scr_id.addnstr(y, x, str(cstr), n, attr)
+            if attr != "NO_USE":
+                return scr_id.addnstr(y, x, str(cstr), n, attr)
             return scr_id.addnstr(y, x, str(cstr), n)
         except curses.error:
             return ERR
     else:
-        if (attr != "NO_USE"): oldattr = pdlib.getattrs(scr_id); pdlib.wattrset(scr_id, attr)
+        if attr != "NO_USE":
+            oldattr = pdlib.getattrs(scr_id)
+            pdlib.wattrset(scr_id, attr)
         ret = pdlib.mvwaddnstr(scr_id, y, x, CSTR(cstr), n)
-        if (attr != "NO_USE"): pdlib.wattrset(scr_id, oldattr)
+        if attr != "NO_USE":
+            pdlib.wattrset(scr_id, oldattr)
         return ret
+
 
 def mvwchgat(scr_id, y, x, num, attr, color, opts=None):
     if NCURSES:
@@ -1584,14 +1720,16 @@ def mvwchgat(scr_id, y, x, num, attr, color, opts=None):
     else:
         return pdlib.mvwchgat(scr_id, y, x, num, attr, color, None)
 
+
 def mvwdelch(scr_id, y, x):
     if NCURSES:
         try:
-            return scr_id.delch(y,x)
+            return scr_id.delch(y, x)
         except curses.error:
             return ERR
     else:
         return pdlib.mvwdelch(scr_id, y, x)
+
 
 def mvwdeleteln(scr_id, y, x):
     if NCURSES:
@@ -1603,6 +1741,7 @@ def mvwdeleteln(scr_id, y, x):
     else:
         return pdlib.mvwdeleteln(scr_id, y, x)
 
+
 def mvderwin(scr_id, pary, parx):
     if NCURSES:
         try:
@@ -1612,6 +1751,7 @@ def mvderwin(scr_id, pary, parx):
     else:
         return pdlib.mvderwin(scr_id, pary, parx)
 
+
 def mvwgetch(scr_id, y, x):
     if NCURSES:
         try:
@@ -1620,6 +1760,7 @@ def mvwgetch(scr_id, y, x):
             return ERR
     else:
         return pdlib.mvwgetch(scr_id, y, x)
+
 
 def mvwgetstr(scr_id, y, x):
     if NCURSES:
@@ -1632,6 +1773,7 @@ def mvwgetstr(scr_id, y, x):
         pdlib.mvwgetstr(scr_id, y, x, ctypes.byref(t_str))
         return t_str.value.decode()
 
+
 def mvwhline(scr_id, y, x, ch, n):
     if NCURSES:
         try:
@@ -1640,6 +1782,7 @@ def mvwhline(scr_id, y, x, ch, n):
             return ERR
     else:
         return pdlib.mvwhline(scr_id, y, x, ch, n)
+
 
 def mvwinch(scr_id, y, x):
     if NCURSES:
@@ -1650,6 +1793,7 @@ def mvwinch(scr_id, y, x):
     else:
         return pdlib.mvwinch(scr_id, y, x)
 
+
 def mvwinsch(scr_id, y, x, ch, attr=A_NORMAL):
     if NCURSES:
         try:
@@ -1659,33 +1803,44 @@ def mvwinsch(scr_id, y, x, ch, attr=A_NORMAL):
     else:
         return pdlib.mvwinsch(scr_id, y, x, ch | attr)
 
-def mvwinsstr(scr_id, y, x, strn, attr = "NO_USE"):
+
+def mvwinsstr(scr_id, y, x, strn, attr="NO_USE"):
     if NCURSES:
         try:
-            if (attr != "NO_USE"): return scr_id.insstr(y, x, str(strn), attr)
+            if attr != "NO_USE":
+                return scr_id.insstr(y, x, str(strn), attr)
             return scr_id.insstr(y, x, str(strn))
         except curses.error:
             return ERR
     else:
         oldattr = 0
-        if (attr != "NO_USE"): oldattr = pdlib.getattrs(scr_id); pdlib.wattrset(scr_id, attr)
+        if attr != "NO_USE":
+            oldattr = pdlib.getattrs(scr_id)
+            pdlib.wattrset(scr_id, attr)
         ret = pdlib.mvwinsstr(scr_id, y, x, CSTR(strn))
-        if (attr != "NO_USE"): pdlib.wattrset(scr_id, oldattr)
+        if attr != "NO_USE":
+            pdlib.wattrset(scr_id, oldattr)
         return ret
 
-def mvwinsnstr(scr_id, y, x, strn, n, attr = "NO_USE"):
+
+def mvwinsnstr(scr_id, y, x, strn, n, attr="NO_USE"):
     if NCURSES:
         try:
-            if (attr != "NO_USE"): return scr_id.insnstr(y, x, str(strn), n, attr)
+            if attr != "NO_USE":
+                return scr_id.insnstr(y, x, str(strn), n, attr)
             return scr_id.insnstr(y, x, str(strn), n)
         except curses.error:
             return ERR
     else:
         oldattr = 0
-        if (attr != "NO_USE"): oldattr = pdlib.getattrs(scr_id); pdlib.wattrset(scr_id, attr)
+        if attr != "NO_USE":
+            oldattr = pdlib.getattrs(scr_id)
+            pdlib.wattrset(scr_id, attr)
         ret = pdlib.mvwinsnstr(scr_id, y, x, CSTR(strn), n)
-        if (attr != "NO_USE"): pdlib.wattrset(scr_id, oldattr)
+        if attr != "NO_USE":
+            pdlib.wattrset(scr_id, oldattr)
         return ret
+
 
 def mvwinstr(scr_id, y, x, n=-1):
     if NCURSES:
@@ -1698,6 +1853,7 @@ def mvwinstr(scr_id, y, x, n=-1):
         pdlib.mvwinnstr(scr_id, y, x, ctypes.byref(t_str), n)
         return t_str.value.decode()
 
+
 def mvwvline(scr_id, y, x, ch, n):
     if NCURSES:
         try:
@@ -1706,6 +1862,7 @@ def mvwvline(scr_id, y, x, ch, n):
             return ERR
     else:
         return pdlib.mvwvline(scr_id, y, x, ch, n)
+
 
 def mvwin(scr_id, y, x):
     if NCURSES:
@@ -1716,6 +1873,7 @@ def mvwin(scr_id, y, x):
     else:
         return pdlib.mvwin(scr_id, y, x)
 
+
 def napms(ms):
     if NCURSES:
         try:
@@ -1725,6 +1883,7 @@ def napms(ms):
     else:
         return pdlib.napms(ms)
 
+
 def newpad(nlines, ncols):
     if NCURSES:
         try:
@@ -1732,8 +1891,9 @@ def newpad(nlines, ncols):
         except curses.error:
             return ERR
     else:
-        pdlib.newpad.restype = ctypes.c_void_p	
+        pdlib.newpad.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.newpad(nlines, ncols))
+
 
 def newwin(nlines, ncols, begin_y, begin_x):
     if NCURSES:
@@ -1745,14 +1905,16 @@ def newwin(nlines, ncols, begin_y, begin_x):
         pdlib.newwin.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.newwin(nlines, ncols, begin_y, begin_x))
 
-def nl(): 
+
+def nl():
     if NCURSES:
         try:
             return curses.nl()
         except curses.error:
             return ERR
     else:
-         return pdlib.nl()
+        return pdlib.nl()
+
 
 def nocbreak():
     if NCURSES:
@@ -1763,6 +1925,7 @@ def nocbreak():
     else:
         return pdlib.nocbreak()
 
+
 def nodelay(scr_id, yes):
     if NCURSES:
         try:
@@ -1771,6 +1934,7 @@ def nodelay(scr_id, yes):
             return ERR
     else:
         return pdlib.nodelay(scr_id, yes)
+
 
 def noecho():
     if NCURSES:
@@ -1781,7 +1945,8 @@ def noecho():
     else:
         return pdlib.noecho()
 
-def nonl(): 
+
+def nonl():
     if NCURSES:
         try:
             return curses.nonl()
@@ -1789,6 +1954,7 @@ def nonl():
             return ERR
     else:
         return pdlib.nonl()
+
 
 def noqiflush():
     if NCURSES:
@@ -1799,6 +1965,7 @@ def noqiflush():
     else:
         return pdlib.noqiflush()
 
+
 def noraw():
     if NCURSES:
         try:
@@ -1807,6 +1974,7 @@ def noraw():
             return ERR
     else:
         return pdlib.noraw()
+
 
 def notimeout(scr_id, yes):
     if NCURSES:
@@ -1817,6 +1985,7 @@ def notimeout(scr_id, yes):
     else:
         return pdlib.notimeout(scr_id, yes)
 
+
 def noutrefresh(scr_id):
     if NCURSES:
         try:
@@ -1825,6 +1994,7 @@ def noutrefresh(scr_id):
             return ERR
     else:
         return pdlib.wnoutrefresh(scr_id)
+
 
 def overlay(src_id, dest_id):
     if NCURSES:
@@ -1835,6 +2005,7 @@ def overlay(src_id, dest_id):
     else:
         return pdlib.overlay(src_id, dest_id)
 
+
 def overwrite(src_id, dest_id):
     if NCURSES:
         try:
@@ -1844,6 +2015,7 @@ def overwrite(src_id, dest_id):
     else:
         return pdlib.overwrite(src_id, dest_id)
 
+
 def pair_content(pair_number):
     if NCURSES:
         try:
@@ -1851,10 +2023,11 @@ def pair_content(pair_number):
         except curses.error:
             return ERR
     else:
-        fg=ctypes.c_short()
-        bg=ctypes.c_short()
+        fg = ctypes.c_short()
+        bg = ctypes.c_short()
         pdlib.pair_content(pair_number, ctypes.byref(fg), ctypes.byref(bg))
         return (fg.value, bg.value)
+
 
 def pair_number(attr):
     if NCURSES:
@@ -1865,6 +2038,7 @@ def pair_number(attr):
     else:
         return PD_PAIR_NUMBER(attr)
 
+
 def prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol):
     if NCURSES:
         try:
@@ -1873,6 +2047,7 @@ def prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol):
             return ERR
     else:
         return pdlib.prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol)
+
 
 def putp(cstring):
     if NCURSES:
@@ -1883,6 +2058,7 @@ def putp(cstring):
     else:
         return pdlib.putp(CSTR(cstring))
 
+
 def putwin(scr_id, file):    # THIS IS NOT CROSS-PLATFORM YET, AVOID IF POSSIBLE
     if NCURSES:
         try:
@@ -1891,6 +2067,7 @@ def putwin(scr_id, file):    # THIS IS NOT CROSS-PLATFORM YET, AVOID IF POSSIBLE
             return ERR
     else:
         raise Exception("UNICURSES_PUTWIN: 'putwin' is unavailable under Windows!")
+
 
 def qiflush():
     if NCURSES:
@@ -1901,6 +2078,7 @@ def qiflush():
     else:
         return pdlib.qiflush()
 
+
 def raw():
     if NCURSES:
         try:
@@ -1909,6 +2087,7 @@ def raw():
             return ERR
     else:
         return pdlib.raw()
+
 
 def wredrawln(scr_id, beg, num):
     if NCURSES:
@@ -1919,6 +2098,7 @@ def wredrawln(scr_id, beg, num):
     else:
         return pdlib.wredrawln(scr_id, beg, num)
 
+
 def redrawwin(scr_id):
     if NCURSES:
         try:
@@ -1927,6 +2107,7 @@ def redrawwin(scr_id):
             return ERR
     else:
         return pdlib.redrawwin(scr_id)
+
 
 def wrefresh(scr_id):
     if NCURSES:
@@ -1937,6 +2118,7 @@ def wrefresh(scr_id):
     else:
         return pdlib.wrefresh(scr_id)
 
+
 def reset_prog_mode():
     if NCURSES:
         try:
@@ -1945,6 +2127,7 @@ def reset_prog_mode():
             return ERR
     else:
         return pdlib.reset_prog_mode()
+
 
 def reset_shell_mode():
     if NCURSES:
@@ -1955,6 +2138,7 @@ def reset_shell_mode():
     else:
         return pdlib.reset_shell_mode()
 
+
 def wscrl(scr_id, lines=1):
     if NCURSES:
         try:
@@ -1963,6 +2147,7 @@ def wscrl(scr_id, lines=1):
             return ERR
     else:
         return pdlib.wscrl(scr_id, lines)
+
 
 def scrollok(scr_id, flag):
     if NCURSES:
@@ -1973,6 +2158,7 @@ def scrollok(scr_id, flag):
     else:
         return pdlib.scrollok(scr_id, flag)
 
+
 def wsetscrreg(scr_id, top, bottom):
     if NCURSES:
         try:
@@ -1981,6 +2167,7 @@ def wsetscrreg(scr_id, top, bottom):
             return ERR
     else:
         return pdlib.wsetscrreg(scr_id, top, bottom)
+
 
 def setsyx(y, x):
     global PDC_LEAVEOK
@@ -1997,6 +2184,7 @@ def setsyx(y, x):
             PDC_LEAVEOK = False
         return pdlib.setsyx(y, x)
 
+
 def setupterm(termstr, fd):
     if NCURSES:
         try:
@@ -2005,6 +2193,7 @@ def setupterm(termstr, fd):
             return ERR
     else:
         return pdlib.setupterm(termstr, fd, None)
+
 
 def wstandend(scr_id):
     if NCURSES:
@@ -2015,6 +2204,7 @@ def wstandend(scr_id):
     else:
         return pdlib.wstandend(scr_id)
 
+
 def wstandout(scr_id):
     if NCURSES:
         try:
@@ -2024,6 +2214,7 @@ def wstandout(scr_id):
     else:
         return pdlib.wstandout(scr_id)
 
+
 def start_color():
     if NCURSES:
         try:
@@ -2032,6 +2223,7 @@ def start_color():
             return ERR
     else:
         return pdlib.start_color()
+
 
 def subpad(scrwin, nlines, ncols, begin_y, begin_x):
     if NCURSES:
@@ -2043,6 +2235,7 @@ def subpad(scrwin, nlines, ncols, begin_y, begin_x):
         pdlib.subpad.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.subpad(scrwin, nlines, ncols, begin_y, begin_x))
 
+
 def subwin(srcwin, nlines, ncols, begin_y, begin_x):
     if NCURSES:
         try:
@@ -2053,6 +2246,7 @@ def subwin(srcwin, nlines, ncols, begin_y, begin_x):
         pdlib.subwin.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.subwin(srcwin, nlines, ncols, begin_y, begin_x))
 
+
 def wsyncdown(scr_id):
     if NCURSES:
         try:
@@ -2061,6 +2255,7 @@ def wsyncdown(scr_id):
             return ERR
     else:
         return pdlib.wsyncdown(scr_id)
+
 
 def syncok(scr_id, flag):
     if NCURSES:
@@ -2071,6 +2266,7 @@ def syncok(scr_id, flag):
     else:
         return pdlib.syncok(scr_id, flag)
 
+
 def wsyncup(scr_id):
     if NCURSES:
         try:
@@ -2079,6 +2275,7 @@ def wsyncup(scr_id):
             return ERR
     else:
         return pdlib.wsyncup(scr_id)
+
 
 def termattrs():
     if NCURSES:
@@ -2089,6 +2286,7 @@ def termattrs():
     else:
         return pdlib.termattrs()
 
+
 def termname():
     if NCURSES:
         try:
@@ -2097,6 +2295,7 @@ def termname():
             return ERR
     else:
         return pdlib.termname().decode()
+
 
 def tigetflag(capname):
     if NCURSES:
@@ -2107,6 +2306,7 @@ def tigetflag(capname):
     else:
         return pdlib.tigetflag(CSTR(capname))
 
+
 def tigetnum(capname):
     if NCURSES:
         try:
@@ -2115,6 +2315,7 @@ def tigetnum(capname):
             return ERR
     else:
         return pdlib.tigetnum(CSTR(capname))
+
 
 def tigetstr(capname):
     if NCURSES:
@@ -2125,6 +2326,7 @@ def tigetstr(capname):
     else:
         return pdlib.tigetstr(CSTR(capname))
 
+
 def wtimeout(scr_id, delay):
     if NCURSES:
         try:
@@ -2133,6 +2335,7 @@ def wtimeout(scr_id, delay):
             return ERR
     else:
         return pdlib.wtimeout(scr_id, delay)
+
 
 def wtouchline(scr_id, start, count, changed=1):
     if NCURSES:
@@ -2143,6 +2346,7 @@ def wtouchline(scr_id, start, count, changed=1):
     else:
         return pdlib.wtouchln(scr_id, start, count, changed)
 
+
 def touchwin(scr_id):
     if NCURSES:
         try:
@@ -2151,6 +2355,7 @@ def touchwin(scr_id):
             return ERR
     else:
         return pdlib.touchwin(scr_id)
+
 
 def tparm(str, p1=0, p2=0, p3=0, p4=0, p5=0, p6=0, p7=0, p8=0, p9=0):
     if NCURSES:
@@ -2161,6 +2366,7 @@ def tparm(str, p1=0, p2=0, p3=0, p4=0, p5=0, p6=0, p7=0, p8=0, p9=0):
     else:
         return pdlib.tparm(CSTR(str), p1, p2, p3, p4, p5, p6, p7, p8, p9)
 
+
 def typeahead(fd):
     if NCURSES:
         try:
@@ -2169,6 +2375,7 @@ def typeahead(fd):
             return ERR
     else:
         return pdlib.typeahead(fd)
+
 
 def wvline(scr_id, ch, n):
     if NCURSES:
@@ -2179,6 +2386,7 @@ def wvline(scr_id, ch, n):
     else:
         return pdlib.wvline(scr_id, ch, n)
 
+
 def unctrl(ch):
     if NCURSES:
         try:
@@ -2188,6 +2396,7 @@ def unctrl(ch):
     else:
         return pdlib.unctrl(ch)
 
+
 def ungetch(ch):
     if NCURSES:
         try:
@@ -2196,6 +2405,7 @@ def ungetch(ch):
             return ERR
     else:
         return pdlib.PDC_ungetch(ch)
+
 
 def ungetmouse(id, x, y, z, bstate):
     if NCURSES:
@@ -2212,6 +2422,7 @@ def ungetmouse(id, x, y, z, bstate):
         m_event.mmask_t = bstate
         return pdlib.ungetmouse(ctypes.byref(m_event))
 
+
 def untouchwin(scr_id):
     if NCURSES:
         try:
@@ -2221,6 +2432,7 @@ def untouchwin(scr_id):
     else:
         return pdlib.untouchwin(scr_id)
 
+
 def use_default_colors():
     if NCURSES:
         try:
@@ -2229,6 +2441,7 @@ def use_default_colors():
             return ERR
     else:
         return pdlib.use_default_colors()
+
 
 def use_env(flag):
     if NCURSES:
@@ -2241,65 +2454,236 @@ def use_env(flag):
 
 # ++ REGULAR FUNCTIONS THAT DO NOT TAKE A WINDOW AS AN ARGUMENT ++
 
-def attroff(attr): return wattroff(stdscr, attr)
-def attron(attr): return wattron(stdscr, attr)
-def attrset(attr): return wattrset(stdscr, attr)
-def clear(): return wclear(stdscr)
-def getch(): return wgetch(stdscr)
-def mvinsnstr(y, x, str, n, attr="NO_USE"): return mvwinsnstr(stdscr, y, x, str, n, attr)
-def insnstr(str, n, attr="NO_USE"): return winsnstr(stdscr, str, n, attr)
-def insch(ch, attr=A_NORMAL): return winsch(stdscr, ch, attr)
-def refresh(): return wrefresh(stdscr)
-def border(ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE, tl=ACS_ULCORNER, tr=ACS_URCORNER, bl=ACS_LLCORNER, br=ACS_LRCORNER): return wborder(stdscr, ls, rs, ts, bs, tl, tr, bl, br)
-def bkgd(ch, attr=A_NORMAL): return wbkgd(stdscr, ch, attr)
-def bkgdset(ch, attr=A_NORMAL): return wbkgdset(stdscr, ch, attr)
-def erase(): return werase(stdscr)
-def timeout(delay): return wtimeout(stdscr, delay)
-def hline(ch, n): return whline(stdscr, ch, n)
-def vline(ch, n): return wvline(stdscr, ch, n)
-def mvhline(y, x, ch, n): return mvwhline(stdscr, y, x, ch, n)
-def mvvline(y, x, ch, n): return mvwvline(stdscr, y, x, ch, n)
-def scroll(lines=1): return wscrl(stdscr, lines)
-def setscrreg(top, bottom): return wsetscrreg(stdscr, top, bottom)
-def delch(): return wdelch(stdscr)
-def mvdelch(y, x): return mvwdelch(stdscr, y, x)
-def move(new_y, new_x): return wmove(stdscr, new_y, new_x)
-def insertln(): return winsertln(stdscr)
-def insdelln(nlines): return winsdelln(stdscr, nlines)
-def inch(): return winch(stdscr)
-def mvinch(y, x): return mvwinch(stdscr, y, x)
-def clrtobot(): return wclrtobot(stdscr)
-def clrtoeol(): return wclrtoeol(stdscr)
-def mvgetch(y, x): return mvwgetch(stdscr, y, x)
-def addch(ch, attr=A_NORMAL): return waddch(stdscr, ch, attr)
-def mvaddch(y, x, ch, attr=A_NORMAL): return mvwaddch(stdscr, y, x, ch, attr)
-def addstr(cstr, attr="NO_USE"): return waddstr(stdscr, cstr, attr)
-def mvaddstr(y, x, cstr, attr="NO_USE"): return mvwaddstr(stdscr, y, x, cstr, attr)
-def addnstr(cstr, n, attr="NO_USE"): return waddnstr(stdscr, cstr, n, attr)
-def mvaddnstr(y, x, cstr, n, attr="NO_USE"): return mvwaddnstr(stdscr, y, x, cstr, n, attr)
-def insstr(cstr, attr="NO_USE"): return winsstr(stdscr, cstr, attr)
-def mvinsstr(y, x, cstr, attr="NO_USE"): return mvwinsstr(stdscr, y, x, cstr, attr)
-def echochar(ch, attr=A_NORMAL): return wechochar(stdscr, ch, attr)
-def standout(): return wstandout(stdscr)
-def standend(): return wstandend(stdscr)
-def chgat(num, attr, color, opts=None): return wchgat(stdscr, num, attr, color, opts)
-def mvchgat(y, x, num, attr, color, opts=None): return mvwchgat(stdscr, y, x, num, attr, color, opts)
-def deleteln(): return wdeleteln(stdscr)
-def mvdeleteln(y, x): return mvwdeleteln(stdscr, y, x)
-def enclose(y, x): return wenclose(stdscr, y, x)
-def getstr(): return wgetstr(stdscr)
-def mvgetstr(y, x): return mvwgetstr(stdscr, y, x)
-def instr(n=-1): return winstr(stdscr, n)
-def mvinstr(y, x, n=-1): return mvwinstr(stdscr, y, x, n)
-def touchline(y, x, changed=1): return wtouchline(stdscr, y, x, changed)
-def touchln(y, x, changed=1): return wtouchline(stdscr, y, x, changed)
-def mvinsch(y, x, ch, attr=A_NORMAL): return mvwinsch(stdscr, y, x, ch, attr)
-def redrawln(beg, num): return wredrawln(stdscr, beg, num)
-def syncdown(): return wsyncdown(stdscr)
-def syncup(): return wsyncup(stdscr)
-def getkey(y=-1, x=-1): return wgetkey(stdscr, y, x)
+
+def attroff(attr):
+    return wattroff(stdscr, attr)
+
+
+def attron(attr):
+    return wattron(stdscr, attr)
+
+
+def attrset(attr):
+    return wattrset(stdscr, attr)
+
+
+def clear():
+    return wclear(stdscr)
+
+
+def getch():
+    return wgetch(stdscr)
+
+
+def mvinsnstr(y, x, str, n, attr="NO_USE"):
+    return mvwinsnstr(stdscr, y, x, str, n, attr)
+
+
+def insnstr(str, n, attr="NO_USE"):
+    return winsnstr(stdscr, str, n, attr)
+
+
+def insch(ch, attr=A_NORMAL):
+    return winsch(stdscr, ch, attr)
+
+
+def refresh():
+    return wrefresh(stdscr)
+
+
+def border(ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE, tl=ACS_ULCORNER, tr=ACS_URCORNER, bl=ACS_LLCORNER, br=ACS_LRCORNER):
+    return wborder(stdscr, ls, rs, ts, bs, tl, tr, bl, br)
+
+
+def bkgd(ch, attr=A_NORMAL):
+    return wbkgd(stdscr, ch, attr)
+
+
+def bkgdset(ch, attr=A_NORMAL):
+    return wbkgdset(stdscr, ch, attr)
+
+
+def erase():
+    return werase(stdscr)
+
+
+def timeout(delay):
+    return wtimeout(stdscr, delay)
+
+
+def hline(ch, n):
+    return whline(stdscr, ch, n)
+
+
+def vline(ch, n):
+    return wvline(stdscr, ch, n)
+
+
+def mvhline(y, x, ch, n):
+    return mvwhline(stdscr, y, x, ch, n)
+
+
+def mvvline(y, x, ch, n):
+    return mvwvline(stdscr, y, x, ch, n)
+
+
+def scroll(lines=1):
+    return wscrl(stdscr, lines)
+
+
+def setscrreg(top, bottom):
+    return wsetscrreg(stdscr, top, bottom)
+
+
+def delch():
+    return wdelch(stdscr)
+
+
+def mvdelch(y, x):
+    return mvwdelch(stdscr, y, x)
+
+
+def move(new_y, new_x):
+    return wmove(stdscr, new_y, new_x)
+
+
+def insertln():
+    return winsertln(stdscr)
+
+
+def insdelln(nlines):
+    return winsdelln(stdscr, nlines)
+
+
+def inch():
+    return winch(stdscr)
+
+
+def mvinch(y, x):
+    return mvwinch(stdscr, y, x)
+
+
+def clrtobot():
+    return wclrtobot(stdscr)
+
+
+def clrtoeol():
+    return wclrtoeol(stdscr)
+
+
+def mvgetch(y, x):
+    return mvwgetch(stdscr, y, x)
+
+
+def addch(ch, attr=A_NORMAL):
+    return waddch(stdscr, ch, attr)
+
+
+def mvaddch(y, x, ch, attr=A_NORMAL):
+    return mvwaddch(stdscr, y, x, ch, attr)
+
+
+def addstr(cstr, attr="NO_USE"):
+    return waddstr(stdscr, cstr, attr)
+
+
+def mvaddstr(y, x, cstr, attr="NO_USE"):
+    return mvwaddstr(stdscr, y, x, cstr, attr)
+
+
+def addnstr(cstr, n, attr="NO_USE"):
+    return waddnstr(stdscr, cstr, n, attr)
+
+
+def mvaddnstr(y, x, cstr, n, attr="NO_USE"):
+    return mvwaddnstr(stdscr, y, x, cstr, n, attr)
+
+
+def insstr(cstr, attr="NO_USE"):
+    return winsstr(stdscr, cstr, attr)
+
+
+def mvinsstr(y, x, cstr, attr="NO_USE"):
+    return mvwinsstr(stdscr, y, x, cstr, attr)
+
+
+def echochar(ch, attr=A_NORMAL):
+    return wechochar(stdscr, ch, attr)
+
+
+def standout():
+    return wstandout(stdscr)
+
+
+def standend():
+    return wstandend(stdscr)
+
+
+def chgat(num, attr, color, opts=None):
+    return wchgat(stdscr, num, attr, color, opts)
+
+
+def mvchgat(y, x, num, attr, color, opts=None):
+    return mvwchgat(stdscr, y, x, num, attr, color, opts)
+
+
+def deleteln():
+    return wdeleteln(stdscr)
+
+
+def mvdeleteln(y, x):
+    return mvwdeleteln(stdscr, y, x)
+
+
+def enclose(y, x):
+    return wenclose(stdscr, y, x)
+
+
+def getstr():
+    return wgetstr(stdscr)
+
+
+def mvgetstr(y, x):
+    return mvwgetstr(stdscr, y, x)
+
+
+def instr(n=-1):
+    return winstr(stdscr, n)
+
+
+def mvinstr(y, x, n=-1):
+    return mvwinstr(stdscr, y, x, n)
+
+
+def touchline(y, x, changed=1):
+    return wtouchline(stdscr, y, x, changed)
+
+
+def touchln(y, x, changed=1):
+    return wtouchline(stdscr, y, x, changed)
+
+
+def mvinsch(y, x, ch, attr=A_NORMAL):
+    return mvwinsch(stdscr, y, x, ch, attr)
+
+
+def redrawln(beg, num):
+    return wredrawln(stdscr, beg, num)
+
+
+def syncdown():
+    return wsyncdown(stdscr)
+
+
+def syncup():
+    return wsyncup(stdscr)
+
+
+def getkey(y=-1, x=-1):
+    return wgetkey(stdscr, y, x)
 
 # ++ UNIFIED CURSES: PANEL MODULE ++
+
 
 def panel_above(pan_id):
     if NCURSES:
@@ -2310,6 +2694,7 @@ def panel_above(pan_id):
     else:
         return pdlib.panel_above(pan_id)
 
+
 def panel_below(pan_id):
     if NCURSES:
         try:
@@ -2318,6 +2703,7 @@ def panel_below(pan_id):
             return ERR
     else:
         return pdlib.panel_below(pan_id)
+
 
 def bottom_panel(pan_id):
     if NCURSES:
@@ -2328,15 +2714,17 @@ def bottom_panel(pan_id):
     else:
         return pdlib.bottom_panel(pan_id)
 
+
 def del_panel(pan_id):
     if NCURSES:
         try:
-            del(pan_id)
+            del pan_id
             return OK
         except curses.panel.error:
             return ERR
     else:
         return pdlib.del_panel(pan_id)
+
 
 def panel_hidden(pan_id):
     if NCURSES:
@@ -2346,8 +2734,10 @@ def panel_hidden(pan_id):
             return ERR
     else:
         mode = pdlib.panel_hidden(pan_id)
-        if mode == OK: return True
+        if mode == OK:
+            return True
         return False
+
 
 def hide_panel(pan_id):
     if NCURSES:
@@ -2358,6 +2748,7 @@ def hide_panel(pan_id):
     else:
         return pdlib.hide_panel(pan_id)
 
+
 def move_panel(pan_id, y, x):
     if NCURSES:
         try:
@@ -2366,6 +2757,7 @@ def move_panel(pan_id, y, x):
             return ERR
     else:
         return pdlib.move_panel(pan_id, y, x)
+
 
 def new_panel(scr_id):
     if NCURSES:
@@ -2376,6 +2768,7 @@ def new_panel(scr_id):
     else:
         return pdlib.new_panel(scr_id)
 
+
 def replace_panel(pan_id, win):
     if NCURSES:
         try:
@@ -2384,6 +2777,7 @@ def replace_panel(pan_id, win):
             return ERR
     else:
         return pdlib.replace_panel(pan_id, win)
+
 
 def set_panel_userptr(pan_id, obj):
     if NCURSES:
@@ -2394,6 +2788,7 @@ def set_panel_userptr(pan_id, obj):
     else:
         return pdlib.set_panel_userptr(pan_id, obj)
 
+
 def show_panel(pan_id):
     if NCURSES:
         try:
@@ -2402,6 +2797,7 @@ def show_panel(pan_id):
             return ERR
     else:
         return pdlib.show_panel(pan_id)
+
 
 def top_panel(pan_id):
     if NCURSES:
@@ -2412,6 +2808,7 @@ def top_panel(pan_id):
     else:
         return pdlib.top_panel(pan_id)
 
+
 def update_panels():
     if NCURSES:
         try:
@@ -2421,6 +2818,7 @@ def update_panels():
     else:
         return pdlib.update_panels()
 
+
 def panel_userptr(pan_id):
     if NCURSES:
         try:
@@ -2429,6 +2827,7 @@ def panel_userptr(pan_id):
             return ERR
     else:
         return pdlib.panel_userptr(pan_id)
+
 
 def panel_window(pan_id):
     if NCURSES:

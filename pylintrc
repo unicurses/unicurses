@@ -34,7 +34,7 @@ load-plugins=
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once).
-disable=R0923,E1103,W0201,W0703,missing-docstring,unused-argument,old-style-class,too-many-public-methods,global-statement,global-variable-undefined
+disable=R0923,E1103,W0201,W0703,missing-docstring,unused-argument,old-style-class,too-many-public-methods,global-statement,global-variable-undefined,invalid-name
 
 
 [REPORTS]
