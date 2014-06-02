@@ -55,10 +55,12 @@ except ImportError:
             Either you're running a very old Python distribution below v2.6,
             or you're using an exotic operating system that's neither Win nor *nix.""")
     else:
+        pdcurses = "pdcurses.dll"
         current_dir = os.path.dirname(os.path.realpath(__file__))
-        path_to_pdcurses = current_dir + "/pdc34dllu/pdcurses.dll"
+        path_to_pdcurses = current_dir + "/" + pdcurses
         print(path_to_pdcurses)
-        if not os.access(path_to_pdcurses, os.F_OK):
+        if not (os.access(pdcurses, os.F_OK)
+                or os.access(path_to_pdcurses, os.F_OK)):
             raise ImportError("""
                 Fatal error: can't find pdcurses.dll for linking.
                 Make sure PDCurses v3.4+ is in the same folder as UniCurses
@@ -122,27 +124,28 @@ def ucs_reconfigure(wrapper_ncurses, wrapper_pdcurses):
                     NCurses wrapper using the library {}""".format(wrapper_ncurses))
 
 
-# Return a bytes-encoded C style string from anything that's convertable with str.
-# It is used to pass strings to PDCurses which expects a C-formatted string.
 def CSTR(s):
+    """
+    Return a bytes-encoded C style string from anything that's convertable with str.
+    It is used to pass strings to PDCurses which expects a C-formatted string.
+    """
     return str(s).encode(code)
 
-# Choose a color pair
 
 
 def PD_COLOR_PAIR(n):
+    """Choose a color pair"""
     return (n << PDC_COLOR_SHIFT) & PDC_A_COLOR
 
-# Pair number from curses.h
 
 
 def PD_PAIR_NUMBER(n):
+    """Pair number from curses.h"""
     return (n & PDC_A_COLOR) >> PDC_COLOR_SHIFT
-
-# Get the PDC curscr (NOT PORTABLE!)
 
 
 def PD_GET_CURSCR():
+    """Get the PDC curscr (NOT PORTABLE!)"""
     return ctypes.c_int.in_dll(pdlib, "curscr")
 
 # --- PDCurses/NCurses curses.h macro wrappers and other prereqs ---
