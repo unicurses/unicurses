@@ -1620,7 +1620,7 @@ def leaveok(scr_id, yes):
 def longname():
     if NCURSES:
         try:
-            return curses.longname()
+            return curses.longname().decode()
         except curses.error:
             return ERR
     else:
@@ -2302,7 +2302,7 @@ def termattrs():
 def termname():
     if NCURSES:
         try:
-            return curses.termname()
+            return curses.termname().decode()
         except curses.error:
             return ERR
     else:
