@@ -55,10 +55,10 @@ except ImportError:
             Either you're running a very old Python distribution below v2.6,
             or you're using an exotic operating system that's neither Win nor *nix.""")
     else:
-        pdcurses = "pdcurses.dll"
+        pdcurses = "pdc34dll/pdcurses.dll"
         current_dir = os.path.dirname(os.path.realpath(__file__))
         path_to_pdcurses = current_dir + "/" + pdcurses
-        print(path_to_pdcurses)
+        print("Expecting pdcurses at: " + path_to_pdcurses)
         if not (os.access(pdcurses, os.F_OK)
                 or os.access(path_to_pdcurses, os.F_OK)):
             raise ImportError("""
