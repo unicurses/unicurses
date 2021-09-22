@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
+import sys
+from glob import glob
 from distutils.core import setup
+
+root = sys.argv[0].replace("setup.py","")
 
 setup(name='UniCurses',
       version='1.2',
@@ -12,5 +16,11 @@ setup(name='UniCurses',
       py_modules=['unicurses'],
       license='General Public License v3',
       platforms=['Windows', 'Linux', 'Mac OS X'],
-      data_files=[('Lib/site-packages/unicurses/demos', ['demos/test_background.py', 'demos/test_chgat.py', 'demos/test_colors.py', 'demos/test_keymenu.py', 'demos/test_mousemenu.py', 'demos/test_panels_advanced.py', 'demos/test_panels_basic.py', 'demos/test_roguelike.py', 'demos/test_windows.py']),
-                  ('Lib/site-packages/unicurses/docs', ['docs/readme.txt', 'docs/readme.rtf', 'docs/changelog'])])
+      data_files=[('Lib/site-packages/unicurses/docs'       , [root + '../PKG-INFO', root + '../pylintrc', root + '../changelog']),
+                  ('Lib/site-packages/unicurses/demos'      , glob(root + '../demos/*.py' )),
+                  ('Lib/site-packages/unicurses/pdc34dll64' , glob(root + 'pdc34dll64/*.*')),
+                  ('Lib/site-packages/unicurses/pdc34dll32' , glob(root + 'pdc34dll32/*.*')),
+                  ('Lib/site-packages/unicurses/pdc34dlls'  , glob(root + 'pdc34dlls/*.*' )),
+                  ('Lib/site-packages/unicurses/pdc34dllu'  , glob(root + 'pdc34dllu/*.*' )),
+                  ('Lib/site-packages/unicurses/pdc34dllw'  , glob(root + 'pdc34dllw/*.*' )),
+                  ('Lib/site-packages/unicurses'            , [    root + '__init__.py']  )])
