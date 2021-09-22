@@ -30,6 +30,8 @@ Open your terminal and cd/navigate to the `unicurses` folder, then execute the b
 python setup.py install
 ```
 
+Importing UniCurses
+-------------------
 ```python
 from unicurses import *
 ```
