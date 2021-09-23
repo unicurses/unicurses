@@ -55,7 +55,13 @@ except ImportError:
             Either you're running a very old Python distribution below v2.6,
             or you're using an exotic operating system that's neither Win nor *nix.""")
     else:
-        pdcurses = "pdc34dll/pdcurses.dll"
+        import platform
+        
+        if platform.architecture()[0] == '64bit':
+            pdcurses = "pdc34dll64/pdcurses.dll"
+        else:
+            pdcurses = "pdc34dll32/pdcurses.dll"
+        
         current_dir = os.path.dirname(os.path.realpath(__file__))
         path_to_pdcurses = current_dir + "/" + pdcurses
         print("Expecting pdcurses at: " + path_to_pdcurses)
@@ -2704,7 +2710,8 @@ def panel_above(pan_id):
         except curses.panel.error:
             return ERR
     else:
-        return pdlib.panel_above(pan_id)
+        pdlib.panel_above.restype = ctypes.c_void_p
+        return ctypes.c_void_p(pdlib.panel_above(pan_id))
 
 
 def panel_below(pan_id):
@@ -2714,7 +2721,8 @@ def panel_below(pan_id):
         except curses.panel.error:
             return ERR
     else:
-        return pdlib.panel_below(pan_id)
+        pdlib.panel_below.restype = ctypes.c_void_p
+        return ctypes.c_void_p(pdlib.panel_below(pan_id))
 
 
 def bottom_panel(pan_id):
@@ -2778,7 +2786,8 @@ def new_panel(scr_id):
         except curses.panel.error:
             return ERR
     else:
-        return pdlib.new_panel(scr_id)
+        pdlib.new_panel.restype = ctypes.c_void_p
+        return ctypes.c_void_p(pdlib.new_panel(scr_id))
 
 
 def replace_panel(pan_id, win):
@@ -2838,7 +2847,8 @@ def panel_userptr(pan_id):
         except curses.panel.error:
             return ERR
     else:
-        return pdlib.panel_userptr(pan_id)
+        pdlib.panel_userptr.restype = ctypes.c_void_p
+        return ctypes.c_void_p(pdlib.panel_userptr(pan_id))
 
 
 def panel_window(pan_id):
@@ -2848,6 +2858,7 @@ def panel_window(pan_id):
         except curses.panel.error:
             return ERR
     else:
-        return pdlib.panel_window(pan_id)
+        pdlib.panel_window.restype = ctypes.c_void_p
+        return ctypes.c_void_p(pdlib.panel_window(pan_id))
 
 # --- UNIFIED CURSES ---

@@ -25,16 +25,20 @@ NOTE: While it may be possible to use UniCurses with an older version of Python 
 
 Installing UniCurses
 --------------------
-NOTE: Since version 1.1 UniCurses is distributed as a Python module distribution. It can be installed on Windows by running the executable (e.g. UniCurses-1.1.win32.exe), and on Linux and Mac OS X by unpacking the tarball and running the setup script using the command "python setup.py install" (from the "UniCurses-1.1" directory). You can still copy "unicurses.py" from the "site-packages" directory to wherever you please for your program to import or use locally.
-UniCurses does not require a special installation procedure, any Python script or program can use it as long as it's located in the same folder as the script or program in question. UniCurses must be imported properly into your script or program, most commonly with one of the following expressions:
-
+Open your terminal and cd/navigate to the `unicurses` folder, then execute the below:
+```terminal
+python setup.py install
 ```
+
+Importing UniCurses
+-------------------
+```python
 from unicurses import *
 ```
 
 OR:
 
-```
+```python
 import unicurses
 ```
 
