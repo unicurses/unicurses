@@ -25,7 +25,11 @@ NOTE: While it may be possible to use UniCurses with an older version of Python 
 
 Installing UniCurses
 --------------------
-Open your terminal and cd/navigate to the `unicurses` folder, then execute the below:
+```terminal
+pip install uni-curses
+```
+
+Or if you want to use the latest releases, download the files from this repository, open your terminal and cd/navigate to the `unicurses` folder, then execute the below:
 ```terminal
 python setup.py install
 ```
