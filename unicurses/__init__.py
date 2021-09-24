@@ -893,8 +893,7 @@ def wbkgdset(scr_id, ch, attr=A_NORMAL):
         return pdlib.wbkgdset(scr_id, ch | attr)
 
 
-def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE,
-            tl=ACS_ULCORNER, tr=ACS_URCORNER, bl=ACS_LLCORNER, br=ACS_LRCORNER):
+def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE,tl=ACS_ULCORNER, tr=ACS_URCORNER, bl=ACS_LLCORNER, br=ACS_LRCORNER):
     if NCURSES:
         try:
             return scr_id.border(ls, rs, ts, bs, tl, tr, bl, br)
