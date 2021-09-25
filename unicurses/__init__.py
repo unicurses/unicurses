@@ -58,9 +58,9 @@ except ImportError:
         import platform
         
         if platform.architecture()[0] == '64bit':
-            pdcurses = "pdc34dll64/pdcurses.dll"
+            pdcurses = "64 bit binaries/pdc39dllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
         else:
-            pdcurses = "pdc34dll32/pdcurses.dll"
+            pdcurses = "32 bit binaries/pdc34dllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
         
         current_dir = os.path.dirname(os.path.realpath(__file__))
         path_to_pdcurses = current_dir + "/" + pdcurses
@@ -893,7 +893,8 @@ def wbkgdset(scr_id, ch, attr=A_NORMAL):
         return pdlib.wbkgdset(scr_id, ch | attr)
 
 
-def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE,tl=ACS_ULCORNER, tr=ACS_URCORNER, bl=ACS_LLCORNER, br=ACS_LRCORNER):
+def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE,
+            tl=ACS_ULCORNER, tr=ACS_URCORNER, bl=ACS_LLCORNER, br=ACS_LRCORNER):
     if NCURSES:
         try:
             return scr_id.border(ls, rs, ts, bs, tl, tr, bl, br)
