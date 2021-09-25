@@ -8,17 +8,19 @@ Unified Curses Wrapper for Python on Windows, Linux, and Mac OS X
 
 What is UniCurses?
 ------------------
-UniCurses is a Python module that is aimed at providing the Curses functionality on all operating systems (MS Windows, Linux, and Mac OS X) using a unified set of commands that are syntactically close to the native C++ Curses functions. UniCurses strives to be as platform-independent as possible, not only by working on all operating systems (as opposed to the original `curses` module which does not work on Microsoft Windows) but also by ensuring compatibility both with the older (v2.x) and the newer (v3.x) versions of Python.
+UniCurses is a Python module that is aimed at providing the Curses functionality on all operating systems *(MS Windows, Linux, and Mac OS X)* using a unified set of commands that are syntactically close to the native C++ Curses functions. UniCurses strives to be as platform-independent as possible, not only by working on all operating systems *(as opposed to the original `curses` module which does not work on Microsoft Windows)* but also by ensuring compatibility both with the older (v2.x) and the newer (v3.x) versions of Python.
 UniCurses is compatible with any Python distribution starting with version 2.6.1, including the newly released v2.7 and all the versions released so far in the Python 3 line, including v3.0.x and v3.1.x.
 
-IMPORTANT: On Microsoft Windows, UniCurses operates by wrapping a curses library known as `Public Domain Curses`, or PDCurses. In order to make UniCurses work on Microsoft Windows, you need download a PDCurses binary from its official website (see the link below) # you need version 3.4 or newer - and put it in the same folder as the UniCurses wrapper itself (unicurses.py). The dynamic link library for PDCurses is called `pdcurses.dll`.
-UniCurses is compatible with all flavors of PDCurses downloadable from the official website, including:
-- The standard terminal PDCurses (pdc34dll.zip)
-- The PDCurses with Unicode support (pdc34dllw.zip)
-- The PDCurses with Unicode/UTF-8 support (pdc34dllu.zip)
-- The SDL PDCurses running in a fake terminal (pdc34dlls.zip)
-If you're not sure which version to download, download either the standard one or the SDL one, depending on whether you want your applications to run in a real Windows terminal window or in an emulated fake SDL window.
-Public Domain Curses can be downloaded from here:
+On Microsoft Windows, UniCurses operates by wrapping a curses library known as `Public Domain Curses`, or PDCurses. The dynamic link library for PDCurses is called `pdcurses.dll`. UniCurses is compatible with all flavors of PDCurses, including:
+
+- The standard terminal PDCurses *([pdc39dll](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdc39dll))*.
+- The SDL PDCurses running in a fake terminal *([pdc39dlls](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdc39dlls))*.
+- The PDCurses with wide-character (Unicode) support *([pdc39dllw](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdc39dllw))*.
+- The PDCurses with wide-character (Unicode)/UTF-8 support *([pdc39dllu](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdc39dllu))*.
+
+Depending on whether you want your applications to run in a real Windows terminal window or in an emulated fake SDL window you can either use one of the common ones or the SDL one.
+
+if you want to experiment with or use a newer version of PDCurses, you can build your own binaries by downloading the source code from the official link below:
 http://pdcurses.sourceforge.net
 
 NOTE: While it may be possible to use UniCurses with an older version of Python (v2.6.1) or PDCurses (v3.4) than officially listed as compatible, it has not been tested with such versions of software and as such it's impossible to guarantee that your configuration will work correctly or that you would not have to take extra steps and install additional packages in order to make your configuration work at least in part. It's highly recommended that you upgrade to the latest versions of Python and PDCurses before you install and start using UniCurses.
@@ -29,7 +31,7 @@ Installing UniCurses
 pip install uni-curses
 ```
 
-Or if you want to use the latest releases, download the files from this repository, open your terminal and cd/navigate to the `unicurses` folder, then execute the below:
+or if you want to use the latest release, download the files from this repository, open your terminal and cd/navigate to the `unicurses` folder and then execute the below:
 ```terminal
 python setup.py install
 ```
