@@ -8,7 +8,7 @@ from distutils.core import setup # 1
 root = sys.argv[0].replace("setup.py","")
 
 setup(name='Uni-Curses',
-      version='1.3.0',
+      version='1.3.6',
       description='Unified Curses Wrapper for Python',
       long_description='A universal Curses wrapper for Python on Windows, Linux, and\nMac OS X, with syntax close to the original NCurses. In order\nto provide Curses functionality on Windows it utilizes the ctype\nforeign function interface to wrap PDCurses, a free and open-source\nCurses implementation for Windows. CONTRIBUTORS = [GiorgosXou]',
       author='Michael Kamensky',
@@ -31,6 +31,6 @@ setup(name='Uni-Curses',
 
 
 
-# 1 = directly to C:\Users\gxous\AppData\Local\Programs\Python\Python39\Lib\site-packages
+# 1 = when uploading to github | directly to C:\Users\gxous\AppData\Local\Programs\Python\Python39\Lib\site-packages
 # https://stackoverflow.com/a/57644936/11465149
-# 0 = for package upload
+# 0 = When uploading to pip

@@ -23,3 +23,8 @@ v1.3:
 - Fixed: setup.py issues.
 - Added: import pdcurses on windows 64 bit
 - Fixed: set_panel_userptr() fails with memory access violation
+
+v1.3.6:
+-------
+
+- Added: 64-bit  binaries
