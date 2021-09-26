@@ -28,3 +28,9 @@ v1.3.6:
 -------
 
 - Added: 64-bit  binaries
+
+v1.3.7:
+-------
+
+- Added: 32-bit pdcurses-3.9 version binaries
+- Fixed: sdl2 version with WIDE (Unicode) support
