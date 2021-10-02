@@ -748,8 +748,7 @@ else:
 # --- CONSTANTS ---
 
 
-# +++ FUNCTION DEFINITIONS (PDC) +++
-#region 
+#region     +++ FUNCTION DEFINITIONS (PDC) +++
 if not NCURSES:
     pdlib.erasechar.restype        = ctypes.c_char
     pdlib.keyname.restype          = ctypes.c_char_p
@@ -769,8 +768,18 @@ if not NCURSES:
     pdlib.has_il.restype           = ctypes.c_bool
     pdlib.has_key.restype          = ctypes.c_bool
     pdlib.isendwin.restype         = ctypes.c_bool
-
-# --- FUNCTION DEFINITIONS (PDC) ---
+    pdlib.new_panel.restype        = ctypes.c_void_p
+    pdlib.derwin.restype           = ctypes.c_void_p
+    pdlib.initscr.restype          = ctypes.c_void_p
+    pdlib.newpad.restype           = ctypes.c_void_p
+    pdlib.newwin.restype           = ctypes.c_void_p
+    pdlib.subpad.restype           = ctypes.c_void_p
+    pdlib.subwin.restype           = ctypes.c_void_p
+    pdlib.panel_above.restype      = ctypes.c_void_p
+    pdlib.panel_below.restype      = ctypes.c_void_p
+    pdlib.panel_userptr.restype    = ctypes.c_void_p
+    pdlib.panel_window.restype     = ctypes.c_void_p
+#endregion --- FUNCTION DEFINITIONS (PDC) ---
 
 
 # +++ UNIFIED CURSES +++
@@ -1113,7 +1122,6 @@ def derwin(srcwin, nlines, ncols, begin_y, begin_x):
         except curses.error:
             return ERR
     else:
-        pdlib.derwin.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.derwin(srcwin, nlines, ncols, begin_y, begin_x))
 
 
@@ -1465,7 +1473,6 @@ def initscr():
         except curses.error:
             return ERR
     else:
-        pdlib.initscr.restype = ctypes.c_void_p
         stdscr = ctypes.c_void_p(pdlib.initscr())
         return stdscr
 
@@ -1608,6 +1615,33 @@ def killchar():   # TODO: this might not be portable across platforms yet
             return ERR
     else:
         return pdlib.killchar()
+
+
+def get_tabsize():
+    """
+    Retrieves the value set by `set_tabsize`.
+    """
+    if NCURSES:
+        try:
+            return curses.get_tabsize()
+        except curses.error:
+            return ERR
+    else:
+        return pdlib.get_tabsize()
+
+
+def set_tabsize(size):
+    """
+    Sets the number of columns used by the curses library when converting a tab
+    character to spaces as it adds the tab to a window.
+    """
+    if NCURSES:
+        try:
+            return curses.set_tabsize(size)
+        except curses.error:
+            return ERR
+    else:
+        return pdlib.set_tabsize(size)
 
 
 def leaveok(scr_id, yes):
@@ -1899,7 +1933,6 @@ def newpad(nlines, ncols):
         except curses.error:
             return ERR
     else:
-        pdlib.newpad.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.newpad(nlines, ncols))
 
 
@@ -1910,7 +1943,6 @@ def newwin(nlines, ncols, begin_y, begin_x):
         except curses.error:
             return ERR
     else:
-        pdlib.newwin.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.newwin(nlines, ncols, begin_y, begin_x))
 
 
@@ -2250,7 +2282,6 @@ def subpad(scrwin, nlines, ncols, begin_y, begin_x):
         except curses.error:
             return ERR
     else:
-        pdlib.subpad.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.subpad(scrwin, nlines, ncols, begin_y, begin_x))
 
 
@@ -2261,7 +2292,6 @@ def subwin(srcwin, nlines, ncols, begin_y, begin_x):
         except curses.error:
             return ERR
     else:
-        pdlib.subwin.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.subwin(srcwin, nlines, ncols, begin_y, begin_x))
 
 
@@ -2710,7 +2740,6 @@ def panel_above(pan_id):
         except curses.panel.error:
             return ERR
     else:
-        pdlib.panel_above.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.panel_above(pan_id))
 
 
@@ -2721,7 +2750,6 @@ def panel_below(pan_id):
         except curses.panel.error:
             return ERR
     else:
-        pdlib.panel_below.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.panel_below(pan_id))
 
 
@@ -2786,7 +2814,6 @@ def new_panel(scr_id):
         except curses.panel.error:
             return ERR
     else:
-        pdlib.new_panel.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.new_panel(scr_id))
 
 
@@ -2847,7 +2874,6 @@ def panel_userptr(pan_id):
         except curses.panel.error:
             return ERR
     else:
-        pdlib.panel_userptr.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.panel_userptr(pan_id))
 
 
@@ -2858,7 +2884,9 @@ def panel_window(pan_id):
         except curses.panel.error:
             return ERR
     else:
-        pdlib.panel_window.restype = ctypes.c_void_p
         return ctypes.c_void_p(pdlib.panel_window(pan_id))
 
 # --- UNIFIED CURSES ---
+
+
+#TODO: When the PR gets merged https://github.com/python/cpython/pull/17825

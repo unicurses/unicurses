@@ -34,3 +34,10 @@ v1.3.7:
 
 - Added: 32-bit pdcurses-3.9 version binaries
 - Fixed: sdl2 version with WIDE (Unicode) support
+
+v1.3.71:
+-------
+
+- minor changes
+- Fixed: (?) setup.py issues with other platforms 
+- Added: set_tabsize() and get_tabsize() functions
