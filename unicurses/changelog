@@ -36,7 +36,7 @@ v1.3.7:
 - Fixed: sdl2 version with WIDE (Unicode) support
 
 v1.3.73:
--------
+--------
 
 - minor changes
 - Fixed: (?) setup.py issues with other platforms 
