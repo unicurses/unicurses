@@ -2,8 +2,8 @@
 
 import sys
 from glob import glob
-from setuptools import setup # 0 
-#from distutils.core import setup # 1
+#from setuptools import setup # 0 
+from distutils.core import setup # 1
 
 root = sys.argv[0].replace("setup.py","")
 
