@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
-import os
 import sys
 from glob import glob
-#from setuptools import setup # 0 
-from distutils.core import setup # 1
+from setuptools import setup # 0 
+#from distutils.core import setup # 1
 
 root = sys.argv[0].replace("setup.py","")
 
 setup(name='Uni-Curses',
-      version='1.3.73',
+      version='1.3.74',
       description='Unified Curses Wrapper for Python',
       long_description='A universal Curses wrapper for Python on Windows, Linux, and\nMac OS X, with syntax close to the original NCurses. In order\nto provide Curses functionality on Windows it utilizes the ctype\nforeign function interface to wrap PDCurses, a free and open-source\nCurses implementation for Windows. CONTRIBUTORS = [GiorgosXou]',
       author='Michael Kamensky',
@@ -28,7 +27,7 @@ setup(name='Uni-Curses',
                   ('lib/site-packages/unicurses/64 bit binaries/pdc39dllu'  , glob(root + '64 bit binaries/pdc39dllu/*.*')),
                   ('lib/site-packages/unicurses/64 bit binaries/pdc39dllw'  , glob(root + '64 bit binaries/pdc39dllw/*.*')),
 
-                  ('lib/site-packages/unicurses'                            , [    root + '/__init__.py']  )])
+                  ('lib/site-packages/unicurses'                            , [    root + '__init__.py']  )])
 
 
 
