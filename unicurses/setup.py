@@ -7,7 +7,7 @@ from glob import glob
 from distutils.core import setup # 1
 
 root = sys.argv[0].replace("setup.py","")
-
+ 
 setup(name='Uni-Curses',
       version='1.3.73',
       description='Unified Curses Wrapper for Python',
