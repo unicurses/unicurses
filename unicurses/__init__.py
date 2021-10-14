@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# CONTRIBUTOR https://github.com/GiorgosXou
+
 # import Curses (either natively if supported or via PDCurses using FFI if on MS Windows)
 import sys
 import os
@@ -42,38 +44,39 @@ except ImportError:
         if you want to use UniCurses on a {} platform.
         """.format(sys.platform))
 
-try:
-    # See if the platform supports curses natively
-    import curses
-    import curses.panel
-    NCURSES_AVAILABLE = True
-    NCURSES = True
-except ImportError:
-    if sys.platform.find('win') == -1:
+
+if sys.platform.find('win') == -1:
+    try:
+        # See if (non windows)-platform supports curses natively
+        import curses
+        import curses.panel
+        NCURSES_AVAILABLE = True
+        NCURSES = True
+    except ImportError:
         raise ImportError("""
             Fatal error: this platform is not supported by UniCurses.
             Either you're running a very old Python distribution below v2.6,
             or you're using an exotic operating system that's neither Win nor *nix.""")
+else:
+    import platform
+    
+    if platform.architecture()[0] == '64bit':
+        pdcurses = "64 bit binaries/pdc39dllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
     else:
-        import platform
-        
-        if platform.architecture()[0] == '64bit':
-            pdcurses = "64 bit binaries/pdc39dllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
-        else:
-            pdcurses = "32 bit binaries/pdc34dllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
-        
-        current_dir = os.path.dirname(os.path.realpath(__file__))
-        path_to_pdcurses = current_dir + "/" + pdcurses
-        print("Expecting pdcurses at: " + path_to_pdcurses)
-        if not (os.access(pdcurses, os.F_OK)
-                or os.access(path_to_pdcurses, os.F_OK)):
-            raise ImportError("""
-                Fatal error: can't find pdcurses.dll for linking.
-                Make sure PDCurses v3.4+ is in the same folder as UniCurses
-                if you want to use UniCurses on a {} platform.
-                """.format(sys.platform))
-        # We're on winXX, use pdcurses instead of native ncurses
-        pdlib = ctypes.CDLL(path_to_pdcurses)
+        pdcurses = "32 bit binaries/pdc34dllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
+    
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    path_to_pdcurses = current_dir + "/" + pdcurses
+    print("Expecting pdcurses at: " + path_to_pdcurses)
+    if not (os.access(pdcurses, os.F_OK)
+            or os.access(path_to_pdcurses, os.F_OK)):
+        raise ImportError("""
+            Fatal error: can't find pdcurses.dll for linking.
+            Make sure PDCurses is in the same folder as UniCurses
+            if you want to use UniCurses on a {} platform.
+            """.format(sys.platform))
+    # We're on winXX, use pdcurses instead of native ncurses
+    pdlib = ctypes.CDLL(path_to_pdcurses)
 
 
 # +++ PDCurses/NCurses curses.h marco wrappers and other prereqs +++
@@ -135,7 +138,7 @@ def CSTR(s):
     Return a bytes-encoded C style string from anything that's convertable with str.
     It is used to pass strings to PDCurses which expects a C-formatted string.
     """
-    return str(s).encode(code)
+    return str(s).encode() # code <-- i don't think it's needed especially because preferenced encodings may raise "UnicodeEncodeError: 'charmap' codec can't encode character" | and so maybe just utf-8 is fine?
 
 
 
@@ -371,6 +374,13 @@ else:
     COLOR_YELLOW  = (COLOR_RED | COLOR_GREEN)
     COLOR_WHITE   = 7
 
+
+def RCCHAR(ch):
+    """Reverse of CCHAR function"""
+    if   type(ch) == int: return chr(ch)
+    elif type(ch) == str: return ch
+    else: 
+        raise Exception("RCCHAR: can't parse a non-char/non-int value.")
 
 def CCHAR(ch):
     """Get a C character"""
@@ -789,11 +799,11 @@ if not NCURSES:
 def waddch(scr_id, ch, attr=A_NORMAL):
     if NCURSES:
         try:
-            return scr_id.addch(ch, attr)
+            return scr_id.addch(RCCHAR(ch), attr)
         except curses.error:
             return ERR
     else:
-        return pdlib.waddch(scr_id, ch | attr)
+        return pdlib.waddch(scr_id, CCHAR(ch) | attr)
 
 
 def waddstr(scr_id, cstr, attr="NO_USE"):
@@ -1240,11 +1250,11 @@ def getbegyx(scr_id):
 def wgetch(scr_id):
     if NCURSES:
         try:
-            return scr_id.getch()
+            return CCHAR(scr_id.get_wch())
         except curses.error:
             return ERR
     else:
-        return pdlib.wgetch(scr_id)
+        return pdlib.wgetch(scr_id) 
 
 
 def wgetkey(scr_id, y=-1, x=-1):
@@ -1710,11 +1720,11 @@ def wmove(scr_id, new_y, new_x):
 def mvwaddch(scr_id, y, x, ch, attr=A_NORMAL):
     if NCURSES:
         try:
-            return scr_id.addch(y, x, ch, attr)
+            return scr_id.addch(y, x, RCCHAR(ch), attr)
         except curses.error:
             return ERR
     else:
-        return pdlib.mvwaddch(scr_id, y, x, ch | attr)
+        return pdlib.mvwaddch(scr_id, y, x, CCHAR(ch) | attr)
 
 
 def mvwaddstr(scr_id, y, x, cstr, attr="NO_USE"):
@@ -1887,7 +1897,10 @@ def mvwinsnstr(scr_id, y, x, strn, n, attr="NO_USE"):
 def mvwinstr(scr_id, y, x, n=-1):
     if NCURSES:
         try:
-            return scr_id.instr(y, x, n)
+            if n == -1: 
+                return scr_id.instr(y, x   ).decode()
+            else:       
+                return scr_id.instr(y, x, n).decode()
         except curses.error:
             return ERR
     else:
@@ -2099,14 +2112,14 @@ def putp(cstring):
         return pdlib.putp(CSTR(cstring))
 
 
-def putwin(scr_id, file):    # THIS IS NOT CROSS-PLATFORM YET, AVOID IF POSSIBLE
+def putwin(scr_id, file):    # TODO: https://github.com/wmcbrine/PDCurses/search?q=putwin
     if NCURSES:
         try:
             return scr_id.putwin(file)
         except curses.error:
             return ERR
     else:
-        raise Exception("UNICURSES_PUTWIN: 'putwin' is unavailable under Windows!")
+        raise Exception("UNICURSES_PUTWIN: 'putwin' is unavailable under Windows at this momment!")
 
 
 def qiflush():

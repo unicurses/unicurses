@@ -1,31 +1,46 @@
 from unicurses import *
 
+
 def win_show(win, label, label_color):
     starty, startx = getbegyx(win)
-    height, width = getmaxyx(win)
+    height, width  = getmaxyx(win)
+
     box(win, 0, 0)
-    mvwaddch(win, 2, 0, ACS_LTEE)
-    mvwhline(win, 2, 1, ACS_HLINE, width - 2)
-    mvwaddch(win, 2, width - 1, ACS_RTEE)
+    wborder(win#,                                                            # wide-unicode charachters are not supported for linux's wborder at this moment.
+        #CCHAR('│') , CCHAR('│'),                                            # left - right
+        #CCHAR('─') , CCHAR('─'),                                            # Up   - Down
+        #CCHAR('╭') , CCHAR('╮'),                                            # left - right  (  top  corner)
+        #CCHAR('╰') , CCHAR('╯')                                             # left - right  (bottom corner)
+    )
+    mvwaddch(win, 2, 0, CCHAR('├'))                                          # or ACS_LTEE
+    mvwhline(win, 2, 1, CCHAR('─'), width - 2)                               # or ACS_HLINE
+    mvwaddch(win, 2, width - 1, CCHAR('┤'))                                  # ACS_RTEE
+
     print_in_middle(win, 1, 0, width, label, COLOR_PAIR(label_color))
+
 
 def print_in_middle(win, starty, startx, width, string, color):
     if (win == None): win = stdscr
     y, x = getyx(win)
+
     if (startx != 0): x = startx
     if (starty != 0): y = starty
-    if (width == 0): width = 80
+    if (width  == 0): width = 80
+    
     length = len(string)
-    temp = (width - length) / 2
-    x = startx + int(temp)
+    temp   = (width - length) / 2
+    x      = startx + int(temp)
+    
     wattron(win, color)
     mvwaddstr(win, y, x, string)
     wattroff(win, color)
     refresh()
 
+
 def init_wins(wins, n):
     y = 2
     x = 10
+    
     for i in range(0, n):
         wins[i] = newwin(10, 40, y, x)
         label = str.format("Window number {0}", i + 1)
@@ -33,48 +48,63 @@ def init_wins(wins, n):
         y += 3
         x += 7
 
-NLINES = 10
-NCOLS = 40
-my_wins = [0] * 3
-my_panels = [0] * 3
 
-stdscr = initscr()
-start_color()
-cbreak()
-noecho()
-keypad(stdscr, True)
 
-init_pair(1, COLOR_RED, COLOR_BLACK)
-init_pair(2, COLOR_GREEN, COLOR_BLACK)
-init_pair(3, COLOR_BLUE, COLOR_BLACK)
-init_pair(4, COLOR_CYAN, COLOR_BLACK)
+def main():
+    my_wins   = [0] * 3
+    my_panels = [0] * 3
 
-init_wins(my_wins, 3)
+    stdscr = initscr()
 
-my_panels[0] = new_panel(my_wins[0])
-my_panels[1] = new_panel(my_wins[1])
-my_panels[2] = new_panel(my_wins[2])
+    wborder(stdscr#,                                                         # wide-unicode charachters are not supported for linux's wborder at this moment.
+        #CCHAR('│') , CCHAR('│'),                                            # left - right
+        #CCHAR('─') , CCHAR('─'),                                            # Up   - Down
+        #CCHAR('╭') , CCHAR('╮'),                                            # left - right  (  top  corner)
+        #CCHAR('╰') , CCHAR('╯')                                             # left - right  (bottom corner)
+    )
 
-set_panel_userptr(my_panels[0], my_panels[1])
-set_panel_userptr(my_panels[1], my_panels[2])
-set_panel_userptr(my_panels[2], my_panels[0])
+    start_color()
+    cbreak()
+    noecho()
+    keypad(stdscr, True)
 
-update_panels()
+    init_pair(1, COLOR_RED  , COLOR_BLACK)
+    init_pair(2, COLOR_GREEN, COLOR_BLACK)
+    init_pair(3, COLOR_BLUE , COLOR_BLACK)
+    init_pair(4, COLOR_CYAN , COLOR_BLACK)
 
-attron(COLOR_PAIR(4))
-mvaddstr(0, int(NCOLS / 2) - 2, "Use tab to browse through the windows (Q to Exit)")
-attroff(COLOR_PAIR(4))
-doupdate()
+    refresh() #
 
-top = my_panels[2]
+    init_wins(my_wins, 3)
 
-ch = -1
-while ( (ch != CCHAR('q')) and (ch != CCHAR('Q')) ):
-    ch = getch()
-    if ch == 9:
-        top = panel_userptr(top)
-        top_panel(top)
+    my_panels[0] = new_panel(my_wins[0])
+    my_panels[1] = new_panel(my_wins[1])
+    my_panels[2] = new_panel(my_wins[2])
+
+    set_panel_userptr(my_panels[0], my_panels[1])
+    set_panel_userptr(my_panels[1], my_panels[2])
+    set_panel_userptr(my_panels[2], my_panels[0])
+
     update_panels()
+
+    attron (COLOR_PAIR(4))
+    mvaddstr(0, 10, "Use tab to browse through the windows (Q to Exit)")
+    attroff(COLOR_PAIR(4))
     doupdate()
 
-endwin()
+    top = my_panels[2]
+
+    ch = -1
+    while ( (ch != CCHAR('q')) and (ch != CCHAR('Q')) ):
+        ch = getch()
+        if ch == 9:
+            top = panel_userptr(top)
+            top_panel(top)
+        update_panels()
+        doupdate()
+
+    endwin()
+
+
+if __name__ == "__main__":
+    main()

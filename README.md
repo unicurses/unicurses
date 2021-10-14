@@ -28,12 +28,18 @@ NOTE: While it may be possible to use UniCurses with an older version of Python 
 Installing UniCurses
 --------------------
 ```terminal
-pip install uni-curses
+pip3 install uni-curses
 ```
 
-or if you want to use the latest release, download the files from this repository, open your terminal and cd/navigate to the `unicurses` folder and then execute the below:
+^ if this won't work and you get `ModuleNotFoundError` try specifying the python version like:
+
 ```terminal
-python setup.py install
+python3.9 -m pip install uni-curses
+```
+
+or if you want to use the latest release, download the files from this repository, open your terminal and cd/navigate to the folder and then execute the below:
+```terminal
+pip3 install .
 ```
 
 Importing UniCurses
