@@ -51,3 +51,7 @@ v1.3.78:
 - Fixed: setup.py & pip, finally work as they should.
 - Fixed: waddch & wgetch & mvwaddch, now they support wide (unicode) characters
 - Fixed: mvwinstr, now it doesn't throw error for n
+
+v1.3.79:
+--------
+- Added: attribute A_ITALIC

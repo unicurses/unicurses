@@ -7,7 +7,7 @@ from setuptools import setup
 root = sys.argv[0].replace("setup.py","")
 
 setup(name='Uni-Curses',
-      version='v1.3.78',
+      version='v1.3.79',
       description='Unified Curses Wrapper for Python',
       long_description='A universal Curses wrapper for Python on Windows, Linux, and\nMac OS X, with syntax close to the original NCurses. In order\nto provide Curses functionality on Windows it utilizes the ctype\nforeign function interface to wrap PDCurses, a free and open-source\nCurses implementation for Windows. CONTRIBUTORS = [GiorgosXou]',
       author='Michael Kamensky',

@@ -1,4 +1,4 @@
-UNICURSES v1.2 (C) 2010 by Michael Kamensky (Agetian)  
+UNICURSES v1.3.78 (C) 2010 by Michael Kamensky (Agetian)  
 Released as Free Software under the terms of General Public License (GPL) v3
 
 

@@ -328,6 +328,7 @@ if NCURSES:
     A_BOLD       = curses.A_BOLD
     A_DIM        = curses.A_DIM
     A_NORMAL     = curses.A_NORMAL
+    A_ITALIC     = curses.A_ITALIC
     A_STANDOUT   = curses.A_STANDOUT
     A_UNDERLINE  = curses.A_UNDERLINE
     A_REVERSE    = curses.A_REVERSE
@@ -345,6 +346,7 @@ else:
     A_BOLD       = PDC_A_BOLD
     A_DIM        = PDC_A_DIM
     A_NORMAL     = PDC_A_NORMAL
+    A_ITALIC     = PDC_A_ITALIC
     A_STANDOUT   = PDC_A_STANDOUT
     A_UNDERLINE  = PDC_A_UNDERLINE
     A_REVERSE    = PDC_A_REVERSE
