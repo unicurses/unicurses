@@ -1,4 +1,4 @@
-UNICURSES v1.3.78 (C) 2010 by Michael Kamensky (Agetian)  
+UNICURSES v1.3.81 (C) 2010 by Michael Kamensky (Agetian)  
 Released as Free Software under the terms of General Public License (GPL) v3
 
 
@@ -13,10 +13,10 @@ UniCurses is compatible with any Python distribution starting with version 2.6.1
 
 On Microsoft Windows, UniCurses operates by wrapping a curses library known as `Public Domain Curses`, or PDCurses. The dynamic link library for PDCurses is called `pdcurses.dll`. UniCurses is compatible with all flavors of PDCurses, including:
 
-- The standard terminal PDCurses *([pdc39dll](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdc39dll))*.
-- The SDL PDCurses running in a fake terminal *([pdc39dlls](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdc39dlls))*.
-- The PDCurses with wide-character (Unicode) support *([pdc39dllw](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdc39dllw))*.
-- The PDCurses with wide-character (Unicode)/UTF-8 support *([pdc39dllu](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdc39dllu))*.
+- The standard terminal PDCurses *([pdcdll](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdcdll))*.
+- The SDL PDCurses running in a fake terminal *([pdcdlls](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdcdlls))*.
+- The PDCurses with wide-character (Unicode) support *([pdcdllw](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdcdllw))*.
+- The PDCurses with wide-character (Unicode)/UTF-8 support *([pdcdllu](https://github.com/unicurses/unicurses/tree/master/unicurses/64%20bit%20binaries/pdcdllu))*.
 
 Depending on whether you want your applications to run in a real Windows terminal window or in an emulated fake SDL window you can either use one of the common ones or the SDL one.
 

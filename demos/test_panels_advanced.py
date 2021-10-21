@@ -51,6 +51,8 @@ def init_wins(wins, n):
 
 
 def main():
+    global stdscr
+
     my_wins   = [0] * 3
     my_panels = [0] * 3
 

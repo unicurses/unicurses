@@ -24,13 +24,15 @@ global pdlib
 global NCURSES
 global PDC_LEAVEOK
 global pdlib
+global IS_PDCURSES_DLL_UTF8
 
-PDC_LEAVEOK         = False  # LeaveOK emulation in PDC
-NCURSES             = False  # Native curses support
-NCURSES_AVAILABLE   = False  # True if the NCurses is available natively
-pdlib               = None   # PD library, if applicable
-UCS_DEFAULT_WRAPPER = ""     # A constant for the default wrapper (ucs_reconfigure)
-stdscr              = -1     # A pointer to the standard screen
+PDC_LEAVEOK          = False  # LeaveOK emulation in PDC
+NCURSES              = False  # Native curses support
+NCURSES_AVAILABLE    = False  # True if the NCurses is available natively
+pdlib                = None   # PD library, if applicable
+UCS_DEFAULT_WRAPPER  = ""     # A constant for the default wrapper (ucs_reconfigure)
+stdscr               = -1     # A pointer to the standard screen
+IS_PDCURSES_DLL_UTF8 = True   # Determine if dll is compiled with flag "UTF8=Y" or not
 
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()   # TODO: fix this to actually work on native ncurses
@@ -61,9 +63,9 @@ else:
     import platform
     
     if platform.architecture()[0] == '64bit':
-        pdcurses = "64 bit binaries/pdc39dllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
+        pdcurses = "64 bit binaries/pdcdllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
     else:
-        pdcurses = "32 bit binaries/pdc34dllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
+        pdcurses = "32 bit binaries/pdcdllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
     
     current_dir = os.path.dirname(os.path.realpath(__file__))
     path_to_pdcurses = current_dir + "/" + pdcurses
@@ -98,10 +100,14 @@ if not NCURSES:
 # !!! IF YOU DON'T KNOW WHAT THIS MAY BE USED FOR, YOU DON'T NEED TO USE IT !!!
 
 
-def ucs_reconfigure(wrapper_ncurses, wrapper_pdcurses):
+def ucs_reconfigure(wrapper_ncurses, wrapper_pdcurses, is_utf8_dll = True):
     global NCURSES
     global NCURSES_AVAILABLE
     global pdlib
+    global IS_PDCURSES_DLL_UTF8
+
+    IS_PDCURSES_DLL_UTF8 = is_utf8_dll
+
     if NCURSES_AVAILABLE:
         if wrapper_ncurses == UCS_DEFAULT_WRAPPER:
             NCURSES = True
@@ -138,7 +144,12 @@ def CSTR(s):
     Return a bytes-encoded C style string from anything that's convertable with str.
     It is used to pass strings to PDCurses which expects a C-formatted string.
     """
-    return str(s).encode() # code <-- i don't think it's needed especially because preferenced encodings may raise "UnicodeEncodeError: 'charmap' codec can't encode character" | and so maybe just utf-8 is fine?
+    global IS_PDCURSES_DLL_UTF8
+    
+    if IS_PDCURSES_DLL_UTF8:
+        return str(s).encode()
+    else:
+        return str(s).encode(code)
 
 
 
@@ -328,6 +339,7 @@ if NCURSES:
     A_BOLD       = curses.A_BOLD
     A_DIM        = curses.A_DIM
     A_NORMAL     = curses.A_NORMAL
+    A_ITALIC     = curses.A_ITALIC
     A_STANDOUT   = curses.A_STANDOUT
     A_UNDERLINE  = curses.A_UNDERLINE
     A_REVERSE    = curses.A_REVERSE
@@ -345,6 +357,7 @@ else:
     A_BOLD       = PDC_A_BOLD
     A_DIM        = PDC_A_DIM
     A_NORMAL     = PDC_A_NORMAL
+    A_ITALIC     = PDC_A_ITALIC
     A_STANDOUT   = PDC_A_STANDOUT
     A_UNDERLINE  = PDC_A_UNDERLINE
     A_REVERSE    = PDC_A_REVERSE
@@ -920,7 +933,7 @@ def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE,
         except curses.error:
             return ERR
     else:
-        return pdlib.wborder(scr_id, ls, rs, ts, bs, tl, tr, bl, br)
+        return pdlib.wborder(scr_id, ls, rs, ts, bs, tl, tr, bl, br) # same as wborder_set (it supports unicode by default)
 
 
 def box(scr_id, verch=ACS_VLINE, horch=ACS_HLINE):
@@ -1447,7 +1460,7 @@ def immedok(scr_id, flag):
 def winch(scr_id):
     if NCURSES:
         try:
-            return scr_id.inch()
+            return scr_id.inch() #TODO: #1 When the PR gets merged https://github.com/python/cpython/pull/17825 too ???
         except curses.error:
             return ERR
     else:
@@ -1839,7 +1852,9 @@ def mvwhline(scr_id, y, x, ch, n):
 def mvwinch(scr_id, y, x):
     if NCURSES:
         try:
-            return scr_id.inch(y, x)
+            #return scr_id.inch(y, x)
+            #return scr_id.in_wch(y,x) #TODO: #1 When the PR gets merged https://github.com/python/cpython/pull/17825 or something
+            return CCHAR(mvinstr(y, x, 1))
         except curses.error:
             return ERR
     else:
@@ -2099,7 +2114,7 @@ def prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol):
         except curses.error:
             return ERR
     else:
-        return pdlib.prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol)
+        return pdlib.prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol) # TODO: fix | https://github.com/wmcbrine/PDCurses/pull/121
 
 
 def putp(cstring):
@@ -2200,6 +2215,16 @@ def wresize(scr_id, lines, columns):
             return ERR
     else:
         return pdlib.wresize(scr_id, lines, columns)
+
+
+def resize_term(lines, columns):
+    if NCURSES:
+        try:
+            return curses.resize_term(lines, columns)
+        except curses.error:
+            return ERR
+    else:
+        return pdlib.resize_term(lines, columns)    
 
 
 def wscrl(scr_id, lines=1):
@@ -2902,4 +2927,3 @@ def panel_window(pan_id):
 # --- UNIFIED CURSES ---
 
 
-#TODO: When the PR gets merged https://github.com/python/cpython/pull/17825
