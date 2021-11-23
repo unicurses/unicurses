@@ -58,3 +58,17 @@ v1.3.81:
 - Added: resize_term function
 - Added: new binaries (not v3.9)
 - TEMPORARILY Fixed: mvwinch, now support wide (unicode) characters | Until https://github.com/python/cpython/pull/17825 gets merged or something
+
+v2.0.0:
+--------
+- Update: Completly replaced cpython's ncurses-module with native the .so & .dylib libraries
+- Added: Python2 support thanks to the ^Update although not excessively tested
+- Added: UP-TO-DATE binaries for PDCURSES
+- Added: cchar_t structure for NCURSES
+- Added: wadd_wch, mvwadd_wch
+- Added: addwstr, waddwstr, mvaddwstr, mvwaddwstr
+- Added: CONSTANTS for both NCURSES and PDCURSES
+- Added: extra stuff to ucs_reconfigure 
+- Added: marco wrappers for both NCURSES and PDCURSES
+- Fixed: removed the (TEMPORARILY Fixed) from v1.3.81
+- DISCLAIMER: MANY THINGS ARE NOT TESTED YET.
