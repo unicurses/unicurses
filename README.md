@@ -1,13 +1,11 @@
-UNICURSES v2.0.0 (C) 2010 by Michael Kamensky (Agetian)  
+UNICURSES (C) 2010 by Michael Kamensky (Agetian) | Maintainer, George Chousos 2021 | v2.0.4  
 Released as Free Software under the terms of General Public License (GPL) v3
 
 
-UniCurses
-=========
+# UniCurses
 Unified Curses Wrapper for Python on Windows, Linux, and Mac OS X
 
-What is UniCurses?
-------------------
+## What is UniCurses?
 UniCurses is a Python module that is aimed at providing the Curses functionality on all operating systems *(MS Windows, Linux, and Mac OS X)* using a unified set of commands that are syntactically close to the native C++ Curses functions. UniCurses strives to be as platform-independent as possible, not only by working on all operating systems *(as opposed to the original `curses` module which does not work on Microsoft Windows)* but also by ensuring compatibility both with the older (v2.x) and the newer (v3.x) versions of Python.
 UniCurses is compatible with any Python distribution starting with version 2.6.1, including the newly released v2.7 and all the versions released so far in the Python 3 line, including v3.0.x and v3.1.x.
 
@@ -25,12 +23,8 @@ http://pdcurses.sourceforge.net
 
 NOTE: While it may be possible to use UniCurses with an older version of Python (v2.6.1) or PDCurses (v3.4) than officially listed as compatible, it has not been tested with such versions of software and as such it's impossible to guarantee that your configuration will work correctly or that you would not have to take extra steps and install additional packages in order to make your configuration work at least in part. It's highly recommended that you upgrade to the latest versions of Python and PDCurses before you install and start using UniCurses.
 
-Installing UniCurses
---------------------
-```terminal
-pip3 install uni-curses
-```
-
+## Installing UniCurses
+## `pip3 install uni-curses`
 ^ if this won't work and you get `ModuleNotFoundError` try specifying the python version like:
 
 ```terminal
@@ -58,8 +52,7 @@ It's recommended that you use the first form of the expression so you do not nee
 NOTE: If importing UniCurses is unsuccessful, you will be presented with a message describing the cause of failure and your program will terminate. The most common cause is the absence of the PDCurses dynamic link library in the program folder while running on Microsoft Windows. Correct the problem and try again.
 HINT: In order to make sure that UniCurses works correctly on your platform, run the test scripts that come bundled with the UniCurses package (many of them are ports of examples from the awesome "NCURSES Programming HOWTO" by Pradeep Padala). They should all run successfully and not crash with an error message.
 
-Using unicurses
----------------
+## Using unicurses
 While UniCurses tries to stay as faithful to the original C++ syntax of curses functions as possible, there are certain important differences and peculiarities that you must be aware of when writing programs using UniCurses.
 First of all, the function used to initialize curses (initscr) must be called in a special way with an assignment to a variable named `stdscr`. Therefore, instead of just calling `initscr()` you must use the following expression verbatim:
 

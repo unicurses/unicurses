@@ -72,3 +72,11 @@ v2.0.0:
 - Added: marco wrappers for both NCURSES and PDCURSES
 - Fixed: removed the (TEMPORARILY Fixed) from v1.3.81
 - DISCLAIMER: MANY THINGS ARE NOT TESTED YET.
+
+v2.0.4:
+--------
+- Fixed: indentation at  "return ((m) << (((b) - 1) * 5))"
+- Fixed: getmouse() and typo in MEVENT-structure 
+- Added: BUTTON5 mouse events (scroll)
+- Added: getmaxy(), getmaxx()
+- Added: CTRL(ch) 

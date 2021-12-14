@@ -186,7 +186,7 @@ class MEVENT(ctypes.Structure):
                 ("x", ctypes.c_int),
                 ("y", ctypes.c_int),
                 ("z", ctypes.c_int),
-                ("mmask_t", ctypes.c_ulong)]
+                ("bstate", ctypes.c_ulong)]
 
 # A NC structure for cchar_t    
 if NCURSES:
@@ -408,6 +408,12 @@ if PDCURSES:
     BUTTON4_DOUBLE_CLICKED = 0x00040000
     BUTTON4_TRIPLE_CLICKED = 0x00080000
 
+    BUTTON5_RELEASED       = 0x00100000
+    BUTTON5_PRESSED        = 0x00200000
+    BUTTON5_CLICKED        = 0x00400000
+    BUTTON5_DOUBLE_CLICKED = 0x00800000
+    BUTTON5_TRIPLE_CLICKED = 0x01000000
+
     BUTTON_SHIFT		   = 0x04000000
     BUTTON_CTRL 		   = 0x08000000
     BUTTON_ALT   		   = 0x10000000
@@ -556,7 +562,7 @@ else:
  
     def NCURSES_MOUSE_MASK(b,m):
         if NCURSES_MOUSE_VERSION > 1:
-             return ((m) << (((b) - 1) * 5))
+            return ((m) << (((b) - 1) * 5))
         else:
             return ((m) << (((b) - 1) * 6))
    
@@ -590,6 +596,12 @@ else:
     BUTTON4_CLICKED        = NCURSES_MOUSE_MASK(4, NCURSES_BUTTON_CLICKED)
     BUTTON4_DOUBLE_CLICKED = NCURSES_MOUSE_MASK(4, NCURSES_DOUBLE_CLICKED)
     BUTTON4_TRIPLE_CLICKED = NCURSES_MOUSE_MASK(4, NCURSES_TRIPLE_CLICKED)
+ 
+    BUTTON5_RELEASED       = NCURSES_MOUSE_MASK(5, NCURSES_BUTTON_RELEASED)
+    BUTTON5_PRESSED        = NCURSES_MOUSE_MASK(5, NCURSES_BUTTON_PRESSED)
+    BUTTON5_CLICKED        = NCURSES_MOUSE_MASK(5, NCURSES_BUTTON_CLICKED)
+    BUTTON5_DOUBLE_CLICKED = NCURSES_MOUSE_MASK(5, NCURSES_DOUBLE_CLICKED)
+    BUTTON5_TRIPLE_CLICKED = NCURSES_MOUSE_MASK(5, NCURSES_TRIPLE_CLICKED)
  
     if NCURSES_MOUSE_VERSION > 1:
         BUTTON_CTRL  = NCURSES_MOUSE_MASK(6, 1)
@@ -641,6 +653,11 @@ def ALTCHAR(ch):
         return ch | A_ALTCHARSET
     else:
         raise Exception("ALTCHAR: can't parse a non-char/non-int value.")
+
+
+def CTRL(ch):  #1
+    """returns CTRL + KEY"""
+    return CCHAR(ch) & 0x1f
 
 
 def KEY_F(n):
@@ -769,8 +786,6 @@ lib2.panel_above.restype      = ctypes.c_void_p
 lib2.panel_below.restype      = ctypes.c_void_p
 lib2.panel_userptr.restype    = ctypes.c_void_p
 lib2.panel_window.restype     = ctypes.c_void_p
-if PDCURSES: lib1.nc_getmouse.restype = MEVENT
-else:        lib1.getmouse.restype    = MEVENT
 #endregion --- FUNCTION DEFINITIONS (PDC)\(NC) ---
 
 
@@ -1071,10 +1086,19 @@ def getmaxyx(scr_id):
     return (y, x)
 
 
+def getmaxy(scr_id):
+    return lib1.getmaxy(scr_id)
+
+
+def getmaxx(scr_id):
+    return lib1.getmaxx(scr_id)
+
+
 def getmouse():
-    if PDCURSES: m_event = lib1.nc_getmouse()
-    else:        m_event = lib1.getmouse   ()
-    return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.mmask_t)
+    m_event = MEVENT()
+    if PDCURSES: lib1.nc_getmouse(ctypes.byref(m_event))  # ? https://github.com/wmcbrine/PDCurses/blob/f1cd4f4569451a5028ddf3d3c202f0ad6b1ae446/pdcurses/mouse.c#L105 
+    else:        lib1.getmouse   (ctypes.byref(m_event))
+    return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.bstate)
 
 
 def getparyx(scr_id):
@@ -1385,7 +1409,7 @@ def mvwinstr(scr_id, y, x, n=-1):
 
 
 def mvwinwstr(scr_id, y, x, n=-1):
-    t_str = ctypes.create_unicode_buffer(2046)
+    t_str = ctypes.create_unicode_buffer(2046) # not sure at all about the 2046 but it works? sorry for that
     if n ==-1:
         lib1.mvwinwstr(scr_id, y, x, ctypes.byref(t_str))
     else:
@@ -1633,7 +1657,7 @@ def ungetmouse(id, x, y, z, bstate):
     m_event.x = x
     m_event.y = y
     m_event.z = z
-    m_event.mmask_t = bstate
+    m_event.bstate = bstate
     return lib1.ungetmouse(ctypes.byref(m_event))
 
 
@@ -1971,3 +1995,5 @@ def panel_window(pan_id):
 
 
 # TODO: Python2 CHECK https://stackoverflow.com/questions/4843173/how-to-check-if-type-of-a-variable-is-string
+
+#1 https://stackoverflow.com/a/43924525/11465149
