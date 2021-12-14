@@ -36,7 +36,7 @@ or if you want to use the latest release, download the files from this repositor
 pip3 install .
 ```
 
-## Importing UniCurses 
+## Importing UniCurses  
 ```python
 from unicurses import *
 ```
