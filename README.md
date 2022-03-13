@@ -80,7 +80,7 @@ After the curses is initialized with an expression above, you can use any of the
 * * [An interactive cellular automaton](https://github.com/lifesci/deerlang)
 * * [A terminal-based file manager](https://github.com/GiorgosXou/TUIFIManager)
 * ***Books (NCURSES):*** 
-* [Programmer's Guide to NCurses](https://books.google.gr/books?id=Htff8VRO-UEC&printsec=frontcover&hl=el&source=gbs_ge_summary_r&cad=0#v=onepage&q&f=false)
+* * [Programmer's Guide to NCurses](https://books.google.gr/books?id=Htff8VRO-UEC&printsec=frontcover&hl=el&source=gbs_ge_summary_r&cad=0#v=onepage&q&f=false)
 * ***Extra Resources:***
 * * [NCurses](https://github.com/mirror/ncurses)
 * * [PDCurses](https://github.com/wmcbrine/PDCurses)
