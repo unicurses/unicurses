@@ -82,9 +82,11 @@ After the curses is initialized with an expression above, you can use any of the
 * ***Books (NCURSES):*** 
 * * [Programmer's Guide to NCurses](https://books.google.gr/books?id=Htff8VRO-UEC&printsec=frontcover&hl=el&source=gbs_ge_summary_r&cad=0#v=onepage&q&f=false)
 * ***Extra Resources:***
-* * [here you can search for any ncurses functions](https://linux.die.net/)
-* * [NCurses (repository)](https://github.com/mirror/ncurses)
-* * ***[PDCurses (repository):](https://github.com/wmcbrine/PDCurses)***
+* * ***NCurses:***
+* * * [Repository](https://github.com/mirror/ncurses)
+* * * [Here you can search for functions too](https://linux.die.net/)
+* * ***PDCurses:***
+* * * [Repository](https://github.com/wmcbrine/PDCurses)
 * * * [How to Build and\or Install PDCurses](https://stackoverflow.com/a/69632679/11465149)
 
 
