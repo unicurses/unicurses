@@ -80,3 +80,7 @@ v2.0.4:
 - Added: BUTTON5 mouse events (scroll)
 - Added: getmaxy(), getmaxx()
 - Added: CTRL(ch) 
+
+v2.0.5:
+--------
+- Fixed: issue with `libpanelw.so.x` on freeBSD thanks to [b1ru](https://github.com/b1ru)

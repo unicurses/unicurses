@@ -95,17 +95,15 @@ def get_libncursesw_paths():
             if os.path.exists(p):
                 for file in os.listdir(p):
                     if re.search(r'(libncursesw)\.so\.\d+(\.\d+)*$', file):
-                        version = file.split('so.')[1] 
-                        
-                        if LooseVersion(version) > LooseVersion(latest_version):
-                            lib_paths = [p + '/libncursesw.so.' + version, p + '/libpanelw.so.' + version]
+                        version   = file.split('so.')[1] 
+                        libpanelw = p + '/libpanelw.so.' + version
+                        if LooseVersion(version) > LooseVersion(latest_version) and os.path.exists(libpanelw):
+                            lib_paths = [p + '/libncursesw.so.' + version, libpanelw]
                             latest_version = version
                             
         if not lib_paths:
             raise Exception('''NCursesNotFound: No version of shared-libraries of ncurses found on this system, please try installing one.\n
                             Looked for "(libncursesw)\.so\.\d+(\.\d+)*$" under: ''' + str(paths))
-        if not os.path.exists(lib_paths[1]):
-            raise Exception('"' + lib_paths[1] + '" not found') 
         
     return lib_paths
 
