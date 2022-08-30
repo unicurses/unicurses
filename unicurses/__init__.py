@@ -70,8 +70,8 @@ def get_paths():
     LDPATH = os.getenv("LD_LIBRARY_PATH")
     
     paths.extend(LDPATH.split(":")) if LDPATH else None  
-    paths.extend(["/lib", "/usr/lib", "/usr/local/lib/", "/lib64", "/usr/lib64", "/lib32", "/usr/lib32"])
-    paths.extend([PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/usr/local/lib/", PREFIX + "/lib64", PREFIX + "/usr/lib64", PREFIX + "/lib32", PREFIX + "/usr/lib32"]) if PREFIX else None
+    paths.extend(["/lib", "/usr/lib", "/usr/local/lib", "/lib64", "/usr/lib64", "/lib32", "/usr/lib32"])
+    paths.extend([PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/usr/local/lib", PREFIX + "/lib64", PREFIX + "/usr/lib64", PREFIX + "/lib32", PREFIX + "/usr/lib32"]) if PREFIX else None
     paths.extend(parse_ld_conf_file("/etc/ld.so.conf")) if os.path.exists("/etc/ld.so.conf") else None
     paths.extend(parse_ld_conf_file(PREFIX + "/etc/ld.so.conf")) if PREFIX and os.path.exists(PREFIX + "/etc/ld.so.conf") else None
 
