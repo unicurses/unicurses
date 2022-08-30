@@ -3,7 +3,7 @@ Released as Free Software under the terms of General Public License (GPL) v3
 
 
 # UniCurses
-Unified Curses Wrapper for Python on Windows, Linux, and Mac OS X
+Unified Curses Wrapper for Python on Windows, FreeBSD, Linux, and Mac OS X
 
 
 ## What is UniCurses?
