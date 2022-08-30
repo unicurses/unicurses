@@ -7,7 +7,7 @@ Unified Curses Wrapper for Python on Windows, Linux, and Mac OS X
 
 
 ## What is UniCurses?
-UniCurses is a Python module that is aimed at providing the Curses functionality on all operating systems *(MS Windows, Linux, and Mac OS X)* using a unified set of commands that are syntactically close to the native C Curses functions. UniCurses strives to be as platform-independent as possible, not only by working on all operating systems *(as opposed to the original `curses` module which does not work on Microsoft Windows)* but also by ensuring compatibility both with the older (v2.x) and the newer (v3.x) versions of Python.
+UniCurses is a Python module that is aimed at providing the Curses functionality on all operating systems *(MS Windows, FreeBSD, Linux, and Mac OS X)* using a unified set of commands that are syntactically close to the native C Curses functions. UniCurses strives to be as platform-independent as possible, not only by working on all operating systems *(as opposed to the original `curses` module which does not work on Microsoft Windows)* but also by ensuring compatibility both with the older (v2.x) and the newer (v3.x) versions of Python.
 UniCurses is compatible with any Python distribution starting with version 2.6.1, including the newly released v2.7 and all the versions released so far in the Python 3 line, including v3.0.x and v3.1.x.
 
 On Microsoft Windows, UniCurses operates by wrapping a curses library known as `Public Domain Curses`, or PDCurses. The dynamic link library for PDCurses is called `pdcurses.dll`. UniCurses is compatible with all flavors of PDCurses, including:

@@ -8,7 +8,7 @@ Author-email: stavdev@mail.ru
 Maintainer: George Chousos
 Maintainer-email: gxousos@gmail.com
 License: General Public License v3
-Description: A universal Curses wrapper for Python on Windows, Linux, and
+Description: A universal Curses wrapper for Python on Windows, FreeBSD, Linux, and
         Mac OS X, with syntax close to the original NCurses. In order
         to provide Curses functionality on Windows it utilizes the ctype
         foreign function interface to wrap PDCurses, a free and open-source
