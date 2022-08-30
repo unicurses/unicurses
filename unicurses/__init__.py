@@ -70,8 +70,8 @@ def get_paths():
     LDPATH = os.getenv("LD_LIBRARY_PATH")
     
     paths.extend(LDPATH.split(":")) if LDPATH else None  
-    paths.extend(["/lib", "/usr/lib", "/lib64", "/usr/lib64"])
-    paths.extend([PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/lib64", PREFIX + "/usr/lib64"]) if PREFIX else None
+    paths.extend(["/lib", "/usr/lib", "/usr/local/lib/", "/lib64", "/usr/lib64", "/lib32", "/usr/lib32"])
+    paths.extend([PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/usr/local/lib/", PREFIX + "/lib64", PREFIX + "/usr/lib64", PREFIX + "/lib32", PREFIX + "/usr/lib32"]) if PREFIX else None
     paths.extend(parse_ld_conf_file("/etc/ld.so.conf")) if os.path.exists("/etc/ld.so.conf") else None
     paths.extend(parse_ld_conf_file(PREFIX + "/etc/ld.so.conf")) if PREFIX and os.path.exists(PREFIX + "/etc/ld.so.conf") else None
 
@@ -103,8 +103,8 @@ def get_libncursesw_paths():
                             
         if not lib_paths:
             raise Exception('''NCursesNotFound: No version of shared-libraries of ncurses found on this system, please try installing one.\n
-                            Looked for "(libncursesw)\.so\.\d+(\.\d+)*$" under: ''' + str(paths))
-        
+                            Looked for "(libncursesw)\.so\.\d+(\.\d+)*$" AND "libpanelw.so..." under: ''' + str(paths))
+ 
     return lib_paths
 
 

@@ -84,3 +84,7 @@ v2.0.4:
 v2.0.5:
 --------
 - Fixed: issue with `libpanelw.so.x` on freeBSD thanks to [b1ru](https://github.com/b1ru)
+
+v2.0.6:
+--------
+- Fixed: issue with paths in freeBSD thanks to [b1ru](https://github.com/b1ru)
