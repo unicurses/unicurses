@@ -14,5 +14,6 @@ Description: A universal Curses wrapper for Python on Windows, FreeBSD, Linux, a
         foreign function interface to wrap PDCurses, a free and open-source
         Curses implementation for Windows. CONTRIBUTORS = [GiorgosXou]
 Platform: Windows
+Platform: FreeBSD
 Platform: Linux
 Platform: Mac OS X
