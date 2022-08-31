@@ -92,3 +92,7 @@ v2.0.6:
 v2.0.7:
 --------
 - Fixed: Typo in paths.
+
+v2.0.8:
+--------
+- Finally somewhat fixed FreeBSD support. 

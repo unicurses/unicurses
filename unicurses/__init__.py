@@ -82,12 +82,19 @@ def get_libncursesw_paths():
     latest_version = '0'
     lib_paths      = None
     
-    if OPERATING_SYSTEM == "Darwin":
+    if OPERATING_SYSTEM == 'Darwin':
         from ctypes.util import find_library
         lib_paths = [find_library('libncursesw'),find_library('libpanelw')]
-        
+                
         if not lib_paths[0] or not lib_paths[1]:
-            raise Exception('try `brew install ncurses` if this won\'t work pls comment here: ')
+            raise Exception('NCursesNotFound: try `brew install ncurses` if this won\'t work please create an issue')
+
+    elif OPERATING_SYSTEM == 'FreeBSD':
+        lib_paths = ['/usr/lib/libncursesw.so', '/usr/lib/libpanelw.so']
+        
+        if not os.path.exists(lib_paths[0]) or not os.path.exists(lib_paths[1]):
+            raise Exception('NCursesNotFound: try `pkg search ncurses` then `pkg install ncurses-X.Y`')
+        
     else:
         paths = get_paths()
                 
