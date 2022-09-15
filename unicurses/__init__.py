@@ -64,57 +64,20 @@ def parse_ld_conf_file(fn):
     return paths
 
 
-def get_paths():
-    paths = []
-    PREFIX = os.getenv("PREFIX") # Termux & etc.
-    LDPATH = os.getenv("LD_LIBRARY_PATH")
-    
-    paths.extend(LDPATH.split(":")) if LDPATH else None  
-    paths.extend(["/lib", "/usr/lib", "/usr/local/lib", "/lib64", "/usr/lib64", "/lib32", "/usr/lib32"])
-    paths.extend([PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/usr/local/lib", PREFIX + "/lib64", PREFIX + "/usr/lib64", PREFIX + "/lib32", PREFIX + "/usr/lib32"]) if PREFIX else None
-    paths.extend(parse_ld_conf_file("/etc/ld.so.conf")) if os.path.exists("/etc/ld.so.conf") else None
-    paths.extend(parse_ld_conf_file(PREFIX + "/etc/ld.so.conf")) if PREFIX and os.path.exists(PREFIX + "/etc/ld.so.conf") else None
-
-    return paths
-
-
 def get_libncursesw_paths():
-    latest_version = '0'
-    lib_paths      = None
+    from ctypes.util import find_library
+    lib_paths = [find_library('ncursesw'),find_library('panelw')]
     
-    if OPERATING_SYSTEM == 'Darwin':
-        from ctypes.util import find_library
-        lib_paths = [find_library('libncursesw'),find_library('libpanelw')]
-                
-        if not lib_paths[0] or not lib_paths[1]:
-            raise Exception('NCursesNotFound: try `brew install ncurses` if this won\'t work please create an issue')
+    if not lib_paths[0] or not lib_paths[1]:
+        msg = ''
+        if OPERATING_SYSTEM == 'Darwin':
+            msg = 'No version of shared-libraries of ncurses found on this system, please try `brew install ncurses` if this won\'t work please create an issue'
+        elif OPERATING_SYSTEM == 'FreeBSD':
+            msg = 'try `pkg search ncurses` then `pkg install ncurses-X.Y`'
+        else:
+            msg = 'No version of shared-libraries of ncurses found on this system, please try installing one\n try pgk\\apt\\etc. search ncurses and then install'
+        raise Exception('NCursesNotFound: ' + msg)
 
-    elif OPERATING_SYSTEM == 'FreeBSD':
-        lib_paths = ['/usr/lib/libncursesw.so', '/usr/lib/libpanelw.so']
-        
-        if not os.path.exists(lib_paths[0]) or not os.path.exists(lib_paths[1]):
-            raise Exception('NCursesNotFound: try `pkg search ncurses` then `pkg install ncurses-X.Y`')
-        
-    else:
-        paths = get_paths()
-                
-        for p in paths:
-            if os.path.exists(p):
-                for file in os.listdir(p):
-                    if file == 'libncursesw.so' and os.path.exists(p + '/libpanelw.so'):
-                        lib_paths = [p + '/libncursesw.so', p + '/libpanelw.so']
-                        break
-                    # if re.search(r'(libncursesw)\.so\.\d+(\.\d+)*$', file):
-                    #     version   = file.split('so.')[1] 
-                    #     libpanelw = p + '/libpanelw.so.' + version
-                    #     if LooseVersion(version) > LooseVersion(latest_version) and os.path.exists(libpanelw):
-                    #         lib_paths = [p + '/libncursesw.so.' + version, libpanelw]
-                    #         latest_version = version
-                            
-        if not lib_paths:
-            raise Exception('''NCursesNotFound: No version of shared-libraries of ncurses found on this system, please try installing one.\n
-                            Looked for "libncursesw.so" AND "libpanelw.so" under: ''' + str(paths))
- 
     return lib_paths
 
 

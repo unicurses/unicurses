@@ -1,4 +1,4 @@
-UNICURSES (C) 2010 by Michael Kamensky (Agetian) | Maintainer, George Chousos 2021 | v2.0.9  
+UNICURSES (C) 2010 by Michael Kamensky (Agetian) | Maintainer, George Chousos 2021 | v2.1.0  
 Released as Free Software under the terms of General Public License (GPL) v3
 
 
