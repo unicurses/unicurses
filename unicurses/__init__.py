@@ -66,7 +66,10 @@ def parse_ld_conf_file(fn):
 
 def get_libncursesw_paths():
     from ctypes.util import find_library
-    lib_paths = [find_library('ncursesw'),find_library('panelw')]
+    if OPERATING_SYSTEM == 'Darwin':
+        lib_paths = [find_library('ncurses'),find_library('panel')]
+    else:
+        lib_paths = [find_library('ncursesw'),find_library('panelw')]
     
     if not lib_paths[0] or not lib_paths[1]:
         msg = ''
