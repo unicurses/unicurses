@@ -104,3 +104,9 @@ v2.0.9:
 v2.1.0:
 --------
 - **Fixed**: Issue with finding shared libraries *(finally!)*
+
+v2.1.3
+--------
+- **Added**: [Add License](https://github.com/unicurses/unicurses/pull/22)
+- **Fixed**: [Fixed MacOS ncurses not found issue](https://github.com/unicurses/unicurses/pull/27)
+- **Fixed**: `keyname` when it returns `None` and tries to decode

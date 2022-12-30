@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 import sys
-from glob import glob
 from setuptools import setup 
 
 root = sys.argv[0].replace("setup.py","")
 
 setup(name='Uni-Curses',
-      version='v2.1.0',
+      version='v2.1.3',
       description='Unified Curses Wrapper for Python',
       long_description='A universal Curses wrapper for Python on Windows, FreeBSD, Linux, and\nMac OS X, with syntax close to the original NCurses. In order\nto provide Curses functionality on Windows it utilizes the ctype\nforeign function interface to wrap PDCurses, a free and open-source\nCurses implementation for Windows. CONTRIBUTORS = [GiorgosXou]\n\nif you have `ModuleNotFoundError` try specifying the python version like use `python3.9 -m pip install uni-curses`',
       author='Michael Kamensky',
@@ -28,4 +27,3 @@ setup(name='Uni-Curses',
 # python setup.py sdist
 # twine upload dist/*
 
-# CONTRIBUTOR https://github.com/GiorgosXou

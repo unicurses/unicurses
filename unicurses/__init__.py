@@ -1214,7 +1214,8 @@ def is_wintouched(scr_id):
 
 
 def keyname(k):
-    return lib1.keyname(k).decode()
+    k = lib1.keyname(k)
+    return k.decode() if k else k
 
 
 def keypad(scr_id, yes):
