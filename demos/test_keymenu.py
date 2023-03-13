@@ -44,7 +44,7 @@ while True:
     c = wgetch(menu_win)
     if c == KEY_UP:
         if highlight == 1:
-            highlight == n_choices
+            highlight = n_choices
         else:
             highlight -= 1
     elif c == KEY_DOWN:
