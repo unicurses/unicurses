@@ -103,7 +103,6 @@ if OPERATING_SYSTEM == 'Windows':
     
     current_dir = os.path.dirname(os.path.realpath(__file__))
     path_to_pdcurses = current_dir + "/" + pdcurses
-    print("Expecting pdcurses at: " + path_to_pdcurses)
     if not (os.access(pdcurses, os.F_OK)
             or os.access(path_to_pdcurses, os.F_OK)):
         raise ImportError("""
