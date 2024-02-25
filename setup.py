@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
-import sys
 from setuptools import setup 
-
-root = sys.argv[0].replace("setup.py","")
 
 setup(name='Uni-Curses',
       version='v2.1.3',
