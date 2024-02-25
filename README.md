@@ -1,4 +1,4 @@
-UNICURSES (C) 2010 by Michael Kamensky (Agetian) | Maintainer, George Chousos 2021 | [v2.1.3](./changelog.md)  
+UNICURSES (C) 2010 by Michael Kamensky (Agetian) | Maintainer, George Chousos since 2021 | [v2.1.7](./changelog.md)  
 Released as Free Software under the terms of General Public License (GPL) v3
 
 
@@ -79,6 +79,7 @@ After the curses is initialized with an expression above, you can use any of the
 * * [unicurses demos](https://github.com/unicurses/unicurses/tree/master/demos)
 * * [An interactive cellular automaton](https://github.com/lifesci/deerlang)
 * * [A terminal-based file manager](https://github.com/GiorgosXou/TUIFIManager)
+* * An android debloating tool
 * ***Books (NCURSES):*** 
 * * [Programmer's Guide to NCurses](https://books.google.gr/books?id=Htff8VRO-UEC&printsec=frontcover&hl=el&source=gbs_ge_summary_r&cad=0#v=onepage&q&f=false)
 * ***Extra Resources:***
