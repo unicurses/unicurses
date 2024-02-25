@@ -20,9 +20,8 @@
 
 # import Curses (either natively if supported or via PDCurses using FFI if on MS Windows)
 
-from distutils.version import LooseVersion
 from glob              import glob
-import locale, platform, sys, os, re
+import locale, platform, sys, os
 
 
 global lib1
