@@ -55,3 +55,6 @@ docs/_build/
 
 #other
 *.lnk
+
+# pyenv
+.python-version
