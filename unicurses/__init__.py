@@ -20,7 +20,7 @@
 
 # import Curses (either natively if supported or via PDCurses using FFI if on MS Windows)
 
-from glob              import glob
+from glob import glob
 import locale, platform, sys, os
 
 
@@ -49,17 +49,18 @@ code = locale.getpreferredencoding()   # TODO: fix this to actually work on nati
 #region +++ Main ++
 def parse_ld_conf_file(fn):
     paths = []
-    for l in open(fn).read().splitlines():
-        l = l.strip()
-        if not l:
-            continue
-        if l.startswith("#"):
-            continue
-        if l.startswith("include "):
-            for sub_fn in glob(l[len("include "):]):
-                paths.extend(parse_ld_conf_file(sub_fn))
-            continue
-        paths.append(l)
+    with open(fn, "r") as file:
+        for l in file.readlines():
+            l = l.strip()
+            if not l:
+                continue
+            if l.startswith("#"):
+                continue
+            if l.startswith("include "):
+                for sub_fn in glob(l[8:]):
+                    paths.extend(parse_ld_conf_file(sub_fn))
+                continue
+            paths.append(l)
     return paths
 
 
@@ -71,7 +72,6 @@ def get_libncursesw_paths():
         lib_paths = [find_library('ncursesw'),find_library('panelw')]
     
     if not lib_paths[0] or not lib_paths[1]:
-        msg = ''
         if OPERATING_SYSTEM == 'Darwin':
             msg = 'No version of shared-libraries of ncurses found on this system, please try `brew install ncurses` if this won\'t work please create an issue'
         elif OPERATING_SYSTEM == 'FreeBSD':
@@ -91,6 +91,7 @@ except ImportError:
         Please upgrade your Python distribution
         if you want to use UniCurses on a {} platform.
         """.format(sys.platform))
+
 
 if OPERATING_SYSTEM == 'Windows':
     import platform
@@ -175,6 +176,7 @@ def CSTR(s):
     Return a bytes-encoded C style string from anything that's convertable with str.
     It is used to pass strings to PDCurses which expects a C-formatted string.
     """
+
     global IS_CURSES_LIBRARY_UTF8
     
     if IS_CURSES_LIBRARY_UTF8:
@@ -185,17 +187,26 @@ def CSTR(s):
 
 if PDCURSES:
     def PD_COLOR_PAIR(n):
-        """Choose a color pair"""
+        """
+        Choose a color pair.
+        """
+
         return (n << PDC_COLOR_SHIFT) & A_COLOR
 
 
     def PD_PAIR_NUMBER(n):
-        """Pair number from curses.h"""
+        """
+        Pair number from curses.h.
+        """
+
         return (n & A_COLOR) >> PDC_COLOR_SHIFT
 
 
     def PD_GET_CURSCR():
-        """Get the PDC curscr (NOT PORTABLE!)"""
+        """
+        Get the PDC curscr (NOT PORTABLE!).
+        """
+
         return ctypes.c_int.in_dll(lib1, "curscr")
 
 else:
@@ -601,39 +612,54 @@ ERR = -1
 
 
 def RCCHAR(ch):
-    """Reverse of CCHAR function"""
-    if   type(ch) == int: return chr(ch)
-    elif type(ch) == str: return ch
-    else: 
-        raise Exception("RCCHAR: can't parse a non-char/non-int value.")
+    """
+    Reverse of CCHAR function.
+    """
+
+    if isinstance(ch, int):
+        return chr(ch)
+    if isinstance(ch, str):
+        return ch
+    raise Exception("RCCHAR: can't parse a non-char/non-int value.")
 
 def CCHAR(ch):
-    """Get a C character"""
-    if type(ch) == str:
+    """
+    Get a C character.
+    """
+
+    if isinstance(ch, str):
         return ord(ch)
-    elif type(ch) == int:
+    if isinstance(ch, int):
         return ch
-    else:
-        raise Exception("CCHAR: can't parse a non-char/non-int value.")
+    raise Exception("CCHAR: can't parse a non-char/non-int value.")
 
 
 def ALTCHAR(ch):
-    """Alternate character set"""
-    if type(ch) == str:
+    """
+    Alternate character set.
+    """
+
+    if isinstance(ch, str):
         return ord(ch) | A_ALTCHARSET
-    elif type(ch) == int:
+    if isinstance(ch, int):
         return ch | A_ALTCHARSET
-    else:
-        raise Exception("ALTCHAR: can't parse a non-char/non-int value.")
+    raise Exception("ALTCHAR: can't parse a non-char/non-int value.")
 
 
 def CTRL(ch):  #1
-    """returns CTRL + KEY"""
+    """
+    Returns CTRL + KEY.
+    """
+
     return CCHAR(ch) & 0x1f
 
 
 def KEY_F(n):
-    return KEY_F0 + n	# function keys 1-64
+    """
+    Return function keys 1-64.
+    """
+
+    return KEY_F0 + n
 
 
 # ACS Alternate Character Set Symbols
@@ -765,22 +791,34 @@ lib2.panel_window.restype     = ctypes.c_void_p
 #region  +++ UNIFIED CURSES +++
 #region ++ Functions ++
 def waddch(scr_id, ch, attr=A_NORMAL):
+    """
+    Write the character ch in the window scr_id at its current position.
+    """
+
     return lib1.waddch(scr_id, CCHAR(ch) | attr)
 
 
 def wadd_wch(scr_id, wch, attr=A_NORMAL):  # NEEDS_CHECK?
+    """
+    Write the complex character wch in the window scr_id at its current position.
+    """
+
     if NCURSES:
         return lib1.wadd_wch(scr_id, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
     else:
         oldattr = lib1.getattrs(scr_id)
         lib1.wattrset(scr_id, attr)            
-        ret = lib1.wadd_wch(scr_id, RCCHAR(wch))  
-        lib1.wattrset(scr_id, oldattr)        
+        ret = lib1.wadd_wch(scr_id, RCCHAR(wch))
+        lib1.wattrset(scr_id, oldattr)
         return ret
         #return lib1.wadd_wch(scr_id, CCHAR(wch) | attr )  # ??? Why no working
 
 
 def waddstr(scr_id, cstr, attr="NO_USE"):
+    """
+    Write the string cstr in the window scr_id at its current position.
+    """
+
     if attr != "NO_USE":
         oldattr = lib1.getattrs(scr_id)
         lib1.wattrset(scr_id, attr)
@@ -791,6 +829,10 @@ def waddstr(scr_id, cstr, attr="NO_USE"):
 
 
 def waddwstr(scr_id, wstr, attr="NO_USE"):
+    """
+    Write the complex string wstr in the window scr_id at its current position.
+    """
+
     if wstr == '':
         return None
     if attr != "NO_USE":
@@ -803,7 +845,11 @@ def waddwstr(scr_id, wstr, attr="NO_USE"):
     return ret
 
 
-def waddnstr(scr_id, cstr, n, attr="NO_USE"):	
+def waddnstr(scr_id, cstr, n, attr="NO_USE"):
+    """
+    Write maximum n characters from the string cstr in the window scr_id at its current position.
+    """
+
     if attr != "NO_USE":
         oldattr = lib1.getattrs(scr_id)
         lib1.wattrset(scr_id, attr)
@@ -814,27 +860,43 @@ def waddnstr(scr_id, cstr, n, attr="NO_USE"):
 
 
 def wattroff(scr_id, attr):
+    """
+    Turn off attributes attr of the window scr_id.
+    """
+
     return lib1.wattroff(scr_id, attr)
 
 
 def wattron(scr_id, attr):
+    """
+    Turn on attributes attr of the window scr_id.
+    """
+
     return lib1.wattron(scr_id, attr)
 
 
 def wattrset(scr_id, attr):
+    """
+    Set attributes attr of the window scr_id.
+    """
+
     return lib1.wattrset(scr_id, attr)
 
 
 def baudrate():
+    """
+    Returns the output speed of the terminal.
+    """
+
     return lib1.baudrate()
 
 
 def beep():
+    """
+    Sounds an audible alarm on the terminal.
+    """
+
     return lib1.beep()
-
-
-def COLOR_PAIR(n):
-    return color_pair(n)
 
 
 def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay):
@@ -854,6 +916,10 @@ def wclrtoeol(scr_id):
 
 
 def clearok(scr_id, yes):
+    """
+    If yes is True, the next call to wrefresh with window scr_id will clear the screen and redraw.
+    """
+    
     return lib1.clearok(scr_id, yes)
 
 
@@ -924,62 +990,14 @@ def color_content(color_number):
 
 
 def color_pair(color_number):
+    """
+    Return the attribute value for displaying text in the specified color pair.
+    """
+
     if PDCURSES:
         return PD_COLOR_PAIR(color_number)
     else:
         return NC_COLOR_PAIR(color_number)
-
-
-def COLOR_PAIR(n):
-    return color_pair(n)
-
-
-def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay):
-    return lib1.copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay)
-
-
-def wclear(scr_id):
-    return lib1.wclear(scr_id)
-
-
-def wclrtobot(scr_id):
-    return lib1.wclrtobot(scr_id)
-
-
-def wclrtoeol(scr_id):
-    return lib1.wclrtoeol(scr_id)
-
-
-def clearok(scr_id, yes):
-    return lib1.clearok(scr_id, yes)
-
-
-def curs_set(visibility):
-    return lib1.curs_set(visibility)
-
-
-def cursyncup(scr_id):
-    return lib1.wcursyncup(scr_id)
-
-
-def def_prog_mode():
-    return lib1.def_prog_mode()
-
-
-def def_shell_mode():
-    return lib1.def_shell_mode()
-
-
-def delay_output(ms):
-    return lib1.delay_output(ms)
-
-
-def wdelch(scr_id):
-    return lib1.wdelch(scr_id)
-
-
-def wdeleteln(scr_id):
-    return lib1.wdeleteln(scr_id)
 
 
 def delwin(scr_id):
@@ -1268,10 +1286,18 @@ def wmove(scr_id, new_y, new_x):
 
 
 def mvwaddch(scr_id, y, x, ch, attr=A_NORMAL):
+    """
+    Write the character ch in the window scr_id at position (y, x).
+    """
+
     return lib1.mvwaddch(scr_id, y, x, CCHAR(ch) | attr)
 
 
 def mvwadd_wch(scr_id, y, x, wch, attr=A_NORMAL):
+    """
+    Write the complex character wch in the window scr_id at position (y, x).
+    """
+
     if NCURSES:
         return lib1.mvwadd_wch(scr_id, y, x, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
     else:
@@ -1283,6 +1309,10 @@ def mvwadd_wch(scr_id, y, x, wch, attr=A_NORMAL):
         
 
 def mvwaddstr(scr_id, y, x, cstr, attr="NO_USE"):
+    """
+    Write the string cstr in the window scr_id at position (y, x).
+    """
+
     if attr != "NO_USE":
         oldattr = lib1.getattrs(scr_id)
         lib1.wattrset(scr_id, attr)
@@ -1293,6 +1323,10 @@ def mvwaddstr(scr_id, y, x, cstr, attr="NO_USE"):
 
 
 def mvwaddwstr(scr_id, y, x, wstr, attr="NO_USE"):
+    """
+    Write the complex string wstr in the window scr_id at position (y, x).
+    """
+
     if wstr == '':
         return None
     if attr != "NO_USE":
@@ -1306,6 +1340,10 @@ def mvwaddwstr(scr_id, y, x, wstr, attr="NO_USE"):
 
 
 def mvwaddnstr(scr_id, y, x, cstr, n, attr="NO_USE"):
+    """
+    Write maximum n characters from the string cstr in the window scr_id at position (y, x).
+    """
+
     if attr != "NO_USE":
         oldattr = lib1.getattrs(scr_id)
         lib1.wattrset(scr_id, attr)
@@ -1324,7 +1362,11 @@ def mvwdelch(scr_id, y, x):
 
 
 def mvwdeleteln(scr_id, y, x):
-    return lib1.mvwdeleteln(scr_id, y, x)
+    if NCURSES:
+        lib1.wmove(scr_id, y, x)
+        lib1.wdeleteln(scr_id)
+    else:
+        return lib1.mvwdeleteln(scr_id, y, x)
 
 
 def mvderwin(scr_id, pary, parx):
@@ -1494,6 +1536,10 @@ def redrawwin(scr_id):
 
 
 def wrefresh(scr_id):
+    """
+    Must be called to get window scr_id to output to the terminal.
+    """
+    
     return lib1.wrefresh(scr_id)
 
 
@@ -1649,14 +1695,26 @@ def use_env(flag):
 
 #region ++ REGULAR\MACRO FUNCTIONS THAT DO NOT TAKE A WINDOW AS AN ARGUMENT ++
 def attroff(attr):
+    """
+    Turn off attributes attr of the window stdscr.
+    """
+
     return wattroff(stdscr, attr)
 
 
 def attron(attr):
+    """
+    Turn on attributes attr of the window stdscr.
+    """
+
     return wattron(stdscr, attr)
 
 
 def attrset(attr):
+    """
+    Set attributes attr of the window stdscr.
+    """
+
     return wattrset(stdscr, attr)
 
 
@@ -1685,6 +1743,10 @@ def insch(ch, attr=A_NORMAL):
 
 
 def refresh():
+    """
+    Must be called to get stdscr to output to the terminal.
+    """
+    
     return wrefresh(stdscr)
 
 
@@ -1773,42 +1835,82 @@ def mvgetch(y, x):
 
 
 def addch(ch, attr=A_NORMAL):
+    """
+    Write the character ch in the window stdscr at its current position.
+    """
+
     return waddch(stdscr, ch, attr)
 
 
 def mvaddch(y, x, ch, attr=A_NORMAL):
+    """
+    Write the character ch in the window stdscr at position (y, x).
+    """
+
     return mvwaddch(stdscr, y, x, ch, attr)
 
 
 def add_wch(wch, attr=A_NORMAL):
+    """
+    Write the complex character wch in the window stdscr at its current position.
+    """
+
     return wadd_wch(stdscr, wch, attr)
 
 
 def mvadd_wch(y, x, wch, attr=A_NORMAL):
+    """
+    Write the complex character wch in the window stdscr at position (y, x).
+    """
+    
     return mvwadd_wch(stdscr, y, x, wch, attr)
 
 
 def addstr(cstr, attr="NO_USE"):
+    """
+    Write the string cstr in the window stdscr at its current position.
+    """
+
     return waddstr(stdscr, cstr, attr)
 
 
 def addwstr(wstr, attr="NO_USE"):
+    """
+    Write the complex string wstr in the window stdscr at its current position.
+    """
+
     return waddwstr(stdscr, wstr, attr)
 
 
 def mvaddstr(y, x, cstr, attr="NO_USE"):
+    """
+    Write the string cstr in the window stdscr at position (y, x).
+    """
+
     return mvwaddstr(stdscr, y, x, cstr, attr)
 
 
 def mvaddwstr(y, x, wstr, attr="NO_USE"):
+    """
+    Write the complex string wstr in the window stdscr at position (y, x).
+    """
+
     return mvwaddwstr(stdscr, y, x, wstr, attr)
 
 
 def addnstr(cstr, n, attr="NO_USE"):
+    """
+    Write maximum n characters from the string cstr in the window stdscr at its current position.
+    """
+
     return waddnstr(stdscr, cstr, n, attr)
 
 
 def mvaddnstr(y, x, cstr, n, attr="NO_USE"):
+    """
+    Write maximum n characters from the string cstr in the window stdscr at position (y, x).
+    """
+
     return mvwaddnstr(stdscr, y, x, cstr, n, attr)
 
 
@@ -1898,6 +2000,16 @@ def syncup():
 
 def getkey(y=-1, x=-1):
     return wgetkey(stdscr, y, x)
+
+
+def wrapper(fun, *args, **kwargs):
+    initscr()
+    try:
+        return fun(stdscr, *args, **kwargs)
+    except Exception as error:
+        raise error
+    finally:
+        endwin()
 #endregion -- REGULAR\MACRO FUNCTIONS THAT DO NOT TAKE A WINDOW AS AN ARGUMENT --
 
 
