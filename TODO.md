@@ -20,4 +20,15 @@
 
 - (done) convert value == 1 to bool(value) to be more pythonic
 
-- change leaveok so that it actually behaves like ncurses, not sure why the original author made all these shenanigans, do we actually need curscr at all?
+- change leaveok so that it actually behaves like ncurses, not sure why the original author made all these shenanigans, do we actually need curscr at all? so we could just make a function that returns curscr and let eveything depend on scr_id instead.
+
+- make it easier for users to find attributes (for example print them with a specific function or add them to the wiki)
+
+# note
+
+to get numbers that are originally passed as pointers, so something like this
+
+    a = ctypes.c_short()
+    b = ctypes.c_short()
+    fun(ctypes.byref(a), ctypes.byref(b))
+    return (a.value, b.value)
