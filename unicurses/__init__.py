@@ -899,7 +899,7 @@ def baudrate():
 
 def beep():
     """
-    Sounds an audible alarm on the terminal.
+    Sound an audible alarm and, if not possible, flash the screen.
     """
 
     return lib1.beep()
@@ -955,7 +955,7 @@ def curs_set(visibility):
 
 def cursyncup(scr_id):
     """
-    Update the current cursor position of all the ancestors of window scr_id to reflect the current cursor position of the window.
+    Update the current position of all the ancestors of window scr_id to reflect the current position of the window.
     """
 
     return lib1.wcursyncup(scr_id)
@@ -1036,7 +1036,7 @@ def box(scr_id, verch=ACS_VLINE, horch=ACS_HLINE):
 
 def can_change_color():
     """
-    Return True if the terminal supports colors and changing their definitions, otherwise False.
+    Return True if the terminal supports colors and changing their definitions, otherwise return False.
     """
     
     return lib1.can_change_color() == 1
@@ -1052,7 +1052,7 @@ def cbreak():
 
 def wchgat(scr_id, num, attr, color, opts=None):
     """
-    Set the attributes attr and color of num many characters in the window scr_id. It does not update the cursor and does not perform wrapping.
+    Set the attributes attr and color of num many characters in the window scr_id. It does not update the current position and does not perform wrapping.
     """
     
     return lib1.wchgat(scr_id, num, attr, color, None)
@@ -1095,26 +1095,50 @@ def delwin(scr_id):
 
 
 def derwin(srcwin, nlines, ncols, begin_y, begin_x):
+    """
+    Return a new window with nlines and ncols, positioned at (begin_y, begin_x) relative to the origin of scrwin. The subwindow shares memory with the window srcwin, so changes made to one window will affect both.
+    """
+    
     return ctypes.c_void_p(lib1.derwin(srcwin, nlines, ncols, begin_y, begin_x))
 
 
 def doupdate():
+    """
+    Update the physical screen compared to the virtual screen.
+    """
+    
     return lib1.doupdate()
 
 
 def echo():
+    """
+    Put getch in echo mode, so characters typed are echoed.
+    """
+    
     return lib1.echo()
 
 
 def wechochar(scr_id, ch, attr=A_NORMAL):
+    """
+    Equivalent to a call to waddch followed by a call to wrefresh.
+    """
+
     return lib1.wechochar(scr_id, ch | attr)
 
 
 def wenclose(scr_id, y, x):
+    """
+    Return True if the pair (y, x) is enclosed by the window scr_id, ortherwise return False.
+    """
+    
     return lib1.wenclose(scr_id, y, x)
 
 
 def endwin():
+    """
+    Must call endwin for each terminal being used before exiting from curses. If newterm is called more than once for the same terminal, the first terminal referred to must be the last one for which endwin is called.
+    """
+    
     return lib1.endwin()
 
 
@@ -1127,98 +1151,162 @@ def werase(scr_id):
 
 
 def erasechar():   # TODO: this might not be portable across platforms yet
+    """
+    Return the user's current erase character.
+    """
+    
     return lib1.erasechar()
+
+# TODO implement erasewchar
 
 
 def filter():
+    """
+    Called before initscr or newterm. Causes the following changes at initialization: LINES is set to 1, the capabilities clear, cud1, cud, cup, cuu1, cuu, vpa are disabled, the capability ed is disabled if bce is set, and the home string is set to the value of cr.
+    """
+    
     return lib1.filter()
+
+# TODO: implement nofilter
 
 
 def flash():
+    """
+    Flash the screen and, if not possible, sound an audible alarm.
+    """
+    
     return lib1.flash()
 
 
 def flushinp():
+    """
+    Throw away any typeahead typed by the user that has not yet been read by the program.
+    """
+    
     return lib1.flushinp()
 
 
 def getbegyx(scr_id):	
+    """
+    Return the origin of the subwindow scr_id relative to the parent window.
+    """
+    
     y = lib1.getbegy(scr_id)
     x = lib1.getbegx(scr_id)
     return (y, x)
 
 
 def wgetch(scr_id):
+    """
+    Read a character from the window scr_id.
+    """
+    
     return lib1.wgetch(scr_id) 
 
 
 def wget_wch(scr_id): # NEEDS_CHECK? # https://stackoverflow.com/questions/1081456/wchar-t-vs-wint-t
+    """
+    Read a complex character from the window scr_id.
+    """
+    
     wint = ctypes.c_uint16()
     lib1.wget_wch(scr_id,ctypes.byref(wint))
     return wint.value
 
 
 def wgetkey(scr_id, y=-1, x=-1): # NEEDS_CHECK?	
+    """
+    Read a key from the window scr_id after (optional) moving the current position to (y, x). Differently from getch, this function reads escape characters and transforms them into keys.
+    """
+    
     if (y == -1) or (x == -1):
         return lib1.keyname(wgetch(scr_id))
     return lib1.keyname(mvwgetch(scr_id, y, x)).decode()
 
+# TODO: either split this into mvwgetkey or remove all unnecessary mv before and make everything into one function optional positional arguments.
+
 
 def getmaxyx(scr_id):
+    """
+    Return the dimensions (height, width) of the window scr_id.
+    """
+    
     y = lib1.getmaxy(scr_id)
     x = lib1.getmaxx(scr_id)
     return (y, x)
 
 
 def getmaxy(scr_id):
+    """
+    Return the height of the window scr_id.
+    """
+
     return lib1.getmaxy(scr_id)
 
 
 def getmaxx(scr_id):
+    """
+    Return the width of the window scr_id.
+    """
+
     return lib1.getmaxx(scr_id)
 
 if PDCURSES:
     def getmouse():
+        """
+        Read a KEY_MOUSE event data queued in getch/wgetch and pop the event off the queue.
+        """
+        
         m_event = MEVENT()
         lib1.nc_getmouse(ctypes.byref(m_event))  # ? https://github.com/wmcbrine/PDCurses/blob/f1cd4f4569451a5028ddf3d3c202f0ad6b1ae446/pdcurses/mouse.c#L105 
         return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.bstate)
 elif NCURSES:
     def getmouse():
+        """
+        Read a KEY_MOUSE event data queued in getch/wgetch and pop the event off the queue.
+        """
+
         m_event = MEVENT()
         lib1.getmouse(ctypes.byref(m_event))
         return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.bstate)
 
 
 def getparyx(scr_id):
+    """
+    Return the origin of the subwindow scr_id relative to its parent window.
+    """
+
     y = lib1.getpary(scr_id)
     x = lib1.getparx(scr_id)
     return (y, x)
 
 
 def wgetstr(scr_id):
+    """
+    Perform a series of calls to getch in the window scr_id until a newline is received. 
+    """
+    
     t_str = ctypes.create_string_buffer(1023)
     lib1.wgetstr(scr_id, ctypes.byref(t_str))
     return t_str.value.decode()
 
 
 def getsyx():
-    global PDC_LEAVEOK
+    """
+    Return the current position of the virtual screen.
+    """
     
-    if PDC_LEAVEOK:
+    if is_leaveok():
         return (-1, -1)
     curscr = PD_GET_CURSCR()
     return getyx(curscr)
 
-if PDCURSES:
-    # TODO
-    def getwin(file):   # THIS IS NOT CROSS-PLATFORM YET, AVOID IF POSSIBLE # NEEDS_CHECK?
-        raise Exception("UNICURSES_GETWIN: 'getwin' is unavailable under Windows!")
-elif NCURSES:
-    # TODO
-    pass
 
-
-def getyx(scr_id):	
+def getyx(scr_id):
+    """
+    Return the current position of the window scr_id.
+    """
+    
     cy = lib1.getcury(scr_id)
     cx = lib1.getcurx(scr_id)
     return (cy, cx)
@@ -1316,6 +1404,10 @@ def winstr(scr_id, n=-1):
 
 
 def isendwin():
+    """
+    Return True if endwin has been called without subsequent calls to wrefresh, otherwise return False.
+    """
+    
     return lib1.isendwin() == 1
 
 
@@ -1362,11 +1454,23 @@ def set_tabsize(size):
 
 
 def leaveok(scr_id, yes):
+    """
+    Allow the current position to be left wherever the update happens to leave it.
+    """
+    
     global PDC_LEAVEOK
     
     if scr_id.value == PD_GET_CURSCR().value:
         PDC_LEAVEOK = yes
     return lib1.leaveok(scr_id, yes)
+
+
+def is_leaveok():
+    """
+    Return the value set in leaveok.
+    """
+
+    return PDC_LEAVEOK
 
 
 def longname():
@@ -1464,7 +1568,7 @@ def mvwaddnstr(scr_id, y, x, cstr, n, attr="NO_USE"):
 
 def mvwchgat(scr_id, y, x, num, attr, color, opts=None):
     """
-    Set the attributes attr and color of num many characters in the window scr_id at position (y, x). It does not update the cursor and does not perform wrapping.
+    Set the attributes attr and color of num many characters in the window scr_id at position (y, x). It does not update the current position and does not perform wrapping.
     """
 
     return lib1.mvwchgat(scr_id, y, x, num, attr, color, None)
@@ -1496,14 +1600,26 @@ elif NCURSES:
 
 
 def mvderwin(scr_id, pary, parx):
+    """
+    Move the subwindow scr_id by (pary, parx) inside the parent window.
+    """
+
     return lib1.mvderwin(scr_id, pary, parx)
 
 
 def mvwgetch(scr_id, y, x):
+    """
+    Move the current position to (y, x) and read a character from the window scr_id.
+    """
+
     return lib1.mvwgetch(scr_id, y, x)
 
 
 def mvwgetstr(scr_id, y, x):
+    """
+    Perform a series of calls to getch in the window scr_id at position (y, x) until a newline is received. 
+    """
+
     t_str = ctypes.create_string_buffer(1023)
     lib1.mvwgetstr(scr_id, y, x, ctypes.byref(t_str))
     return t_str.value.decode()
@@ -1595,6 +1711,10 @@ def nodelay(scr_id, yes):
 
 
 def noecho():
+    """
+    Disable echo mode for getch, so characters typed are not echoed.
+    """
+
     return lib1.noecho()
 
 
@@ -1615,6 +1735,10 @@ def notimeout(scr_id, yes):
 
 
 def noutrefresh(scr_id):
+    """
+    Copy the window scr_id to the virtual screen. To be used followed by doupdate.
+    """
+    
     return lib1.wnoutrefresh(scr_id)
 
 
@@ -1657,6 +1781,15 @@ if PDCURSES:
     # TODO
     def putwin(scr_id, file):	# TODO: https://github.com/wmcbrine/PDCurses/search?q=putwin # NEEDS_CHECK?
         raise Exception("UNICURSES_PUTWIN: 'putwin' is unavailable under Windows at this momment!")
+elif NCURSES:
+    # TODO
+    pass
+
+
+if PDCURSES:
+    # TODO
+    def getwin(file):   # THIS IS NOT CROSS-PLATFORM YET, AVOID IF POSSIBLE # NEEDS_CHECK?
+        raise Exception("UNICURSES_GETWIN: 'getwin' is unavailable under Windows!")
 elif NCURSES:
     # TODO
     pass
@@ -1747,6 +1880,10 @@ def subpad(scrwin, nlines, ncols, begin_y, begin_x):
 
 
 def subwin(srcwin, nlines, ncols, begin_y, begin_x):
+    """
+    Return a new window with nlines and ncols, positioned at (begin_y, begin_x). The subwindow shares memory with the window srcwin, so changes made to one window will affect both.
+    """
+    
     return ctypes.c_void_p(lib1.subwin(srcwin, nlines, ncols, begin_y, begin_x))
 
 
@@ -1811,10 +1948,18 @@ def unctrl(ch):
 
 
 def ungetch(ch):
+    """
+    Place ch back onto the input queue to be returned by the next call to getch/wgetch.
+    """
+    
     return lib1.PDC_ungetch(ch)
 
 
-def ungetmouse(id, x, y, z, bstate):	
+def ungetmouse(id, x, y, z, bstate):
+    """
+    Pushes a KEY_MOUSE event onto the input queue. This event has the associates input data.
+    """
+    
     m_event = MEVENT()
     m_event.id = id
     m_event.x = x
@@ -1871,10 +2016,18 @@ def clear():
 
 
 def getch():
+    """
+    Read a character from the window.
+    """
+
     return wgetch(stdscr)
 
 
 def get_wch():
+    """
+    Read a complex character from the window.
+    """
+
     return wget_wch(stdscr)
 
 
@@ -1996,7 +2149,7 @@ def mvinch(y, x):
 
 def clrtobot():
     """
-    Erase from the line of the cursor to the end of screen.
+    Erase from the line of the current position to the end of screen.
     """
 
     return wclrtobot(stdscr)
@@ -2011,6 +2164,10 @@ def clrtoeol():
 
 
 def mvgetch(y, x):
+    """
+    Move the current position to (y, x) and read a character from the window.
+    """
+
     return mvwgetch(stdscr, y, x)
 
 
@@ -2103,6 +2260,10 @@ def mvinsstr(y, x, cstr, attr="NO_USE"):
 
 
 def echochar(ch, attr=A_NORMAL):
+    """
+    Equivalent to a call to addch followed by a call to refresh.
+    """
+
     return wechochar(stdscr, ch, attr)
 
 
@@ -2116,7 +2277,7 @@ def standend():
 
 def chgat(num, attr, color, opts=None):
     """
-    Set the attributes attr and color of num many characters. It does not update the cursor and does not perform wrapping.
+    Set the attributes attr and color of num many characters. It does not update the current position and does not perform wrapping.
     """
 
     return wchgat(stdscr, num, attr, color, opts)
@@ -2124,7 +2285,7 @@ def chgat(num, attr, color, opts=None):
 
 def mvchgat(y, x, num, attr, color, opts=None):
     """
-    Set the attributes attr and color of num many characters at position (y, x). It does not update the cursor and does not perform wrapping.
+    Set the attributes attr and color of num many characters at position (y, x). It does not update the current position and does not perform wrapping.
     """
 
     return mvwchgat(stdscr, y, x, num, attr, color, opts)
@@ -2147,14 +2308,26 @@ def mvdeleteln(y, x):
 
 
 def enclose(y, x):
+    """
+    Return True if the pair (y, x) is enclosed by the window, ortherwise return False.
+    """
+
     return wenclose(stdscr, y, x)
 
 
 def getstr():
+    """
+    Perform a series of calls to getch until a newline is received. 
+    """
+
     return wgetstr(stdscr)
 
 
 def mvgetstr(y, x):
+    """
+    Perform a series of calls to getch at position (y, x) until a newline is received. 
+    """
+
     return mvwgetstr(stdscr, y, x)
 
 
@@ -2195,6 +2368,10 @@ def syncup():
 
 
 def getkey(y=-1, x=-1):
+    """
+    Read a key from the window after (optional) moving the current position to (y, x). Differently from getch, this function reads escape characters and transforms them into keys.
+    """
+
     return wgetkey(stdscr, y, x)
 
 
