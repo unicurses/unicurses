@@ -21,7 +21,10 @@
 # import Curses (either natively if supported or via PDCurses using FFI if on MS Windows)
 
 from glob import glob
-import locale, platform, sys, os
+import locale
+import platform
+import sys
+import os
 
 
 global lib1
@@ -900,18 +903,34 @@ def beep():
 
 
 def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay):
+    """
+    Applies overlay if overlay is True otherwise overwrite. A rectangle is specified in dest_id window, via (dminrow, dmincol) and (dmaxrow, dmaxcol), and the upper-left-corner coordinates of src_id window, (sminrow, smincol).
+    """
+    
     return lib1.copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay)
 
 
 def wclear(scr_id):
+    """
+    Copy blanks to every position in window scr_id and call clearok.
+    """
+    
     return lib1.wclear(scr_id)
 
 
 def wclrtobot(scr_id):
+    """
+    Erase from the current line to the end of screen in window scr_id.
+    """
+    
     return lib1.wclrtobot(scr_id)
 
 
 def wclrtoeol(scr_id):
+    """
+    Erase the current line in window scr_id.
+    """
+    
     return lib1.wclrtoeol(scr_id)
 
 
@@ -924,10 +943,18 @@ def clearok(scr_id, yes):
 
 
 def curs_set(visibility):
+    """
+    Sets the cursor state to invisible (0), normal (1), or very visible (2).
+    """
+    
     return lib1.curs_set(visibility)
 
 
 def cursyncup(scr_id):
+    """
+    Update the current cursor position of all the ancestors of window scr_id to reflect the current cursor position of the window.
+    """
+    
     return lib1.wcursyncup(scr_id)
 
 
@@ -1029,6 +1056,10 @@ def endwin():
 
 
 def werase(scr_id):
+    """
+    Copy blanks to every position in window scr_id.
+    """
+    
     return lib1.werase(scr_id)
 
 
@@ -1489,10 +1520,18 @@ def noutrefresh(scr_id):
 
 
 def overlay(src_id, dest_id):
+    """
+    Overlay src_id on top of dest_id in a non-destructive way.
+    """
+    
     return lib1.overlay(src_id, dest_id)
 
 
 def overwrite(src_id, dest_id):
+    """
+    Overwrite src_id on top of dest_id in a destructive way.
+    """
+    
     return lib1.overwrite(src_id, dest_id)
 
 
@@ -1719,6 +1758,10 @@ def attrset(attr):
 
 
 def clear():
+    """
+    Copy blanks to every position in window stdscr and call clearok.
+    """
+
     return wclear(stdscr)
 
 
@@ -1763,6 +1806,10 @@ def bkgdset(ch, attr=A_NORMAL):
 
 
 def erase():
+    """
+    Copy blanks to every position in window stdscr.
+    """
+
     return werase(stdscr)
 
 
@@ -1823,10 +1870,18 @@ def mvinch(y, x):
 
 
 def clrtobot():
+    """
+    Erase from the line of the cursor to the end of screen in window stdscr.
+    """
+
     return wclrtobot(stdscr)
 
 
 def clrtoeol():
+    """
+    Erase the current line in window stdscr.
+    """
+
     return wclrtoeol(stdscr)
 
 

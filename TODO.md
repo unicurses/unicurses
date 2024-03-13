@@ -2,4 +2,8 @@
 
 # DISCUSS
 
-- how about turning wch and wstr into ch and str and keep those only? Strings in python have utf-8 encoding anyway, so i don't think it makes much sense to keep the standard libraries. If you see in the official curses module for python, only addch and addstr are supported
+- Turning wch and wstr into ch and str and keep those. Strings in python have utf-8 encoding anyway, it does not makes much sense to keep every standard library. The official curses module for Python only supports addch and addstr (https://docs.python.org/3/library/curses.html#module-curses)
+
+- change cursyncup to wcursyncup
+
+- (done) added wrapper
