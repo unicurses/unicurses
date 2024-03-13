@@ -619,9 +619,9 @@ def RCCHAR(ch):
     Reverse of CCHAR function.
     """
 
-    if isinstance(ch, int):
+    if type(ch) == int:
         return chr(ch)
-    if isinstance(ch, str):
+    if type(ch) == str:
         return ch
     raise Exception("RCCHAR: can't parse a non-char/non-int value.")
 
@@ -630,9 +630,9 @@ def CCHAR(ch):
     Get a C character.
     """
 
-    if isinstance(ch, str):
+    if type(ch) == str:
         return ord(ch)
-    if isinstance(ch, int):
+    if type(ch) == int:
         return ch
     raise Exception("CCHAR: can't parse a non-char/non-int value.")
 
@@ -954,7 +954,7 @@ def cursyncup(scr_id):
     """
     Update the current cursor position of all the ancestors of window scr_id to reflect the current cursor position of the window.
     """
-    
+
     return lib1.wcursyncup(scr_id)
 
 
