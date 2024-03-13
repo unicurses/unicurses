@@ -1008,7 +1008,7 @@ def wbkgd(scr_id, ch, attr=A_NORMAL):
     Set the background ch of window scr_id and apply this setting to every character position. 
     """
     
-    return lib1.wbkgd(scr_id, ch | attr)
+    return lib1.wbkgd(scr_id, CCHAR(ch) | attr)
 
 
 def wbkgdset(scr_id, ch, attr=A_NORMAL):
@@ -1016,7 +1016,7 @@ def wbkgdset(scr_id, ch, attr=A_NORMAL):
     Set the background ch for window scr_id.
     """
     
-    return lib1.wbkgdset(scr_id, ch | attr)
+    return lib1.wbkgdset(scr_id, CCHAR(ch) | attr)
 
 
 def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE,
@@ -1060,6 +1060,7 @@ def wchgat(scr_id, num, attr, color, opts=None):
     return lib1.wchgat(scr_id, num, attr, color, None)
 
 
+# TODO: not working, returns (0, 0, 0) always
 def color_content(color_number):
     """
     Return (r, g, b) of color_number.
@@ -1068,7 +1069,7 @@ def color_content(color_number):
     r = ctypes.c_short()
     g = ctypes.c_short()
     b = ctypes.c_short()
-    lib1.color_content(color_number, ctypes.byref(r), ctypes.byref(g), ctypes.byref(b))
+    lib1.color_content( color_number, ctypes.byref(r), ctypes.byref(g), ctypes.byref(b))
     return (r.value, g.value, b.value)
 
 
@@ -1085,7 +1086,7 @@ elif NCURSES:
         Convert color_number to an attribute.
         """
 
-        return NC_COLOR_PAIR(color_number)     
+        return NC_COLOR_PAIR(color_number)
 
 
 def delwin(scr_id):
@@ -1096,12 +1097,12 @@ def delwin(scr_id):
     return lib1.delwin(scr_id)
 
 
-def derwin(srcwin, nlines, ncols, begin_y, begin_x):
+def derwin(srcwin, nlines, ncols, y, x):
     """
-    Return a new window with nlines and ncols, positioned at (begin_y, begin_x) relative to the origin of scrwin. The subwindow shares memory with window srcwin, so changes made to one window will affect both.
+    Return a new window with nlines and ncols, positioned at (y, x) relative to the origin of scrwin. The subwindow shares memory with window srcwin, so changes made to one window will affect both.
     """
     
-    return ctypes.c_void_p(lib1.derwin(srcwin, nlines, ncols, begin_y, begin_x))
+    return ctypes.c_void_p(lib1.derwin(srcwin, nlines, ncols, y, x))
 
 
 def doupdate():
@@ -1125,7 +1126,7 @@ def wechochar(scr_id, ch, attr=A_NORMAL):
     Equivalent to a call to waddch followed by a call to wrefresh.
     """
 
-    return lib1.wechochar(scr_id, ch | attr)
+    return lib1.wechochar(scr_id, CCHAR(ch) | attr)
 
 
 def wenclose(scr_id, y, x):
@@ -1856,26 +1857,50 @@ def mvwinwstr(scr_id, y, x, n=-1):
 
 
 def mvwvline(scr_id, y, x, ch, n):
+    """
+    Draw a vertical line of maximum n characters ch starting at position (y, x) in the window scr_id. The current position is not updated.
+    """
+
     return lib1.mvwvline(scr_id, y, x, ch, n)
 
 
 def mvwin(scr_id, y, x):
+    """
+    Move the window scr_id so that the upper left-hand corner is at position (y, x).
+    """
+    
     return lib1.mvwin(scr_id, y, x)
 
 
 def napms(ms):
+    """
+    Sleep for ms milliseconds.
+    """
+
     return lib1.napms(ms)
 
 
 def newpad(nlines, ncols):
+    """
+    Return a new pad data structure with nlines lines and ncols columns.
+    """
+    
     return ctypes.c_void_p(lib1.newpad(nlines, ncols))
 
 
-def newwin(nlines, ncols, begin_y, begin_x):
-    return ctypes.c_void_p(lib1.newwin(nlines, ncols, begin_y, begin_x))
+def newwin(nlines, ncols, y, x):
+    """
+    Return a new window with nlines lines and ncols columnsm, whose upper left-hand corner is at (y, x).
+    """
+    
+    return ctypes.c_void_p(lib1.newwin(nlines, ncols, y, x))
 
 
 def nl():
+    """
+    Enable translation of the return key into newline on input.
+    """
+
     return lib1.nl()
 
 
@@ -1888,6 +1913,10 @@ def nocbreak():
 
 
 def nodelay(scr_id, yes):
+    """
+    Cause getch to be a non-blocking call.
+    """
+    
     return lib1.nodelay(scr_id, yes)
 
 
@@ -1900,18 +1929,34 @@ def noecho():
 
 
 def nonl():
+    """
+    Disable translation of the return key into newline on input.
+    """
+    
     return lib1.nonl()
 
 
 def noqiflush():
+    """
+    Normal flush of input and output queues associated with the INTR, QUIT and SUSP characters will not be done.
+    """
+    
     return lib1.noqiflush()
 
 
 def noraw():
+    """
+    Characters typed are not immediately passed through to the user program. Used to disable raw mode.
+    """
+    
     return lib1.noraw()
 
 
 def notimeout(scr_id, yes):
+    """
+    If yes is True, disable timer in window scr_id that the function wgetch waits for when interpreting an escape sequence. If yes is False, restore the timer.
+    """
+    
     return lib1.notimeout(scr_id, yes)
 
 
@@ -1940,14 +1985,26 @@ def overwrite(src_id, dest_id):
 
 
 def pair_content(pair_number):
+    """
+    Return what colors pair_number consists of.
+    """
+    
     fg = ctypes.c_short()
     bg = ctypes.c_short()
     lib1.pair_content(pair_number, ctypes.byref(fg), ctypes.byref(bg))
     return (fg.value, bg.value)
 
 
-def pair_number(attr):
-    return PD_PAIR_NUMBER(attr)
+if PDCURSES:
+    def pair_number(attr):
+        """
+        Extract the color value from attrs.
+        """
+        
+        return PD_PAIR_NUMBER(attr)
+elif NCURSES:
+    # TODO: write the Linux function
+    pass
 
 
 def prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol):
@@ -1977,10 +2034,18 @@ elif NCURSES:
 
 
 def qiflush():
+    """
+    Normal flush of input and output queues associated with the INTR, QUIT and SUSP characters are read.
+    """
+    
     return lib1.qiflush()
 
 
 def raw():
+    """
+    Characters typed are immediately passed through to the user program. Differently from cbreak, the interrupt, quit, suspend, and flow control characters are all passed through uninterpreted,
+    """
+
     return lib1.raw()
 
 
@@ -2057,16 +2122,16 @@ def start_color():
     return lib1.start_color()
 
 
-def subpad(scrwin, nlines, ncols, begin_y, begin_x):
-    return ctypes.c_void_p(lib1.subpad(scrwin, nlines, ncols, begin_y, begin_x))
+def subpad(scrwin, nlines, ncols, y, x):
+    return ctypes.c_void_p(lib1.subpad(scrwin, nlines, ncols, y, x))
 
 
-def subwin(srcwin, nlines, ncols, begin_y, begin_x):
+def subwin(srcwin, nlines, ncols, y, x):
     """
-    Return a new window with nlines and ncols, positioned at (begin_y, begin_x). The subwindow shares memory with window srcwin, so changes made to one window will affect both.
+    Return a new window with nlines and ncols, positioned at (y, x). The subwindow shares memory with window srcwin, so changes made to one window will affect both.
     """
     
-    return ctypes.c_void_p(lib1.subwin(srcwin, nlines, ncols, begin_y, begin_x))
+    return ctypes.c_void_p(lib1.subwin(srcwin, nlines, ncols, y, x))
 
 
 def wsyncdown(scr_id):
@@ -2122,6 +2187,10 @@ def typeahead(fd):
 
 
 def wvline(scr_id, ch, n):
+    """
+    Draw a vertical line of maximum n characters ch starting at the current position in the window scr_id. The current position is not updated.
+    """
+    
     return lib1.wvline(scr_id, ch, n)
 
 
@@ -2283,25 +2352,33 @@ def timeout(delay):
 
 def hline(ch, n):
     """
-    Draw a horizontal line of maximum n characters ch starting from the current position. The current position is not updated.
+    Draw a horizontal line of maximum n characters ch starting at the current position. The current position is not updated.
     """
 
     return whline(stdscr, ch, n)
 
 
 def vline(ch, n):
+    """
+    Draw a vertical line of maximum n characters ch starting at the current position. The current position is not updated.
+    """
+
     return wvline(stdscr, ch, n)
 
 
 def mvhline(y, x, ch, n):
     """
-    Draw a horizontal line of maximum n characters ch starting from position (y, x). The current position is not updated.
+    Draw a horizontal line of maximum n characters ch starting at position (y, x). The current position is not updated.
     """
 
     return mvwhline(stdscr, y, x, ch, n)
 
 
 def mvvline(y, x, ch, n):
+    """
+    Draw a vertical line of maximum n characters ch starting at position (y, x). The current position is not updated.
+    """
+
     return mvwvline(stdscr, y, x, ch, n)
 
 
@@ -2563,7 +2640,7 @@ def mvgetstr(y, x):
 
 def instr(n=-1):
     """
-    Return a string of at most n characters from the current position.
+    Return a string of at most n characters at the current position.
     """
 
     return winstr(stdscr, n)
@@ -2571,7 +2648,7 @@ def instr(n=-1):
 
 def mvinstr(y, x, n=-1):
     """
-    Return a string of at most n characters from position (y, x).
+    Return a string of at most n characters at position (y, x).
     """
 
     return mvwinstr(stdscr, y, x, n)
@@ -2579,7 +2656,7 @@ def mvinstr(y, x, n=-1):
 
 def mvinwstr(y, x, n=-1):
     """
-    Return a complex string of maximum n characters from position (y, x).
+    Return a complex string of maximum n characters at position (y, x).
     """
 
     return mvwinwstr(stdscr, y, x, n)
