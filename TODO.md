@@ -7,3 +7,5 @@
 - change cursyncup to wcursyncup
 
 - (done) added wrapper
+
+- why do we let users pass in the number of the ascii character? CCHAR gets only either called by user, or called with strings within the code. Moreover ord of bytestring and ord of string return the same value, so I think we should just return ord or raise a custom error if ord fails, and not do type checking
