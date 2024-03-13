@@ -96,9 +96,7 @@ except ImportError:
         """.format(sys.platform))
 
 
-if OPERATING_SYSTEM == 'Windows':
-    import platform
-    
+if OPERATING_SYSTEM == 'Windows':    
     if platform.architecture()[0] == '64bit':
         pdcurses = "64 bit binaries/pdcdllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
     else:
@@ -212,7 +210,7 @@ if PDCURSES:
 
         return ctypes.c_int.in_dll(lib1, "curscr")
 
-else:
+elif NCURSES:
     NCURSES_ATTR_SHIFT = 8
         
     def NCURSES_BITS(mask,shift): 
@@ -408,7 +406,7 @@ if PDCURSES:
     REPORT_MOUSE_POSITION  = 0x20000000
     #endregion -- Mouse mapping (PDC) --
  
-else:
+elif NCURSES:
     #region ++ Attributs & Colors (NC) ++
     # Attributes
     A_NORMAL     = 0
@@ -801,20 +799,25 @@ def waddch(scr_id, ch, attr=A_NORMAL):
     return lib1.waddch(scr_id, CCHAR(ch) | attr)
 
 
-def wadd_wch(scr_id, wch, attr=A_NORMAL):  # NEEDS_CHECK?
-    """
-    Write the complex character wch in the window scr_id.
-    """
+if PDCURSES:
+    def wadd_wch(scr_id, wch, attr=A_NORMAL):  # NEEDS_CHECK?
+        """
+        Write the complex character wch in the window scr_id.
+        """
 
-    if NCURSES:
-        return lib1.wadd_wch(scr_id, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
-    else:
         oldattr = lib1.getattrs(scr_id)
         lib1.wattrset(scr_id, attr)
         ret = lib1.wadd_wch(scr_id, RCCHAR(wch))
         lib1.wattrset(scr_id, oldattr)
         return ret
         #return lib1.wadd_wch(scr_id, CCHAR(wch) | attr )  # ??? Why no working
+elif NCURSES:
+    def wadd_wch(scr_id, wch, attr=A_NORMAL):  # NEEDS_CHECK?
+        """
+        Write the complex character wch in the window scr_id.
+        """
+
+        return lib1.wadd_wch(scr_id, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
 
 
 def waddstr(scr_id, cstr, attr="NO_USE"):
@@ -1067,18 +1070,27 @@ def color_content(color_number):
     return (r.value, g.value, b.value)
 
 
-def color_pair(color_number):
-    """
-    Convert color_number to an attribute.
-    """
+if PDCURSES:
+    def color_pair(color_number):
+        """
+        Convert color_number to an attribute.
+        """
 
-    if PDCURSES:
         return PD_COLOR_PAIR(color_number)
-    else:
-        return NC_COLOR_PAIR(color_number)
+elif NCURSES:
+    def color_pair(color_number):
+        """
+        Convert color_number to an attribute.
+        """
+
+        return NC_COLOR_PAIR(color_number)     
 
 
 def delwin(scr_id):
+    """
+    Delete the window scr_id. It does not erase the window's screen image.
+    """
+    
     return lib1.delwin(scr_id)
 
 
@@ -1165,14 +1177,16 @@ def getmaxy(scr_id):
 def getmaxx(scr_id):
     return lib1.getmaxx(scr_id)
 
-
-def getmouse():
-    m_event = MEVENT()
-    if PDCURSES:
+if PDCURSES:
+    def getmouse():
+        m_event = MEVENT()
         lib1.nc_getmouse(ctypes.byref(m_event))  # ? https://github.com/wmcbrine/PDCurses/blob/f1cd4f4569451a5028ddf3d3c202f0ad6b1ae446/pdcurses/mouse.c#L105 
-    else:
+        return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.bstate)
+elif NCURSES:
+    def getmouse():
+        m_event = MEVENT()
         lib1.getmouse(ctypes.byref(m_event))
-    return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.bstate)
+        return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.bstate)
 
 
 def getparyx(scr_id):
@@ -1195,9 +1209,13 @@ def getsyx():
     curscr = PD_GET_CURSCR()
     return getyx(curscr)
 
-
-def getwin(file):   # THIS IS NOT CROSS-PLATFORM YET, AVOID IF POSSIBLE # NEEDS_CHECK?
-    raise Exception("UNICURSES_GETWIN: 'getwin' is unavailable under Windows!")
+if PDCURSES:
+    # TODO
+    def getwin(file):   # THIS IS NOT CROSS-PLATFORM YET, AVOID IF POSSIBLE # NEEDS_CHECK?
+        raise Exception("UNICURSES_GETWIN: 'getwin' is unavailable under Windows!")
+elif NCURSES:
+    # TODO
+    pass
 
 
 def getyx(scr_id):	
@@ -1326,6 +1344,7 @@ def killchar():   # TODO: this might not be portable across platforms yet
     return lib1.killchar()
 
 
+# TODO check what happens for ncurses
 def get_tabsize():
     """
     Retrieves the value set by `set_tabsize`.
@@ -1333,6 +1352,7 @@ def get_tabsize():
     return lib1.get_tabsize()
 
 
+# TODO check what happens for ncurses
 def set_tabsize(size):
     """
     Sets the number of columns used by the curses library when converting a tab
@@ -1377,20 +1397,25 @@ def mvwaddch(scr_id, y, x, ch, attr=A_NORMAL):
     return lib1.mvwaddch(scr_id, y, x, CCHAR(ch) | attr)
 
 
-def mvwadd_wch(scr_id, y, x, wch, attr=A_NORMAL):
-    """
-    Write the complex character wch in the window scr_id at position (y, x).
-    """
+if PDCURSES:
+    def mvwadd_wch(scr_id, y, x, wch, attr=A_NORMAL):
+        """
+        Write the complex character wch in the window scr_id at position (y, x).
+        """
 
-    if NCURSES:
-        return lib1.mvwadd_wch(scr_id, y, x, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
-    else:
         oldattr = lib1.getattrs(scr_id)
         lib1.wattrset(scr_id, attr)
         ret = lib1.mvwadd_wch(scr_id, y, x, RCCHAR(wch))
         lib1.wattrset(scr_id, oldattr)
         return ret
-        
+elif NCURSES:
+    def mvwadd_wch(scr_id, y, x, wch, attr=A_NORMAL):
+        """
+        Write the complex character wch in the window scr_id at position (y, x).
+        """
+
+        return lib1.mvwadd_wch(scr_id, y, x, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
+
 
 def mvwaddstr(scr_id, y, x, cstr, attr="NO_USE"):
     """
@@ -1453,16 +1478,21 @@ def mvwdelch(scr_id, y, x):
     return lib1.mvwdelch(scr_id, y, x)
 
 
-def mvwdeleteln(scr_id, y, x):
-    """
-    Delete the line in the window scr_id at position (y, x). All lines below are moved up one line.
-    """
+if PDCURSES:
+    def mvwdeleteln(scr_id, y, x):
+        """
+        Delete the line in the window scr_id at position (y, x). All lines below are moved up one line.
+        """
 
-    if NCURSES:
-        lib1.wmove(scr_id, y, x)
-        lib1.wdeleteln(scr_id)
-    else:
         return lib1.mvwdeleteln(scr_id, y, x)
+elif NCURSES:
+    def mvwdeleteln(scr_id, y, x):
+        """
+        Delete the line in the window scr_id at position (y, x). All lines below are moved up one line.
+        """
+
+        lib1.wmove(scr_id, y, x)
+        return lib1.wdeleteln(scr_id)
 
 
 def mvderwin(scr_id, pary, parx):
@@ -1623,8 +1653,13 @@ def putp(cstring):
     return lib1.putp(CSTR(cstring))
 
 
-def putwin(scr_id, file):	# TODO: https://github.com/wmcbrine/PDCurses/search?q=putwin # NEEDS_CHECK?
-    raise Exception("UNICURSES_PUTWIN: 'putwin' is unavailable under Windows at this momment!")
+if PDCURSES:
+    # TODO
+    def putwin(scr_id, file):	# TODO: https://github.com/wmcbrine/PDCurses/search?q=putwin # NEEDS_CHECK?
+        raise Exception("UNICURSES_PUTWIN: 'putwin' is unavailable under Windows at this momment!")
+elif NCURSES:
+    # TODO
+    pass
 
 
 def qiflush():
@@ -1679,6 +1714,7 @@ def wsetscrreg(scr_id, top, bottom):
     return lib1.wsetscrreg(scr_id, top, bottom)
 
 
+# TODO check why it creates a variable that is garbage collected on function return
 def setsyx(y, x):
     global PDC_LEAVEOK
     
@@ -2192,9 +2228,7 @@ def del_panel(pan_id):
 
 def panel_hidden(pan_id):	
     mode = lib2.panel_hidden(pan_id)
-    if mode == OK:
-        return True
-    return False
+    return mode == OK
 
 
 def hide_panel(pan_id):

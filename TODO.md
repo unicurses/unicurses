@@ -9,3 +9,7 @@
 - (done) added wrapper
 
 - why do we let users pass in the number of the ascii character? CCHAR gets only either called by user, or called with strings within the code. Moreover ord of bytestring and ord of string return the same value, so I think we should just return ord or raise a custom error if ord fails, and not do type checking
+
+- (done) check if NCURSES or PDCURSES outside of functions, not inside  as the system never changes at runtime.
+
+- what is the need of raising an exception when importing ctypes as failing will raise the same exact exception type?
