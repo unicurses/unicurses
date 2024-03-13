@@ -128,7 +128,6 @@ else:
     NCURSES  = True
 
 
-
 # Reconfigure the UniCurses wrapper to use a certain library instead of the default
 # PDCurses and the default NCurses. This must be called before initscr().
 # Pass an empty string or UCS_DEFAULT_WRAPPER to use the default wrapper.
@@ -203,25 +202,26 @@ if PDCURSES:
         return (n & A_COLOR) >> PDC_COLOR_SHIFT
 
 
-    def PD_GET_CURSCR():
+    def PD_GET_CURSCR(): # TODO: this should actually work in NCURSES too, idk why it's not a general function
         """
-        Get the PDC curscr (NOT PORTABLE!).
+        Get the PDC curscr (NOT PORTABLE!), this is pointer to the current screen image.
         """
 
         return ctypes.c_int.in_dll(lib1, "curscr")
 
 elif NCURSES:
     NCURSES_ATTR_SHIFT = 8
-        
+
+
     def NCURSES_BITS(mask,shift): 
         return (mask << ((shift) + NCURSES_ATTR_SHIFT))
- 
+
+
     def NC_COLOR_PAIR(n): 
         return (NCURSES_BITS((n), 0) & A_COLOR)
     
     # TODO: implement getcursor in NCURSES and make the call platform independent
 #endregion --- PDCurses/NCurses ncurses.h macro wrappers and other prereqs ---
-
 
 
 #region +++ CONSTANTS: PDCurses\Ncurses ncurses.h +++
@@ -642,9 +642,9 @@ def ALTCHAR(ch):
     Alternate character set.
     """
 
-    if isinstance(ch, str):
+    if type(ch) == str:
         return ord(ch) | A_ALTCHARSET
-    if isinstance(ch, int):
+    if type(ch) ==  int:
         return ch | A_ALTCHARSET
     raise Exception("ALTCHAR: can't parse a non-char/non-int value.")
 
@@ -795,7 +795,7 @@ lib2.panel_window.restype     = ctypes.c_void_p
 #region ++ Functions ++
 def waddch(scr_id, ch, attr=A_NORMAL):
     """
-    Write the character ch in the window scr_id.
+    Write the character ch in window scr_id.
     """
 
     return lib1.waddch(scr_id, CCHAR(ch) | attr)
@@ -804,7 +804,7 @@ def waddch(scr_id, ch, attr=A_NORMAL):
 if PDCURSES:
     def wadd_wch(scr_id, wch, attr=A_NORMAL):  # NEEDS_CHECK?
         """
-        Write the complex character wch in the window scr_id.
+        Write the complex character wch in window scr_id.
         """
 
         oldattr = lib1.getattrs(scr_id)
@@ -816,7 +816,7 @@ if PDCURSES:
 elif NCURSES:
     def wadd_wch(scr_id, wch, attr=A_NORMAL):  # NEEDS_CHECK?
         """
-        Write the complex character wch in the window scr_id.
+        Write the complex character wch in window scr_id.
         """
 
         return lib1.wadd_wch(scr_id, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
@@ -824,7 +824,7 @@ elif NCURSES:
 
 def waddstr(scr_id, cstr, attr="NO_USE"):
     """
-    Write the string cstr in the window scr_id.
+    Write the string cstr in window scr_id.
     """
 
     if attr != "NO_USE":
@@ -838,7 +838,7 @@ def waddstr(scr_id, cstr, attr="NO_USE"):
 
 def waddwstr(scr_id, wstr, attr="NO_USE"):
     """
-    Write the complex string wstr in the window scr_id.
+    Write the complex string wstr in window scr_id.
     """
 
     if wstr == '':
@@ -855,7 +855,7 @@ def waddwstr(scr_id, wstr, attr="NO_USE"):
 
 def waddnstr(scr_id, cstr, n, attr="NO_USE"):
     """
-    Write maximum n characters from the string cstr in the window scr_id.
+    Write maximum n characters from the string cstr in window scr_id.
     """
 
     if attr != "NO_USE":
@@ -869,7 +869,7 @@ def waddnstr(scr_id, cstr, n, attr="NO_USE"):
 
 def wattroff(scr_id, attr):
     """
-    Turn off attributes attr of the window scr_id.
+    Turn off attributes attr of window scr_id.
     """
 
     return lib1.wattroff(scr_id, attr)
@@ -877,7 +877,7 @@ def wattroff(scr_id, attr):
 
 def wattron(scr_id, attr):
     """
-    Turn on attributes attr of the window scr_id.
+    Turn on attributes attr of window scr_id.
     """
 
     return lib1.wattron(scr_id, attr)
@@ -885,7 +885,7 @@ def wattron(scr_id, attr):
 
 def wattrset(scr_id, attr):
     """
-    Set attributes attr of the window scr_id.
+    Set attributes attr of window scr_id.
     """
 
     return lib1.wattrset(scr_id, attr)
@@ -909,7 +909,7 @@ def beep():
 
 def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay):
     """
-    Applies overlay if overlay is True otherwise overwrite. A rectangle is specified in the window dest_id, via (dminrow, dmincol) and (dmaxrow, dmaxcol), and the upper-left-corner coordinates of the window src_id, (sminrow, smincol).
+    Applies overlay if overlay is True otherwise overwrite. A rectangle is specified in window dest_id, via (dminrow, dmincol) and (dmaxrow, dmaxcol), and the upper-left-corner coordinates of window src_id, (sminrow, smincol).
     """
     
     return lib1.copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay)
@@ -917,7 +917,7 @@ def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxco
 
 def wclear(scr_id):
     """
-    Copy blanks to every position in the window scr_id and call clearok.
+    Copy blanks to every position in window scr_id and call clearok.
     """
     
     return lib1.wclear(scr_id)
@@ -925,7 +925,7 @@ def wclear(scr_id):
 
 def wclrtobot(scr_id):
     """
-    Erase from the current line to the end of screen in the window scr_id.
+    Erase from the current line to the end of screen in window scr_id.
     """
     
     return lib1.wclrtobot(scr_id)
@@ -933,7 +933,7 @@ def wclrtobot(scr_id):
 
 def wclrtoeol(scr_id):
     """
-    Erase the current line in the window scr_id.
+    Erase the current line in window scr_id.
     """
     
     return lib1.wclrtoeol(scr_id)
@@ -957,7 +957,7 @@ def curs_set(visibility):
 
 def cursyncup(scr_id):
     """
-    Update the current position of all the ancestors of window scr_id to reflect the current position of the window.
+    Update the current position of all the ancestors of window scr_id to reflect the current position of the current window.
     """
 
     return lib1.wcursyncup(scr_id)
@@ -989,7 +989,7 @@ def delay_output(ms):
 
 def wdelch(scr_id):
     """
-    Delete the current character in the window scr_id. All characters to the right are moved to the left by one.
+    Delete the current character in window scr_id. All characters to the right are moved to the left by one.
     """
 
     return lib1.wdelch(scr_id)
@@ -997,7 +997,7 @@ def wdelch(scr_id):
 
 def wdeleteln(scr_id):
     """
-    Delete the current line in the window scr_id. All lines below are moved up one line.
+    Delete the current line in window scr_id. All lines below are moved up one line.
     """
     
     return lib1.wdeleteln(scr_id)
@@ -1005,7 +1005,7 @@ def wdeleteln(scr_id):
 
 def wbkgd(scr_id, ch, attr=A_NORMAL):
     """
-    Set the background ch of the window scr_id and apply this setting to every character position. 
+    Set the background ch of window scr_id and apply this setting to every character position. 
     """
     
     return lib1.wbkgd(scr_id, ch | attr)
@@ -1013,7 +1013,7 @@ def wbkgd(scr_id, ch, attr=A_NORMAL):
 
 def wbkgdset(scr_id, ch, attr=A_NORMAL):
     """
-    Set the background ch for the window scr_id.
+    Set the background ch for window scr_id.
     """
     
     return lib1.wbkgdset(scr_id, ch | attr)
@@ -1022,7 +1022,7 @@ def wbkgdset(scr_id, ch, attr=A_NORMAL):
 def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE,
             tl=ACS_ULCORNER, tr=ACS_URCORNER, bl=ACS_LLCORNER, br=ACS_LRCORNER):
     """
-    Draw a box around the edges of the window scr_id with attributes ls (left side), rs (right side), ts (top side), bs (bottom side), tl (top left-hand corner), tr (top right-hand corner), bl (bottom left-hand corner), and br (bottom right-hand corner).
+    Draw a box around the edges of window scr_id with attributes ls (left side), rs (right side), ts (top side), bs (bottom side), tl (top left-hand corner), tr (top right-hand corner), bl (bottom left-hand corner), and br (bottom right-hand corner).
     """
     
     return lib1.wborder(scr_id, ls, rs, ts, bs, tl, tr, bl, br) # same as wborder_set (it supports unicode by default)
@@ -1054,7 +1054,7 @@ def cbreak():
 
 def wchgat(scr_id, num, attr, color, opts=None):
     """
-    Set the attributes attr and color of num many characters in the window scr_id. It does not update the current position and does not perform wrapping.
+    Set the attributes attr and color of num many characters in window scr_id. It does not update the current position and does not perform wrapping.
     """
     
     return lib1.wchgat(scr_id, num, attr, color, None)
@@ -1090,7 +1090,7 @@ elif NCURSES:
 
 def delwin(scr_id):
     """
-    Delete the window scr_id. It does not erase the window's screen image.
+    Delete window scr_id. It does not erase window scr_id screen image.
     """
     
     return lib1.delwin(scr_id)
@@ -1098,7 +1098,7 @@ def delwin(scr_id):
 
 def derwin(srcwin, nlines, ncols, begin_y, begin_x):
     """
-    Return a new window with nlines and ncols, positioned at (begin_y, begin_x) relative to the origin of scrwin. The subwindow shares memory with the window srcwin, so changes made to one window will affect both.
+    Return a new window with nlines and ncols, positioned at (begin_y, begin_x) relative to the origin of scrwin. The subwindow shares memory with window srcwin, so changes made to one window will affect both.
     """
     
     return ctypes.c_void_p(lib1.derwin(srcwin, nlines, ncols, begin_y, begin_x))
@@ -1130,7 +1130,7 @@ def wechochar(scr_id, ch, attr=A_NORMAL):
 
 def wenclose(scr_id, y, x):
     """
-    Return True if the pair (y, x) is enclosed by the window scr_id, ortherwise return False.
+    Return True if the pair (y, x) is enclosed by window scr_id, ortherwise return False.
     """
     
     return lib1.wenclose(scr_id, y, x)
@@ -1146,7 +1146,7 @@ def endwin():
 
 def werase(scr_id):
     """
-    Copy blanks to every position in the window scr_id.
+    Copy blanks to every position in window scr_id.
     """
     
     return lib1.werase(scr_id)
@@ -1206,7 +1206,7 @@ def getbegyx(scr_id):
 
 def wgetch(scr_id):
     """
-    Read a character from the window scr_id.
+    Read a character from window scr_id.
     """
     
     return lib1.wgetch(scr_id) 
@@ -1214,7 +1214,7 @@ def wgetch(scr_id):
 
 def wget_wch(scr_id): # NEEDS_CHECK? # https://stackoverflow.com/questions/1081456/wchar-t-vs-wint-t
     """
-    Read a complex character from the window scr_id.
+    Read a complex character from window scr_id.
     """
     
     wint = ctypes.c_uint16()
@@ -1224,7 +1224,7 @@ def wget_wch(scr_id): # NEEDS_CHECK? # https://stackoverflow.com/questions/10814
 
 def wgetkey(scr_id, y=-1, x=-1): # NEEDS_CHECK?	
     """
-    Read a key from the window scr_id after (optional) moving the current position to (y, x). Differently from getch, this function reads escape characters and transforms them into keys.
+    Read a key from window scr_id after (optional) moving the current position to (y, x). Differently from getch, this function reads escape characters and transforms them into keys.
     """
     
     if (y == -1) or (x == -1):
@@ -1236,7 +1236,7 @@ def wgetkey(scr_id, y=-1, x=-1): # NEEDS_CHECK?
 
 def getmaxyx(scr_id):
     """
-    Return the dimensions (height, width) of the window scr_id.
+    Return the dimensions (height, width) of window scr_id.
     """
     
     y = lib1.getmaxy(scr_id)
@@ -1246,7 +1246,7 @@ def getmaxyx(scr_id):
 
 def getmaxy(scr_id):
     """
-    Return the height of the window scr_id.
+    Return the height of window scr_id.
     """
 
     return lib1.getmaxy(scr_id)
@@ -1254,7 +1254,7 @@ def getmaxy(scr_id):
 
 def getmaxx(scr_id):
     """
-    Return the width of the window scr_id.
+    Return the width of window scr_id.
     """
 
     return lib1.getmaxx(scr_id)
@@ -1291,7 +1291,7 @@ def getparyx(scr_id):
 
 def wgetstr(scr_id):
     """
-    Perform a series of calls to getch in the window scr_id until a newline is received. 
+    Perform a series of calls to getch in window scr_id until a newline is received. 
     """
     
     t_str = ctypes.create_string_buffer(1023)
@@ -1299,21 +1299,30 @@ def wgetstr(scr_id):
     return t_str.value.decode()
 
 
-# TODO: implement for linux
-def getsyx():
-    """
-    Return the current position of the virtual screen.
-    """
-    
-    if is_leaveok():
-        return (-1, -1)
-    curscr = PD_GET_CURSCR()
-    return getyx(curscr)
+if PDCURSES:
+    def getsyx():
+        """
+        Return the current position of the virtual screen.
+        """
+        
+        if is_leaveok():
+            return (-1, -1)
+        curscr = PD_GET_CURSCR()
+        return getyx(curscr)
+elif NCURSES:
+    def getsyx():
+        """
+        Return the current position of the virtual screen.
+        """
+        
+        if is_leaveok():
+            return (-1, -1)
+        return getyx(stdscr)
 
 
 def getyx(scr_id):
     """
-    Return the current position of the window scr_id.
+    Return the current position of window scr_id.
     """
     
     cy = lib1.getcury(scr_id)
@@ -1363,7 +1372,7 @@ def has_key(ch):
 
 def whline(scr_id, ch, n):
     """
-    Draw a horizontal line of maximum n characters ch starting from the current position in the window scr_id. The current position is not updated.
+    Draw a horizontal line of maximum n characters ch starting from the current position in window scr_id. The current position is not updated.
     """
     
     return lib1.whline(scr_id, ch, n)
@@ -1371,7 +1380,7 @@ def whline(scr_id, ch, n):
 
 def idcok(scr_id, flag): # does nothing in PDCURSES
     """
-    When the flag is False, unicurses no longer considers using the hardware insert/delete character feature of terminals so equipped in the window scr_id. When the flag is True, it re-enables use of character insertion and deletion. (No effect in Windows)
+    When the flag is False, unicurses no longer considers using the hardware insert/delete character feature of terminals so equipped in window scr_id. When the flag is True, it re-enables use of character insertion and deletion. (No effect in Windows)
     """
 
     return lib1.idcok(scr_id, flag)
@@ -1379,7 +1388,7 @@ def idcok(scr_id, flag): # does nothing in PDCURSES
 
 def idlok(scr_id, yes): # does nothing in PDCURSES
     """
-    When the flag is True, unicurses considers using the hardware insert/delete line feature of terminals so equipped in the window scr_id. When the flag is False, it disables use use of line insertion and deletion. (No effect in Windows)
+    When the flag is True, unicurses considers using the hardware insert/delete line feature of terminals so equipped in window scr_id. When the flag is False, it disables use use of line insertion and deletion. (No effect in Windows)
     """
 
     return lib1.idlok(scr_id, yes)
@@ -1387,7 +1396,7 @@ def idlok(scr_id, yes): # does nothing in PDCURSES
 
 def immedok(scr_id, flag):
     """
-    When the flag is True, any change in the window image automatically cause a call to wrefresh. 
+    When the flag is True, any change in window scr_id image automatically cause a call to wrefresh. 
     """
     
     return lib1.immedok(scr_id, flag)
@@ -1430,7 +1439,7 @@ def initscr():
 
 def winsch(scr_id, ch, attr=A_NORMAL):
     """
-    Insert the character ch before the current position in the window scr_id. All characters to the right are moved by one.
+    Insert the character ch before the current position in window scr_id. All characters to the right are moved by one.
     """
     
     return lib1.winsch(scr_id, ch | attr)
@@ -1438,7 +1447,7 @@ def winsch(scr_id, ch, attr=A_NORMAL):
 
 def winsdelln(scr_id, nlines):
     """
-    For positive nlines, insert nlines line into the window scr_id above the current position. For negative nlines, delete nlines lines.
+    For positive nlines, insert nlines line into window scr_id above the current position. For negative nlines, delete nlines lines.
     """
     
     return lib1.winsdelln(scr_id, nlines)
@@ -1446,7 +1455,7 @@ def winsdelln(scr_id, nlines):
 
 def winsstr(scr_id, strn, attr="NO_USE"):
     """
-    Insert the string strn before the current position in the window scr_id. All characters to the right are moved by one.
+    Insert the string strn before the current position in window scr_id. All characters to the right are moved by one.
     """
     
     oldattr = 0
@@ -1461,7 +1470,7 @@ def winsstr(scr_id, strn, attr="NO_USE"):
 
 def winsnstr(scr_id, strn, n, attr="NO_USE"):
     """
-    Insert at most n characters of the string strn before the current position in the window scr_id. All characters to the right are moved by one. If n<=0, the entire string is inserted.
+    Insert at most n characters of the string strn before the current position in window scr_id. All characters to the right are moved by one. If n<=0, the entire string is inserted.
     """
 
     oldattr = 0
@@ -1477,7 +1486,7 @@ def winsnstr(scr_id, strn, n, attr="NO_USE"):
 # TODO: investigate what happens when n<=0, if found out change description of all other functions
 def winstr(scr_id, n=-1):
     """
-    Return a string of at most n characters from the current position in the window scr_id.
+    Return a string of at most n characters from the current position in window scr_id.
     """
     
     t_str = ctypes.create_string_buffer(1023)
@@ -1495,7 +1504,7 @@ def isendwin():
 
 def winsertln(scr_id):
     """
-    Insert a line above the current position in the window scr_id.
+    Insert a line above the current position in window scr_id.
     """
     
     return lib1.winsertln(scr_id)
@@ -1503,7 +1512,7 @@ def winsertln(scr_id):
 
 def is_linetouched(scr_id, line):
     """
-    Return True if the line line in the window scr_id was modified since the last call to wrefresh; otherwise return False.
+    Return True if the line line in window scr_id was modified since the last call to wrefresh; otherwise return False.
     """
     
     return bool( lib1.is_linetouched(scr_id, line) )
@@ -1511,7 +1520,7 @@ def is_linetouched(scr_id, line):
 
 def is_wintouched(scr_id):
     """
-    Return True if the window scr_id was modified since the last call to wrefresh; otherwise return False.
+    Return True if window scr_id was modified since the last call to wrefresh; otherwise return False.
     """
 
     return bool( lib1.is_wintouched(scr_id) )
@@ -1544,35 +1553,32 @@ def killchar():
 # TODO: implement killwchar
 
 
-# TODO: i don't think this works neither in linux, not in windows, need to retrieve the global variable TABSIZE
 def get_tabsize():
     """
-    Retrieves the value set by `set_tabsize`.
+    Return the size of TAB.
     """
-    return lib1.get_tabsize()
+
+    return ctypes.c_int.in_dll(lib1, "TABSIZE").value
 
 
-if PDCURSES:
-    def set_tabsize(size):
-        """
-        Sets the number of columns used by the curses library when converting a tab
-        character to spaces as it adds the tab to a window.
-        """
-        return lib1.set_tabsize(size)
-elif NCURSES:
-    # N/A
-    pass
+def set_tabsize(size):
+    """
+    Set the size of TAB.
+    """
+
+    return lib1.set_tabsize(size)
 
 
-if PDCURSES:
+if PDCURSES: # here we see the reason why PDCURSES is different, the virtual screen is a separate instance
     def leaveok(scr_id, yes):
         """
         Allow the current position to be left wherever the update happens to leave it.
         """
         
         global PDC_LEAVEOK
-        
-        if scr_id.value == PD_GET_CURSCR().value:
+
+        curscr = PD_GET_CURSCR()
+        if scr_id.value == curscr.value:
             PDC_LEAVEOK = yes
         return lib1.leaveok(scr_id, yes)
 elif NCURSES:
@@ -1584,38 +1590,65 @@ elif NCURSES:
         return lib1.leaveok(scr_id, yes)
 
 
-# TODO: just drop the use of PDC_LEAVEOK entirely, and rely solely on the built in functions
-def is_leaveok():
-    """
-    Return the value set in leaveok.
-    """
+if PDCURSES:
+    def is_leaveok():
+        """
+        Return the value set in leaveok.
+        """
 
-    return PDC_LEAVEOK
+        return PDC_LEAVEOK
+elif NCURSES:
+    def is_leaveok():
+        """
+        Return the value set in leaveok.
+        """
+        
+        return lib1.is_leaveok(stdscr)
 
 
 def longname():
+    """
+    Return a pointer to a static area containing a verbose description of the current terminal.
+    """
+    
     return lib1.longname().decode()
 
 
-def meta(scr_id, yes):
-    return lib1.meta(scr_id, yes)
+def meta(yes):
+    """
+    Force the terminal to return 8 significant bits if yes is False, otherwise 7 significant bits.
+    """
+    
+    return lib1.meta(stdscr, yes) # The argument scr_id is ignored.
 
 
 def mouseinterval(interval):
+    """
+    Set the maximum time in milliseconds that can elapse between press and release events for them to be recognized as a click. 0 disables click resolution.
+    """
+    
     return lib1.mouseinterval(interval)
 
 
 def mousemask(mmask):
+    """
+    Make mouse events visible. By default, no mouse events are reported.
+    """
+    
     return lib1.mousemask(mmask, None)
 
 
-def wmove(scr_id, new_y, new_x):
-    return lib1.wmove(scr_id, new_y, new_x)
+def wmove(scr_id, y, x):
+    """
+    Move the position associated with window scr_id to position (y, x). The cursor won't move until refresh is called.
+    """
+    
+    return lib1.wmove(scr_id, y, x)
 
 
 def mvwaddch(scr_id, y, x, ch, attr=A_NORMAL):
     """
-    Write the character ch in the window scr_id at position (y, x).
+    Write the character ch in window scr_id at position (y, x).
     """
 
     return lib1.mvwaddch(scr_id, y, x, CCHAR(ch) | attr)
@@ -1624,7 +1657,7 @@ def mvwaddch(scr_id, y, x, ch, attr=A_NORMAL):
 if PDCURSES:
     def mvwadd_wch(scr_id, y, x, wch, attr=A_NORMAL):
         """
-        Write the complex character wch in the window scr_id at position (y, x).
+        Write the complex character wch in window scr_id at position (y, x).
         """
 
         oldattr = lib1.getattrs(scr_id)
@@ -1635,7 +1668,7 @@ if PDCURSES:
 elif NCURSES:
     def mvwadd_wch(scr_id, y, x, wch, attr=A_NORMAL):
         """
-        Write the complex character wch in the window scr_id at position (y, x).
+        Write the complex character wch in window scr_id at position (y, x).
         """
 
         return lib1.mvwadd_wch(scr_id, y, x, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
@@ -1643,7 +1676,7 @@ elif NCURSES:
 
 def mvwaddstr(scr_id, y, x, cstr, attr="NO_USE"):
     """
-    Write the string cstr in the window scr_id at position (y, x).
+    Write the string cstr in window scr_id at position (y, x).
     """
 
     if attr != "NO_USE":
@@ -1657,7 +1690,7 @@ def mvwaddstr(scr_id, y, x, cstr, attr="NO_USE"):
 
 def mvwaddwstr(scr_id, y, x, wstr, attr="NO_USE"):
     """
-    Write the complex string wstr in the window scr_id at position (y, x).
+    Write the complex string wstr in window scr_id at position (y, x).
     """
 
     if wstr == '':
@@ -1674,7 +1707,7 @@ def mvwaddwstr(scr_id, y, x, wstr, attr="NO_USE"):
 
 def mvwaddnstr(scr_id, y, x, cstr, n, attr="NO_USE"):
     """
-    Write maximum n characters from the string cstr in the window scr_id at position (y, x).
+    Write maximum n characters from the string cstr in window scr_id at position (y, x).
     """
 
     if attr != "NO_USE":
@@ -1688,7 +1721,7 @@ def mvwaddnstr(scr_id, y, x, cstr, n, attr="NO_USE"):
 
 def mvwchgat(scr_id, y, x, num, attr, color, opts=None):
     """
-    Set the attributes attr and color of num many characters in the window scr_id at position (y, x). It does not update the current position and does not perform wrapping.
+    Set the attributes attr and color of num many characters in window scr_id at position (y, x). It does not update the current position and does not perform wrapping.
     """
 
     return lib1.mvwchgat(scr_id, y, x, num, attr, color, None)
@@ -1696,7 +1729,7 @@ def mvwchgat(scr_id, y, x, num, attr, color, opts=None):
 
 def mvwdelch(scr_id, y, x):
     """
-    Delete the character in the window scr_id at position (y, x). All characters to the right are moved to the left by one.
+    Delete the character in window scr_id at position (y, x). All characters to the right are moved to the left by one.
     """
 
     return lib1.mvwdelch(scr_id, y, x)
@@ -1705,14 +1738,14 @@ def mvwdelch(scr_id, y, x):
 if PDCURSES:
     def mvwdeleteln(scr_id, y, x):
         """
-        Delete the line in the window scr_id at position (y, x). All lines below are moved up one line.
+        Delete the line in window scr_id at position (y, x). All lines below are moved up one line.
         """
 
         return lib1.mvwdeleteln(scr_id, y, x)
 elif NCURSES:
     def mvwdeleteln(scr_id, y, x):
         """
-        Delete the line in the window scr_id at position (y, x). All lines below are moved up one line.
+        Delete the line in window scr_id at position (y, x). All lines below are moved up one line.
         """
 
         lib1.wmove(scr_id, y, x)
@@ -1729,7 +1762,7 @@ def mvderwin(scr_id, pary, parx):
 
 def mvwgetch(scr_id, y, x):
     """
-    Move the current position to (y, x) and read a character from the window scr_id.
+    Move the current position to (y, x) and read a character from window scr_id.
     """
 
     return lib1.mvwgetch(scr_id, y, x)
@@ -1737,7 +1770,7 @@ def mvwgetch(scr_id, y, x):
 
 def mvwgetstr(scr_id, y, x):
     """
-    Perform a series of calls to getch in the window scr_id at position (y, x) until a newline is received. 
+    Perform a series of calls to getch in window scr_id at position (y, x) until a newline is received. 
     """
 
     t_str = ctypes.create_string_buffer(1023)
@@ -1747,7 +1780,7 @@ def mvwgetstr(scr_id, y, x):
 
 def mvwhline(scr_id, y, x, ch, n):
     """
-    Draw a horizontal line of maximum n characters ch starting from position (y, x) in the window scr_id. The current position is not updated.
+    Draw a horizontal line of maximum n characters ch starting from position (y, x) in window scr_id. The current position is not updated.
     """
 
     return lib1.mvwhline(scr_id, y, x, ch, n)
@@ -1763,7 +1796,7 @@ def mvwinch(scr_id, y, x):
 
 def mvwinsch(scr_id, y, x, ch, attr=A_NORMAL):
     """
-    Insert the character ch before position (y, x) in the window scr_id. All characters to the right are moved by one.
+    Insert the character ch before position (y, x) in window scr_id. All characters to the right are moved by one.
     """
 
     return lib1.mvwinsch(scr_id, y, x, ch | attr)
@@ -1771,7 +1804,7 @@ def mvwinsch(scr_id, y, x, ch, attr=A_NORMAL):
 
 def mvwinsstr(scr_id, y, x, strn, attr="NO_USE"):
     """
-    Insert the string strn before position (y, x) in the window scr_id. All characters to the right are moved by one.
+    Insert the string strn before position (y, x) in window scr_id. All characters to the right are moved by one.
     """
 
     oldattr = 0
@@ -1786,7 +1819,7 @@ def mvwinsstr(scr_id, y, x, strn, attr="NO_USE"):
 
 def mvwinsnstr(scr_id, y, x, strn, n, attr="NO_USE"):
     """
-    Insert at most n characters of the string strn before position (y, x) in the window scr_id. All characters to the right are moved by one. If n<=0, the entire string is inserted.
+    Insert at most n characters of the string strn before position (y, x) in window scr_id. All characters to the right are moved by one. If n<=0, the entire string is inserted.
     """
 
     oldattr = 0
@@ -1801,7 +1834,7 @@ def mvwinsnstr(scr_id, y, x, strn, n, attr="NO_USE"):
 
 def mvwinstr(scr_id, y, x, n=-1):
     """
-    Return a string of at most n characters from position (y, x) in the window scr_id.
+    Return a string of at most n characters from position (y, x) in window scr_id.
     """
 
     t_str = ctypes.create_string_buffer(1023)
@@ -1810,6 +1843,10 @@ def mvwinstr(scr_id, y, x, n=-1):
 
 
 def mvwinwstr(scr_id, y, x, n=-1):
+    """
+    Return a complex string of maximum n characters from position (y, x) in window scr_id.
+    """
+    
     t_str = ctypes.create_unicode_buffer(2046) # not sure at all about the 2046 but it works? sorry for that
     if n ==-1:
         lib1.mvwinwstr(scr_id, y, x, ctypes.byref(t_str))
@@ -1880,7 +1917,7 @@ def notimeout(scr_id, yes):
 
 def noutrefresh(scr_id):
     """
-    Copy the window scr_id to the virtual screen. To be used followed by doupdate.
+    Copy window scr_id to the virtual screen. To be used followed by doupdate.
     """
     
     return lib1.wnoutrefresh(scr_id)
@@ -2026,7 +2063,7 @@ def subpad(scrwin, nlines, ncols, begin_y, begin_x):
 
 def subwin(srcwin, nlines, ncols, begin_y, begin_x):
     """
-    Return a new window with nlines and ncols, positioned at (begin_y, begin_x). The subwindow shares memory with the window srcwin, so changes made to one window will affect both.
+    Return a new window with nlines and ncols, positioned at (begin_y, begin_x). The subwindow shares memory with window srcwin, so changes made to one window will affect both.
     """
     
     return ctypes.c_void_p(lib1.subwin(srcwin, nlines, ncols, begin_y, begin_x))
@@ -2130,7 +2167,7 @@ def use_env(flag):
 #region ++ REGULAR\MACRO FUNCTIONS THAT DO NOT TAKE A WINDOW AS AN ARGUMENT ++
 def attroff(attr):
     """
-    Turn off attributes attr of the window stdscr.
+    Turn off attributes attr.
     """
 
     return wattroff(stdscr, attr)
@@ -2138,7 +2175,7 @@ def attroff(attr):
 
 def attron(attr):
     """
-    Turn on attributes attr of the window stdscr.
+    Turn on attributes attr.
     """
 
     return wattron(stdscr, attr)
@@ -2146,7 +2183,7 @@ def attron(attr):
 
 def attrset(attr):
     """
-    Set attributes attr of the window stdscr.
+    Set attributes attr.
     """
 
     return wattrset(stdscr, attr)
@@ -2162,7 +2199,7 @@ def clear():
 
 def getch():
     """
-    Read a character from the window.
+    Read a character.
     """
 
     return wgetch(stdscr)
@@ -2170,7 +2207,7 @@ def getch():
 
 def get_wch():
     """
-    Read a complex character from the window.
+    Read a complex character.d
     """
 
     return wget_wch(stdscr)
@@ -2292,8 +2329,12 @@ def mvdelch(y, x):
     return mvwdelch(stdscr, y, x)
 
 
-def move(new_y, new_x):
-    return wmove(stdscr, new_y, new_x)
+def move(y, x):
+    """
+    Move the position in the current window to position (y, x). The cursor won't move until refresh is called.
+    """
+
+    return wmove(stdscr, y, x)
 
 
 def insertln():
@@ -2346,7 +2387,7 @@ def clrtoeol():
 
 def mvgetch(y, x):
     """
-    Move the current position to (y, x) and read a character from the window.
+    Move the current position to (y, x) and read a character.
     """
 
     return mvwgetch(stdscr, y, x)
@@ -2498,7 +2539,7 @@ def mvdeleteln(y, x):
 
 def enclose(y, x):
     """
-    Return True if the pair (y, x) is enclosed by the window, ortherwise return False.
+    Return True if the pair (y, x) is enclosed by the current window, ortherwise return False.
     """
 
     return wenclose(stdscr, y, x)
@@ -2537,6 +2578,10 @@ def mvinstr(y, x, n=-1):
 
 
 def mvinwstr(y, x, n=-1):
+    """
+    Return a complex string of maximum n characters from position (y, x).
+    """
+
     return mvwinwstr(stdscr, y, x, n)
 
 
@@ -2570,7 +2615,7 @@ def syncup():
 
 def getkey(y=-1, x=-1):
     """
-    Read a key from the window after (optional) moving the current position to (y, x). Differently from getch, this function reads escape characters and transforms them into keys.
+    Read a key after (optional) moving the current position to (y, x). Differently from getch, this function reads escape characters and transforms them into keys.
     """
 
     return wgetkey(stdscr, y, x)

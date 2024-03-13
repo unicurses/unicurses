@@ -19,3 +19,5 @@
 - either split this into mvwgetkey or remove all unnecessary mv before and make everything into one function optional positional arguments.
 
 - (done) convert value == 1 to bool(value) to be more pythonic
+
+- change leaveok so that it actually behaves like ncurses, not sure why the original author made all these shenanigans, do we actually need curscr at all?
