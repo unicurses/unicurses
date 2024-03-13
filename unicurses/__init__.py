@@ -1036,10 +1036,10 @@ def box(scr_id, verch=ACS_VLINE, horch=ACS_HLINE):
 
 def can_change_color():
     """
-    Return True if the terminal supports colors and changing their definitions, otherwise return False.
+    Return True if the programmer can change the colors of the terminal, otherwise return False.
     """
     
-    return lib1.can_change_color() == 1
+    return bool( lib1.can_change_color() )
 
 
 def cbreak():
@@ -1313,26 +1313,50 @@ def getyx(scr_id):
 
 
 def halfdelay(tenths):
+    """
+    Similar to cbreak, make characters typed by the user immediately available. After blocking for tenths tenths of seconds, ERR is returned if nothing has been typed.
+    """
+    
     return lib1.halfdelay(tenths)
 
 
 def has_colors():
-    return lib1.has_colors() == 1
+    """
+    Return True if the terminal has color capabilities, otherwise return False.
+    """
+    
+    return bool( lib1.has_colors() )
 
 
 def has_ic():
-    return lib1.has_ic() == 1
+    """
+    Return true if the terminal has insert and delete character capabilities, otherwise return False.
+    """
+    
+    return bool( lib1.has_ic() )
 
 
 def has_il():
-    return lib1.has_il() == 1
+    """
+    Return True if the terminal has insert and delete-line capabilities, otherwise return False.
+    """
+    return bool( lib1.has_il() )
 
 
 def has_key(ch):
-    return lib1.has_key(ch) == 1
+    """
+    Take a key-code value from the list as in (https://man7.org/linux/man-pages/man3/curs_getch.3x.html) and return True if the current terminal type recognizes a key with that value, otherwise return False.
+
+    """
+    
+    return bool( lib1.has_key(ch) )
 
 
 def whline(scr_id, ch, n):
+    """
+    Draw a horizontal line of maximum n characters ch starting from the current position in the window scr_id. The current position is not updated.
+    """
+    
     return lib1.whline(scr_id, ch, n)
 
 
@@ -1408,7 +1432,7 @@ def isendwin():
     Return True if endwin has been called without subsequent calls to wrefresh, otherwise return False.
     """
     
-    return lib1.isendwin() == 1
+    return bool( lib1.isendwin() )
 
 
 def winsertln(scr_id):
@@ -1416,11 +1440,11 @@ def winsertln(scr_id):
 
 
 def is_linetouched(scr_id, line):
-    return lib1.is_linetouched(scr_id, line) == 1
+    return bool( lib1.is_linetouched(scr_id, line) )
 
 
 def is_wintouched(scr_id):
-    return lib1.is_wintouched(scr_id) == 1
+    return bool( lib1.is_wintouched(scr_id) )
 
 
 def keyname(k):
@@ -1626,6 +1650,10 @@ def mvwgetstr(scr_id, y, x):
 
 
 def mvwhline(scr_id, y, x, ch, n):
+    """
+    Draw a horizontal line of maximum n characters ch starting from position (y, x) in the window scr_id. The current position is not updated.
+    """
+
     return lib1.mvwhline(scr_id, y, x, ch, n)
 
 
@@ -2088,6 +2116,10 @@ def timeout(delay):
 
 
 def hline(ch, n):
+    """
+    Draw a horizontal line of maximum n characters ch starting from the current position. The current position is not updated.
+    """
+
     return whline(stdscr, ch, n)
 
 
@@ -2096,6 +2128,10 @@ def vline(ch, n):
 
 
 def mvhline(y, x, ch, n):
+    """
+    Draw a horizontal line of maximum n characters ch starting from position (y, x). The current position is not updated.
+    """
+
     return mvwhline(stdscr, y, x, ch, n)
 
 

@@ -17,3 +17,5 @@
 - what is the need of raising an exception when importing ctypes as failing will raise the same exact exception type?
 
 - either split this into mvwgetkey or remove all unnecessary mv before and make everything into one function optional positional arguments.
+
+- (done) convert value == 1 to bool(value) to be more pythonic
