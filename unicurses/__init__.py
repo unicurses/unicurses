@@ -544,7 +544,7 @@ else:
     
  
     #region ++ Mouse mapping (NC) ++
-    NCURSES_MOUSE_VERSION = 2  # TODO: Understand  how it is defined
+    NCURSES_MOUSE_VERSION = 2  # TODO: Understand how it is defined
  
     def NCURSES_MOUSE_MASK(b,m):
         if NCURSES_MOUSE_VERSION > 1:
@@ -795,7 +795,7 @@ lib2.panel_window.restype     = ctypes.c_void_p
 #region ++ Functions ++
 def waddch(scr_id, ch, attr=A_NORMAL):
     """
-    Write the character ch in the window scr_id at its current position.
+    Write the character ch in the window scr_id.
     """
 
     return lib1.waddch(scr_id, CCHAR(ch) | attr)
@@ -803,14 +803,14 @@ def waddch(scr_id, ch, attr=A_NORMAL):
 
 def wadd_wch(scr_id, wch, attr=A_NORMAL):  # NEEDS_CHECK?
     """
-    Write the complex character wch in the window scr_id at its current position.
+    Write the complex character wch in the window scr_id.
     """
 
     if NCURSES:
         return lib1.wadd_wch(scr_id, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
     else:
         oldattr = lib1.getattrs(scr_id)
-        lib1.wattrset(scr_id, attr)            
+        lib1.wattrset(scr_id, attr)
         ret = lib1.wadd_wch(scr_id, RCCHAR(wch))
         lib1.wattrset(scr_id, oldattr)
         return ret
@@ -819,7 +819,7 @@ def wadd_wch(scr_id, wch, attr=A_NORMAL):  # NEEDS_CHECK?
 
 def waddstr(scr_id, cstr, attr="NO_USE"):
     """
-    Write the string cstr in the window scr_id at its current position.
+    Write the string cstr in the window scr_id.
     """
 
     if attr != "NO_USE":
@@ -833,7 +833,7 @@ def waddstr(scr_id, cstr, attr="NO_USE"):
 
 def waddwstr(scr_id, wstr, attr="NO_USE"):
     """
-    Write the complex string wstr in the window scr_id at its current position.
+    Write the complex string wstr in the window scr_id.
     """
 
     if wstr == '':
@@ -850,7 +850,7 @@ def waddwstr(scr_id, wstr, attr="NO_USE"):
 
 def waddnstr(scr_id, cstr, n, attr="NO_USE"):
     """
-    Write maximum n characters from the string cstr in the window scr_id at its current position.
+    Write maximum n characters from the string cstr in the window scr_id.
     """
 
     if attr != "NO_USE":
@@ -904,7 +904,7 @@ def beep():
 
 def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay):
     """
-    Applies overlay if overlay is True otherwise overwrite. A rectangle is specified in dest_id window, via (dminrow, dmincol) and (dmaxrow, dmaxcol), and the upper-left-corner coordinates of src_id window, (sminrow, smincol).
+    Applies overlay if overlay is True otherwise overwrite. A rectangle is specified in the window dest_id, via (dminrow, dmincol) and (dmaxrow, dmaxcol), and the upper-left-corner coordinates of the window src_id, (sminrow, smincol).
     """
     
     return lib1.copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay)
@@ -912,7 +912,7 @@ def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxco
 
 def wclear(scr_id):
     """
-    Copy blanks to every position in window scr_id and call clearok.
+    Copy blanks to every position in the window scr_id and call clearok.
     """
     
     return lib1.wclear(scr_id)
@@ -920,7 +920,7 @@ def wclear(scr_id):
 
 def wclrtobot(scr_id):
     """
-    Erase from the current line to the end of screen in window scr_id.
+    Erase from the current line to the end of screen in the window scr_id.
     """
     
     return lib1.wclrtobot(scr_id)
@@ -928,7 +928,7 @@ def wclrtobot(scr_id):
 
 def wclrtoeol(scr_id):
     """
-    Erase the current line in window scr_id.
+    Erase the current line in the window scr_id.
     """
     
     return lib1.wclrtoeol(scr_id)
@@ -959,56 +959,107 @@ def cursyncup(scr_id):
 
 
 def def_prog_mode():
+    """
+    Save the current terminal modes as the “program” (in curses) state for use by the reset_prog_mode.
+    """
+    
     return lib1.def_prog_mode()
 
 
 def def_shell_mode():
+    """
+    Save the current terminal modes as the “shell” (not in curses) state for use by the reset_shell_mode.
+    """
+    
     return lib1.def_shell_mode()
 
 
 def delay_output(ms):
+    """
+    Insert an ms millisecond pause in output.
+    """
+    
     return lib1.delay_output(ms)
 
 
 def wdelch(scr_id):
+    """
+    Delete the current character in the window scr_id. All characters to the right are moved to the left by one.
+    """
+
     return lib1.wdelch(scr_id)
 
 
 def wdeleteln(scr_id):
+    """
+    Delete the current line in the window scr_id. All lines below are moved up one line.
+    """
+    
     return lib1.wdeleteln(scr_id)
 
 
 def wbkgd(scr_id, ch, attr=A_NORMAL):
+    """
+    Set the background ch of the window scr_id and apply this setting to every character position. 
+    """
+    
     return lib1.wbkgd(scr_id, ch | attr)
 
 
 def wbkgdset(scr_id, ch, attr=A_NORMAL):
+    """
+    Set the background ch for the window scr_id.
+    """
+    
     return lib1.wbkgdset(scr_id, ch | attr)
 
 
 def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE,
             tl=ACS_ULCORNER, tr=ACS_URCORNER, bl=ACS_LLCORNER, br=ACS_LRCORNER):
+    """
+    Draw a box around the edges of the window scr_id with attributes ls (left side), rs (right side), ts (top side), bs (bottom side), tl (top left-hand corner), tr (top right-hand corner), bl (bottom left-hand corner), and br (bottom right-hand corner).
+    """
     
     return lib1.wborder(scr_id, ls, rs, ts, bs, tl, tr, bl, br) # same as wborder_set (it supports unicode by default)
 
 
 def box(scr_id, verch=ACS_VLINE, horch=ACS_HLINE):
+    """
+    Shorthand for wborder(scr_id, verch, verch, horch, horch, 0, 0, 0, 0).
+    """
+    
     return lib1.box(scr_id, verch, horch)
 
 
 def can_change_color():
+    """
+    Return True if the terminal supports colors and changing their definitions, otherwise False.
+    """
+    
     return lib1.can_change_color() == 1
 
 
 def cbreak():
+    """
+    Make characters typed by the user immediately available.
+    """
+    
     return lib1.cbreak()
 
 
 def wchgat(scr_id, num, attr, color, opts=None):
+    """
+    Set the attributes attr and color of num many characters in the window scr_id. It does not update the cursor and does not perform wrapping.
+    """
+    
     return lib1.wchgat(scr_id, num, attr, color, None)
 
 
-def color_content(color_number):	
+def color_content(color_number):
+    """
+    Return (r, g, b) of color_number.
+    """
+    
     r = ctypes.c_short()
     g = ctypes.c_short()
     b = ctypes.c_short()
@@ -1018,7 +1069,7 @@ def color_content(color_number):
 
 def color_pair(color_number):
     """
-    Return the attribute value for displaying text in the specified color pair.
+    Convert color_number to an attribute.
     """
 
     if PDCURSES:
@@ -1057,7 +1108,7 @@ def endwin():
 
 def werase(scr_id):
     """
-    Copy blanks to every position in window scr_id.
+    Copy blanks to every position in the window scr_id.
     """
     
     return lib1.werase(scr_id)
@@ -1117,8 +1168,10 @@ def getmaxx(scr_id):
 
 def getmouse():
     m_event = MEVENT()
-    if PDCURSES: lib1.nc_getmouse(ctypes.byref(m_event))  # ? https://github.com/wmcbrine/PDCurses/blob/f1cd4f4569451a5028ddf3d3c202f0ad6b1ae446/pdcurses/mouse.c#L105 
-    else:        lib1.getmouse   (ctypes.byref(m_event))
+    if PDCURSES:
+        lib1.nc_getmouse(ctypes.byref(m_event))  # ? https://github.com/wmcbrine/PDCurses/blob/f1cd4f4569451a5028ddf3d3c202f0ad6b1ae446/pdcurses/mouse.c#L105 
+    else:
+        lib1.getmouse(ctypes.byref(m_event))
     return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.bstate)
 
 
@@ -1333,9 +1386,9 @@ def mvwadd_wch(scr_id, y, x, wch, attr=A_NORMAL):
         return lib1.mvwadd_wch(scr_id, y, x, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
     else:
         oldattr = lib1.getattrs(scr_id)
-        lib1.wattrset(scr_id, attr)            
-        ret = lib1.mvwadd_wch(scr_id, y, x, RCCHAR(wch))  
-        lib1.wattrset(scr_id, oldattr)        
+        lib1.wattrset(scr_id, attr)
+        ret = lib1.mvwadd_wch(scr_id, y, x, RCCHAR(wch))
+        lib1.wattrset(scr_id, oldattr)
         return ret
         
 
@@ -1385,14 +1438,26 @@ def mvwaddnstr(scr_id, y, x, cstr, n, attr="NO_USE"):
 
 
 def mvwchgat(scr_id, y, x, num, attr, color, opts=None):
+    """
+    Set the attributes attr and color of num many characters in the window scr_id at position (y, x). It does not update the cursor and does not perform wrapping.
+    """
+
     return lib1.mvwchgat(scr_id, y, x, num, attr, color, None)
 
 
 def mvwdelch(scr_id, y, x):
+    """
+    Delete the character in the window scr_id at position (y, x). All characters to the right are moved to the left by one.
+    """
+
     return lib1.mvwdelch(scr_id, y, x)
 
 
 def mvwdeleteln(scr_id, y, x):
+    """
+    Delete the line in the window scr_id at position (y, x). All lines below are moved up one line.
+    """
+
     if NCURSES:
         lib1.wmove(scr_id, y, x)
         lib1.wdeleteln(scr_id)
@@ -1488,6 +1553,10 @@ def nl():
 
 
 def nocbreak():
+    """
+    Return the terminal to normal (cooked) mode. The tty driver buffers typed characters until a newline is typed.
+    """
+    
     return lib1.nocbreak()
 
 
@@ -1759,7 +1828,7 @@ def attrset(attr):
 
 def clear():
     """
-    Copy blanks to every position in window stdscr and call clearok.
+    Copy blanks to every position and call clearok.
     """
 
     return wclear(stdscr)
@@ -1794,20 +1863,32 @@ def refresh():
 
 
 def border(ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE, tl=ACS_ULCORNER, tr=ACS_URCORNER, bl=ACS_LLCORNER, br=ACS_LRCORNER):
+    """
+    Draw a box around the edges with attributes ls (left side), rs (right side), ts (top side), bs (bottom side), tl (top left-hand corner), tr (top right-hand corner), bl (bottom left-hand corner), and br (bottom right-hand corner).
+    """
+
     return wborder(stdscr, ls, rs, ts, bs, tl, tr, bl, br)
 
 
 def bkgd(ch, attr=A_NORMAL):
+    """
+    Set the background ch and apply this setting to every character position. 
+    """
+
     return wbkgd(stdscr, ch, attr)
 
 
 def bkgdset(ch, attr=A_NORMAL):
+    """
+    Set the background ch.
+    """
+
     return wbkgdset(stdscr, ch, attr)
 
 
 def erase():
     """
-    Copy blanks to every position in window stdscr.
+    Copy blanks to every position.
     """
 
     return werase(stdscr)
@@ -1842,10 +1923,18 @@ def setscrreg(top, bottom):
 
 
 def delch():
+    """
+    Delete the current character. All characters to the right are moved to the left by one.
+    """
+
     return wdelch(stdscr)
 
 
 def mvdelch(y, x):
+    """
+    Delete the character at position (y, x). All characters to the right are moved to the left by one.
+    """
+
     return mvwdelch(stdscr, y, x)
 
 
@@ -1871,7 +1960,7 @@ def mvinch(y, x):
 
 def clrtobot():
     """
-    Erase from the line of the cursor to the end of screen in window stdscr.
+    Erase from the line of the cursor to the end of screen.
     """
 
     return wclrtobot(stdscr)
@@ -1879,7 +1968,7 @@ def clrtobot():
 
 def clrtoeol():
     """
-    Erase the current line in window stdscr.
+    Erase the current line.
     """
 
     return wclrtoeol(stdscr)
@@ -1891,7 +1980,7 @@ def mvgetch(y, x):
 
 def addch(ch, attr=A_NORMAL):
     """
-    Write the character ch in the window stdscr at its current position.
+    Write the character ch.
     """
 
     return waddch(stdscr, ch, attr)
@@ -1899,7 +1988,7 @@ def addch(ch, attr=A_NORMAL):
 
 def mvaddch(y, x, ch, attr=A_NORMAL):
     """
-    Write the character ch in the window stdscr at position (y, x).
+    Write the character ch at position (y, x).
     """
 
     return mvwaddch(stdscr, y, x, ch, attr)
@@ -1907,7 +1996,7 @@ def mvaddch(y, x, ch, attr=A_NORMAL):
 
 def add_wch(wch, attr=A_NORMAL):
     """
-    Write the complex character wch in the window stdscr at its current position.
+    Write the complex character wch.
     """
 
     return wadd_wch(stdscr, wch, attr)
@@ -1915,7 +2004,7 @@ def add_wch(wch, attr=A_NORMAL):
 
 def mvadd_wch(y, x, wch, attr=A_NORMAL):
     """
-    Write the complex character wch in the window stdscr at position (y, x).
+    Write the complex character wch at position (y, x).
     """
     
     return mvwadd_wch(stdscr, y, x, wch, attr)
@@ -1923,7 +2012,7 @@ def mvadd_wch(y, x, wch, attr=A_NORMAL):
 
 def addstr(cstr, attr="NO_USE"):
     """
-    Write the string cstr in the window stdscr at its current position.
+    Write the string cstr.
     """
 
     return waddstr(stdscr, cstr, attr)
@@ -1931,7 +2020,7 @@ def addstr(cstr, attr="NO_USE"):
 
 def addwstr(wstr, attr="NO_USE"):
     """
-    Write the complex string wstr in the window stdscr at its current position.
+    Write the complex string wstr.
     """
 
     return waddwstr(stdscr, wstr, attr)
@@ -1939,7 +2028,7 @@ def addwstr(wstr, attr="NO_USE"):
 
 def mvaddstr(y, x, cstr, attr="NO_USE"):
     """
-    Write the string cstr in the window stdscr at position (y, x).
+    Write the string cstr at position (y, x).
     """
 
     return mvwaddstr(stdscr, y, x, cstr, attr)
@@ -1947,7 +2036,7 @@ def mvaddstr(y, x, cstr, attr="NO_USE"):
 
 def mvaddwstr(y, x, wstr, attr="NO_USE"):
     """
-    Write the complex string wstr in the window stdscr at position (y, x).
+    Write the complex string wstr at position (y, x).
     """
 
     return mvwaddwstr(stdscr, y, x, wstr, attr)
@@ -1955,7 +2044,7 @@ def mvaddwstr(y, x, wstr, attr="NO_USE"):
 
 def addnstr(cstr, n, attr="NO_USE"):
     """
-    Write maximum n characters from the string cstr in the window stdscr at its current position.
+    Write maximum n characters from the string cstr.
     """
 
     return waddnstr(stdscr, cstr, n, attr)
@@ -1963,7 +2052,7 @@ def addnstr(cstr, n, attr="NO_USE"):
 
 def mvaddnstr(y, x, cstr, n, attr="NO_USE"):
     """
-    Write maximum n characters from the string cstr in the window stdscr at position (y, x).
+    Write maximum n characters from the string cstr at position (y, x).
     """
 
     return mvwaddnstr(stdscr, y, x, cstr, n, attr)
@@ -1990,18 +2079,34 @@ def standend():
 
 
 def chgat(num, attr, color, opts=None):
+    """
+    Set the attributes attr and color of num many characters. It does not update the cursor and does not perform wrapping.
+    """
+
     return wchgat(stdscr, num, attr, color, opts)
 
 
 def mvchgat(y, x, num, attr, color, opts=None):
+    """
+    Set the attributes attr and color of num many characters at position (y, x). It does not update the cursor and does not perform wrapping.
+    """
+
     return mvwchgat(stdscr, y, x, num, attr, color, opts)
 
 
 def deleteln():
+    """
+    Delete the current line. All lines below are moved up one line.
+    """
+
     return wdeleteln(stdscr)
 
 
 def mvdeleteln(y, x):
+    """
+    Delete the line at position (y, x). All lines below are moved up one line.
+    """
+
     return mvwdeleteln(stdscr, y, x)
 
 
