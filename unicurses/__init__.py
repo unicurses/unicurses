@@ -103,7 +103,7 @@ if OPERATING_SYSTEM == 'Windows':
         pdcurses = "32 bit binaries/pdcdllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
     
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    path_to_pdcurses = current_dir + "/" + pdcurses
+    path_to_pdcurses = os.path.join(current_dir, pdcurses)
     if not (os.access(pdcurses, os.F_OK)
             or os.access(path_to_pdcurses, os.F_OK)):
         raise ImportError("""
@@ -218,6 +218,8 @@ elif NCURSES:
  
     def NC_COLOR_PAIR(n): 
         return (NCURSES_BITS((n), 0) & A_COLOR)
+    
+    # TODO: implement getcursor in NCURSES and make the call platform independent
 #endregion --- PDCurses/NCurses ncurses.h macro wrappers and other prereqs ---
 
 
@@ -1150,7 +1152,7 @@ def werase(scr_id):
     return lib1.werase(scr_id)
 
 
-def erasechar():   # TODO: this might not be portable across platforms yet
+def erasechar():
     """
     Return the user's current erase character.
     """
@@ -1167,7 +1169,13 @@ def filter():
     
     return lib1.filter()
 
-# TODO: implement nofilter
+if NCURSES:
+    def nofilter():
+        """
+        Cancel the effect of a preceding filter call.
+        """
+
+        return lib1.nofilter()
 
 
 def flash():
@@ -1254,7 +1262,7 @@ def getmaxx(scr_id):
 if PDCURSES:
     def getmouse():
         """
-        Read a KEY_MOUSE event data queued in getch/wgetch and pop the event off the queue.
+        Read a KEY_MOUSE event data queued in getch and pop the event off the queue.
         """
         
         m_event = MEVENT()
@@ -1263,7 +1271,7 @@ if PDCURSES:
 elif NCURSES:
     def getmouse():
         """
-        Read a KEY_MOUSE event data queued in getch/wgetch and pop the event off the queue.
+        Read a KEY_MOUSE event data queued in getch and pop the event off the queue.
         """
 
         m_event = MEVENT()
@@ -1291,6 +1299,7 @@ def wgetstr(scr_id):
     return t_str.value.decode()
 
 
+# TODO: implement for linux
 def getsyx():
     """
     Return the current position of the virtual screen.
@@ -1360,31 +1369,59 @@ def whline(scr_id, ch, n):
     return lib1.whline(scr_id, ch, n)
 
 
-def idcok(scr_id, flag):	# THIS IS NOT PORTABLE (IT'S NOP ON PDCURSES)
+def idcok(scr_id, flag): # does nothing in PDCURSES
+    """
+    When the flag is False, unicurses no longer considers using the hardware insert/delete character feature of terminals so equipped in the window scr_id. When the flag is True, it re-enables use of character insertion and deletion. (No effect in Windows)
+    """
+
     return lib1.idcok(scr_id, flag)
 
 
-def idlok(scr_id, yes):	 # THIS IS NOT PORTABLE (IT'S NOP ON PDCURSES)
+def idlok(scr_id, yes): # does nothing in PDCURSES
+    """
+    When the flag is True, unicurses considers using the hardware insert/delete line feature of terminals so equipped in the window scr_id. When the flag is False, it disables use use of line insertion and deletion. (No effect in Windows)
+    """
+
     return lib1.idlok(scr_id, yes)
 
 
 def immedok(scr_id, flag):
+    """
+    When the flag is True, any change in the window image automatically cause a call to wrefresh. 
+    """
+    
     return lib1.immedok(scr_id, flag)
 
 
 def winch(scr_id):
+    """
+    Return the character of type chtype in window scr_id. If any attributes are set, their values are OR'ed into the value returned.
+    """
+    
     return lib1.winch(scr_id)
 
 
 def init_color(color, r, g, b):
+    """
+    Change the definition of a color.
+    """
+    
     return lib1.init_color(color, r, g, b)
 
 
 def init_pair(pair_number, fg, bg):
+    """
+    Change the definition of a color-pair.
+    """
+    
     return lib1.init_pair(pair_number, fg, bg)
 
 
 def initscr():
+    """
+    Determine the terminal type and initializes all unicurses data structures. It then calls to refresh and returns a pointer to stdscr.
+    """
+    
     global stdscr
     
     stdscr = ctypes.c_void_p(lib1.initscr())
@@ -1392,14 +1429,26 @@ def initscr():
 
 
 def winsch(scr_id, ch, attr=A_NORMAL):
+    """
+    Insert the character ch before the current position in the window scr_id. All characters to the right are moved by one.
+    """
+    
     return lib1.winsch(scr_id, ch | attr)
 
 
 def winsdelln(scr_id, nlines):
+    """
+    For positive nlines, insert nlines line into the window scr_id above the current position. For negative nlines, delete nlines lines.
+    """
+    
     return lib1.winsdelln(scr_id, nlines)
 
 
 def winsstr(scr_id, strn, attr="NO_USE"):
+    """
+    Insert the string strn before the current position in the window scr_id. All characters to the right are moved by one.
+    """
+    
     oldattr = 0
     if attr != "NO_USE":
         oldattr = lib1.getattrs(scr_id)
@@ -1411,6 +1460,10 @@ def winsstr(scr_id, strn, attr="NO_USE"):
 
 
 def winsnstr(scr_id, strn, n, attr="NO_USE"):
+    """
+    Insert at most n characters of the string strn before the current position in the window scr_id. All characters to the right are moved by one. If n<=0, the entire string is inserted.
+    """
+
     oldattr = 0
     if attr != "NO_USE":
         oldattr = lib1.getattrs(scr_id)
@@ -1421,7 +1474,12 @@ def winsnstr(scr_id, strn, n, attr="NO_USE"):
     return ret
 
 
+# TODO: investigate what happens when n<=0, if found out change description of all other functions
 def winstr(scr_id, n=-1):
+    """
+    Return a string of at most n characters from the current position in the window scr_id.
+    """
+    
     t_str = ctypes.create_string_buffer(1023)
     lib1.winnstr(scr_id, ctypes.byref(t_str), n)
     return t_str.value.decode()
@@ -1436,31 +1494,57 @@ def isendwin():
 
 
 def winsertln(scr_id):
+    """
+    Insert a line above the current position in the window scr_id.
+    """
+    
     return lib1.winsertln(scr_id)
 
 
 def is_linetouched(scr_id, line):
+    """
+    Return True if the line line in the window scr_id was modified since the last call to wrefresh; otherwise return False.
+    """
+    
     return bool( lib1.is_linetouched(scr_id, line) )
 
 
 def is_wintouched(scr_id):
+    """
+    Return True if the window scr_id was modified since the last call to wrefresh; otherwise return False.
+    """
+
     return bool( lib1.is_wintouched(scr_id) )
 
 
 def keyname(k):
+    """
+    Return the character string corresponding to the key k.
+    """
+    
     k = lib1.keyname(k)
     return k.decode() if k else k
+# TODO: maybe add key_name?
 
 
 def keypad(scr_id, yes):
+    """
+    With yes True, enable the keypad of the user's terminal. If enabled, the user can press a function key and wgetch returns a single value representing the function key.
+    """
+    
     return lib1.keypad(scr_id, yes)
 
 
-def killchar():   # TODO: this might not be portable across platforms yet
+def killchar():
+    """
+    Return the user's current line kill character.
+    """
+    
     return lib1.killchar()
+# TODO: implement killwchar
 
 
-# TODO check what happens for ncurses
+# TODO: i don't think this works neither in linux, not in windows, need to retrieve the global variable TABSIZE
 def get_tabsize():
     """
     Retrieves the value set by `set_tabsize`.
@@ -1468,27 +1552,39 @@ def get_tabsize():
     return lib1.get_tabsize()
 
 
-# TODO check what happens for ncurses
-def set_tabsize(size):
-    """
-    Sets the number of columns used by the curses library when converting a tab
-    character to spaces as it adds the tab to a window.
-    """
-    return lib1.set_tabsize(size)
+if PDCURSES:
+    def set_tabsize(size):
+        """
+        Sets the number of columns used by the curses library when converting a tab
+        character to spaces as it adds the tab to a window.
+        """
+        return lib1.set_tabsize(size)
+elif NCURSES:
+    # N/A
+    pass
 
 
-def leaveok(scr_id, yes):
-    """
-    Allow the current position to be left wherever the update happens to leave it.
-    """
-    
-    global PDC_LEAVEOK
-    
-    if scr_id.value == PD_GET_CURSCR().value:
-        PDC_LEAVEOK = yes
-    return lib1.leaveok(scr_id, yes)
+if PDCURSES:
+    def leaveok(scr_id, yes):
+        """
+        Allow the current position to be left wherever the update happens to leave it.
+        """
+        
+        global PDC_LEAVEOK
+        
+        if scr_id.value == PD_GET_CURSCR().value:
+            PDC_LEAVEOK = yes
+        return lib1.leaveok(scr_id, yes)
+elif NCURSES:
+    def leaveok(scr_id, yes):
+        """
+        Allow the current position to be left wherever the update happens to leave it.
+        """
+        
+        return lib1.leaveok(scr_id, yes)
 
 
+# TODO: just drop the use of PDC_LEAVEOK entirely, and rely solely on the built in functions
 def is_leaveok():
     """
     Return the value set in leaveok.
@@ -1658,14 +1754,26 @@ def mvwhline(scr_id, y, x, ch, n):
 
 
 def mvwinch(scr_id, y, x):
+    """
+    Return the character of type chtype at position (y, x) in window scr_id. If any attributes are set, their values are OR'ed into the value returned.
+    """
+
     return lib1.mvwinch(scr_id, y, x)
 
 
 def mvwinsch(scr_id, y, x, ch, attr=A_NORMAL):
+    """
+    Insert the character ch before position (y, x) in the window scr_id. All characters to the right are moved by one.
+    """
+
     return lib1.mvwinsch(scr_id, y, x, ch | attr)
 
 
 def mvwinsstr(scr_id, y, x, strn, attr="NO_USE"):
+    """
+    Insert the string strn before position (y, x) in the window scr_id. All characters to the right are moved by one.
+    """
+
     oldattr = 0
     if attr != "NO_USE":
         oldattr = lib1.getattrs(scr_id)
@@ -1677,6 +1785,10 @@ def mvwinsstr(scr_id, y, x, strn, attr="NO_USE"):
 
 
 def mvwinsnstr(scr_id, y, x, strn, n, attr="NO_USE"):
+    """
+    Insert at most n characters of the string strn before position (y, x) in the window scr_id. All characters to the right are moved by one. If n<=0, the entire string is inserted.
+    """
+
     oldattr = 0
     if attr != "NO_USE":
         oldattr = lib1.getattrs(scr_id)
@@ -1688,6 +1800,10 @@ def mvwinsnstr(scr_id, y, x, strn, n, attr="NO_USE"):
 
 
 def mvwinstr(scr_id, y, x, n=-1):
+    """
+    Return a string of at most n characters from position (y, x) in the window scr_id.
+    """
+
     t_str = ctypes.create_string_buffer(1023)
     lib1.mvwinnstr(scr_id, y, x, ctypes.byref(t_str), n)
     return t_str.value.decode()
@@ -1876,6 +1992,7 @@ def wsetscrreg(scr_id, top, bottom):
 
 
 # TODO check why it creates a variable that is garbage collected on function return
+# this won't even work with NCURSES because of the missing PD_GET_CURSCR
 def setsyx(y, x):
     global PDC_LEAVEOK
     
@@ -2059,15 +2176,27 @@ def get_wch():
     return wget_wch(stdscr)
 
 
-def mvinsnstr(y, x, str, n, attr="NO_USE"):
-    return mvwinsnstr(stdscr, y, x, str, n, attr)
+def mvinsnstr(y, x, strn, n, attr="NO_USE"):
+    """
+    Insert at most n characters of the string strn before position (y, x). All characters to the right are moved by one. If n<=0, the entire string is inserted.
+    """
+
+    return mvwinsnstr(stdscr, y, x, strn, n, attr)
 
 
-def insnstr(str, n, attr="NO_USE"):
-    return winsnstr(stdscr, str, n, attr)
+def insnstr(strn, n, attr="NO_USE"):
+    """
+    Insert at most n characters of the string strn before the current position. All characters to the right are moved by one. If n<=0, the entire string is inserted.
+    """
+
+    return winsnstr(stdscr, strn, n, attr)
 
 
 def insch(ch, attr=A_NORMAL):
+    """
+    Insert the character ch before the current position. All characters to the right are moved by one.
+    """
+
     return winsch(stdscr, ch, attr)
 
 
@@ -2168,18 +2297,34 @@ def move(new_y, new_x):
 
 
 def insertln():
+    """
+    Insert a line above the current position.
+    """
+
     return winsertln(stdscr)
 
 
 def insdelln(nlines):
+    """
+    For positive nlines, insert nlines line above the current position. For negative nlines, delete nlines lines.
+    """
+
     return winsdelln(stdscr, nlines)
 
 
 def inch():
+    """
+    Return the character of type chtype. If any attributes are set, their values are OR'ed into the value returned.
+    """
+
     return winch(stdscr)
 
 
 def mvinch(y, x):
+    """
+    Return the character of type chtype at position (y, x). If any attributes are set, their values are OR'ed into the value returned.
+    """
+
     return mvwinch(stdscr, y, x)
 
 
@@ -2288,10 +2433,18 @@ def mvaddnstr(y, x, cstr, n, attr="NO_USE"):
 
 
 def insstr(cstr, attr="NO_USE"):
+    """
+    Insert the string strn before the current position. All characters to the right are moved by one.
+    """
+
     return winsstr(stdscr, cstr, attr)
 
 
 def mvinsstr(y, x, cstr, attr="NO_USE"):
+    """
+    Insert the string strn before position (y, x). All characters to the right are moved by one.
+    """
+
     return mvwinsstr(stdscr, y, x, cstr, attr)
 
 
@@ -2368,10 +2521,18 @@ def mvgetstr(y, x):
 
 
 def instr(n=-1):
+    """
+    Return a string of at most n characters from the current position.
+    """
+
     return winstr(stdscr, n)
 
 
 def mvinstr(y, x, n=-1):
+    """
+    Return a string of at most n characters from position (y, x).
+    """
+
     return mvwinstr(stdscr, y, x, n)
 
 
@@ -2388,6 +2549,10 @@ def touchln(y, x, changed=1):
 
 
 def mvinsch(y, x, ch, attr=A_NORMAL):
+    """
+    Insert the character ch before position (y, x). All characters to the right are moved by one.
+    """
+
     return mvwinsch(stdscr, y, x, ch, attr)
 
 
