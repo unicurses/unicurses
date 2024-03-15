@@ -81,10 +81,10 @@ def main(stdscr, command):
             uc.wdeleteln(stdscr)
         case "wbkgd":
             uc.addstr("test")
-            uc.wbkgd(stdscr, *args_input, uc.NCURSES_BITS(1,13))
+            uc.wbkgd(stdscr, ".", uc.NCURSES_BITS(1,13))
         case "wbkgdset":
             uc.addstr("test")
-            uc.wbkgdset(stdscr, *args_input, uc.NCURSES_BITS(1,13))
+            uc.wbkgdset(stdscr, "-", uc.NCURSES_BITS(1,13))
         case "wborder":
             uc.wborder(stdscr, '|', '|', '-', '-')
         case "box":
@@ -99,11 +99,11 @@ def main(stdscr, command):
             uc.move(0,0)
             uc.wchgat(stdscr, 5, A_BOLD, 1)
         case "color_content":
-            color = int(args_input[0])
-            uc.addstr(f"rbg of {color} is {uc.color_content(color)}")
+            color = 100
+            uc.addstr("rbg of " + str(color) + " is " + str(uc.color_content(color)))
         case "color_pair":
-            color = int(args_input[0])
-            uc.addstr(f"{color} is {uc.color_pair(color)}")
+            color = 100
+            uc.addstr("rbg of " + str(color) + " is " + str(uc.color_pair(color)))
         case "delwin":
             uc.addstr("----------")
             uc.mvaddstr(1,0,"----------")
@@ -134,7 +134,7 @@ def main(stdscr, command):
             uc.napms(1000)
             uc.wechochar(stdscr, "3")
         case "wenclose":
-            uc.addstr(f"(-1, 0) = {uc.wenclose(stdscr, -1, 0)}, (0, 0) = {uc.wenclose(stdscr, 0, 0)}" )
+            uc.addstr("(-1, 0) = " + str(uc.wenclose(stdscr, -1, 0)) + ", (0, 0) = " + str(uc.wenclose(stdscr, 0, 0)) )
         case "werase":
             uc.addstr("test")
             uc.refresh()
@@ -154,6 +154,28 @@ def main(stdscr, command):
             uc.getch()
             uc.flushinp()
             uc.mvaddstr(1, 0, "works!")
+        case "getbegyx":
+            pass
+        case "wgetch":
+            key = uc.wgetch(stdscr)
+            uc.mvaddch(1,0,key)
+        case "wget_wch":
+            key = uc.wget_wch(stdscr)
+            uc.mvaddch(1,0,key)
+        case "wgetkey":
+            uc.mvaddch(1,0,"|")
+            uc.mvaddch(0,1,"_")
+            key = uc.wgetkey(stdscr, 1, 1)
+            uc.addch(key)
+        case "getmaxyx":
+            y, x = uc.getmaxyx(stdscr)
+            uc.addstr("y = " + str(y) + ", x = " + str(x))
+        case "getmaxy":
+            y = uc.getmaxy(stdscr)
+            uc.addstr("y = " + str(y))
+        case "getmaxx":
+            x = uc.getmaxx(stdscr)
+            uc.addstr("x = " + str(x))
         case _:
             uc.addstr("command not found")
 
@@ -162,4 +184,5 @@ def main(stdscr, command):
 
 
 if __name__ == "__main__":
-    uc.wrapper(main, input("command: "))
+    while (command := input("(q to exit) command: ")) != "q":
+        uc.wrapper(main, command)

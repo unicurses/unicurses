@@ -965,7 +965,7 @@ def cursyncup(scr_id):
 
 def def_prog_mode():
     """
-    Save the current terminal modes as the “program” (in curses) state for use by the reset_prog_mode.
+    Save the current terminal as the “program” (in curses) state for use by the reset_prog_mode.
     """
     
     return lib1.def_prog_mode()
@@ -973,7 +973,7 @@ def def_prog_mode():
 
 def def_shell_mode():
     """
-    Save the current terminal modes as the “shell” (not in curses) state for use by the reset_shell_mode.
+    Save the current terminal as the “shell” (not in curses) state for use by the reset_shell_mode.
     """
     
     return lib1.def_shell_mode()
@@ -2008,10 +2008,15 @@ elif NCURSES:
 
 
 def prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol):
+    """
+    Similar to wrefresh but for pads instead of windows. pminrow and pmincol specify the upper left-hand corner of the rectangle to be displayed in the pad. sminrow, smincol, smaxrow, and smaxcol specify the edges of the rectangle to be displayed on the screen.
+    """
+    
     return lib1.prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol) # TODO: fix | https://github.com/wmcbrine/PDCurses/pull/121 # NEEDS_CHECK?
 
 
 def putp(cstring):
+    # TODO: I don't fully understand what this function does
     return lib1.putp(CSTR(cstring))
 
 
@@ -2050,10 +2055,18 @@ def raw():
 
 
 def wredrawln(scr_id, beg, num):
+    """
+    Indicate to unicurses that num many lines in window scr_id, starting from beg line, should be discarded before anything is written over them.
+    """
+
     return lib1.wredrawln(scr_id, beg, num)
 
 
 def redrawwin(scr_id):
+    """
+    Indicate to unicurses that window scr_id should be discarded before anything is written over it.
+    """
+
     return lib1.redrawwin(scr_id)
 
 
@@ -2066,27 +2079,53 @@ def wrefresh(scr_id):
 
 
 def reset_prog_mode():
+    """
+    Restore the current terminal to “program” (in curses) state.
+    """
+    
     return lib1.reset_prog_mode()
 
 
 def reset_shell_mode():
+    """
+    Restore the current terminal to “shell” (not in curses) state.
+    """
+
     return lib1.reset_shell_mode()
 
 
 def wresize(scr_id, lines, columns):
+    """
+    Reallocate storage for window scr_id to adjust its dimensions to lines and columns.
+    """
+    
     return lib1.wresize(scr_id, lines, columns)
 
 
 def resize_term(lines, columns):
+    """
+    Attempt to resize all windows to lines and columns, recursively adjusting subwindows by keeping them within the updated parent window's limits.
+    """
+    
     return lib1.resize_term(lines, columns)	
 
 
 def wscrl(scr_id, lines=1):
+    """
+    If line is positive, scroll window scr_id up, otherwise scroll the window down. The current position is not updated.
+    """
+    
     return lib1.wscrl(scr_id, lines)
 
 
 def scrollok(scr_id, flag):
+    """
+    When the cursor of window scr_id is moved off the edge as a result of adding lines or characters, if flag is False the cursor is left on the bottom line, otherwise if flag is True, window scr_id is scrolled up one line.
+    """
+    
     return lib1.scrollok(scr_id, flag)
+
+# TODO: add is_scrollok
 
 
 def wsetscrreg(scr_id, top, bottom):
@@ -2383,6 +2422,10 @@ def mvvline(y, x, ch, n):
 
 
 def scroll(lines=1):
+    """
+    If line is positive, scroll the current window up, otherwise scroll the window down. The current position is not updated.
+    """
+
     return wscrl(stdscr, lines)
 
 
@@ -2679,6 +2722,11 @@ def mvinsch(y, x, ch, attr=A_NORMAL):
 
 
 def redrawln(beg, num):
+    """
+    Indicate to unicurses that num many lines, starting from beg line, should be discarded before anything is written over them.
+    """
+
+    
     return wredrawln(stdscr, beg, num)
 
 
