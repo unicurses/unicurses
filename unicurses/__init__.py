@@ -957,7 +957,7 @@ def curs_set(visibility):
 
 def cursyncup(scr_id):
     """
-    Update the current position of all the ancestors of window scr_id to reflect the current position of the current window.
+    Update the current position of all window scr_id parents to reflect the current position of window stdscr.
     """
 
     return lib1.wcursyncup(scr_id)
@@ -1858,7 +1858,7 @@ def mvwinwstr(scr_id, y, x, n=-1):
 
 def mvwvline(scr_id, y, x, ch, n):
     """
-    Draw a vertical line of maximum n characters ch starting at position (y, x) in the window scr_id. The current position is not updated.
+    Draw a vertical line of maximum n characters ch starting at position (y, x) in window scr_id. The current position is not updated.
     """
 
     return lib1.mvwvline(scr_id, y, x, ch, n)
@@ -1866,7 +1866,7 @@ def mvwvline(scr_id, y, x, ch, n):
 
 def mvwin(scr_id, y, x):
     """
-    Move the window scr_id so that the upper left-hand corner is at position (y, x).
+    Move window scr_id so that the upper left-hand corner is at position (y, x).
     """
     
     return lib1.mvwin(scr_id, y, x)
@@ -2094,28 +2094,28 @@ def reset_shell_mode():
     return lib1.reset_shell_mode()
 
 
-def wresize(scr_id, lines, columns):
+def wresize(scr_id, nlines, ncols):
     """
-    Reallocate storage for window scr_id to adjust its dimensions to lines and columns.
-    """
-    
-    return lib1.wresize(scr_id, lines, columns)
-
-
-def resize_term(lines, columns):
-    """
-    Attempt to resize all windows to lines and columns, recursively adjusting subwindows by keeping them within the updated parent window's limits.
+    Reallocate storage for window scr_id to adjust its dimensions to nlines lines and ncols columns.
     """
     
-    return lib1.resize_term(lines, columns)	
+    return lib1.wresize(scr_id, nlines, ncols)
 
 
-def wscrl(scr_id, lines=1):
+def resize_term(nlines, ncols):
     """
-    If line is positive, scroll window scr_id up, otherwise scroll the window down. The current position is not updated.
+    Attempt to resize all windows to nlines lines and ncols columns, recursively adjusting subwindows by keeping them within the updated parent window's limits.
     """
     
-    return lib1.wscrl(scr_id, lines)
+    return lib1.resize_term(nlines, ncols)	
+
+
+def wscrl(scr_id, nlines=1):
+    """
+    If nlines is positive, scroll window scr_id up, otherwise scroll the window down. The current position is not updated.
+    """
+    
+    return lib1.wscrl(scr_id, nlines)
 
 
 def scrollok(scr_id, flag):
@@ -2125,43 +2125,86 @@ def scrollok(scr_id, flag):
     
     return lib1.scrollok(scr_id, flag)
 
-# TODO: add is_scrollok
+
+def is_scrollok(scr_id):
+    """
+    Return the value set in scrollok.
+    """
+
+    return lib1.is_scrollok(scr_id)
+
 
 
 def wsetscrreg(scr_id, top, bottom):
+    """
+    Set a software scrolling region in window scr_id between the top line and the bottom line.
+    """
+
     return lib1.wsetscrreg(scr_id, top, bottom)
 
 
-# TODO check why it creates a variable that is garbage collected on function return
-# this won't even work with NCURSES because of the missing PD_GET_CURSCR
-def setsyx(y, x):
-    global PDC_LEAVEOK
-    
-    curscr = PD_GET_CURSCR()
-    if y == x == -1:
-        PDC_LEAVEOK = True
-    else:
-        PDC_LEAVEOK = False
-    return lib1.setsyx(y, x)
-
+if PDCURSES:
+    # TODO check why it creates a variable that is garbage collected on function return
+    def setsyx(y, x):
+        """"
+        Set the virtual screen cursor to y, x. If y == x == -1, then leaveok is set.
+        """
+        
+        global PDC_LEAVEOK
+        
+        curscr = PD_GET_CURSCR()
+        if y == x == -1:
+            PDC_LEAVEOK = True
+        else:
+            PDC_LEAVEOK = False
+        return lib1.setsyx(y, x)
+elif NCURSES:
+    def setsyx(y, x):
+        """"
+        Set the virtual screen cursor to y, x. If y == x == -1, then leaveok is set.
+        """
+        
+        if y == x == -1:
+            return leaveok(stdscr, True)
+        return lib1.setsyx(y, x)
 
 def setupterm(termstr, fd):
+    """
+    Read in the terminfo database, initializing the terminfo structures via term (terminal type, a string) and fd (file descriptor). Does not set up the output virtualization structures used by unicurses.
+    """
+    
     return lib1.setupterm(termstr, fd, None)
 
 
 def wstandend(scr_id):
+    """
+    Same as wattrset(scr_id, A_NORMAL) or wattrset(scr_id, 0), turn off all attributes in window scr_id.
+    """
+    
     return lib1.wstandend(scr_id)
 
 
 def wstandout(scr_id):
+    """
+    Same as wattron(scr_id, A_STANDOUT).
+    """
+    
     return lib1.wstandout(scr_id)
 
 
 def start_color():
+    """
+    Must be called if want to use colors in the program.
+    """
+    
     return lib1.start_color()
 
 
 def subpad(scrwin, nlines, ncols, y, x):
+    """
+    Return a pointer to a subwindow, positioned at (y, x) and with nlines lines and ncols columns, within a pad.
+    """
+    
     return ctypes.c_void_p(lib1.subpad(scrwin, nlines, ncols, y, x))
 
 
@@ -2174,38 +2217,83 @@ def subwin(srcwin, nlines, ncols, y, x):
 
 
 def wsyncdown(scr_id):
+    """
+    Touch each location in window scr_id that has been touched in any of its ancestor windows.
+    """
+    
     return lib1.wsyncdown(scr_id)
 
 
 def syncok(scr_id, flag):
+    """
+    If flag is True, then wsyncup(scr_id) is called automatically whenever there is a change in the window.
+    """
+    
     return lib1.syncok(scr_id, flag)
 
 
+def is_syncok(scr_id):
+    """
+    Return the value set in syncok(scr_id).
+    """
+    
+    return  lib1.is_syncok(scr_id)
+
+
 def wsyncup(scr_id):
+    """
+    Call touchwin to all parents of window scr_id.
+    """
+    
     return lib1.wsyncup(scr_id)
 
 
 def termattrs():
+    """
+    Return a logical OR of all video attributes supported by the terminal using A_ constants.
+    """
+
     return lib1.termattrs()
 
 
 def termname():
+    """
+    Return the terminal name used by setupterm.
+    """
+    
     return lib1.termname().decode()
 
 
-def tigetflag(capname):
-    return lib1.tigetflag(CSTR(capname))
+if NCURSES:
+    def tigetflag(capname):
+        """
+        Return the value of the capability corresponding to the terminfo capname.
+        """
+        
+        return lib1.tigetflag(CSTR(capname))
 
 
-def tigetnum(capname):
-    return lib1.tigetnum(CSTR(capname))
+    def tigetnum(capname):
+        """
+        Return the value of the capability corresponding to the terminfo capname.
+        """
+
+        return lib1.tigetnum(CSTR(capname))
 
 
-def tigetstr(capname):
-    return lib1.tigetstr(CSTR(capname))
+    def tigetstr(capname):
+        """
+        Return the value of the capability corresponding to the terminfo capname.
+        """
+
+        return lib1.tigetstr(CSTR(capname))
 
 
 def wtimeout(scr_id, delay):
+    """
+    Set blocking or non-blocking reads for window scr_id. If delay<0, blocking read is used, meaning waits indefinitely for input. If delay=0, non-blocking read is used. If delay>0, read blocks for delay milliseconds. If delay>=0, and returns ERR if there is no input after delay.
+    """
+    
     return lib1.wtimeout(scr_id, delay)
 
 
@@ -2227,7 +2315,7 @@ def typeahead(fd):
 
 def wvline(scr_id, ch, n):
     """
-    Draw a vertical line of maximum n characters ch starting at the current position in the window scr_id. The current position is not updated.
+    Draw a vertical line of maximum n characters ch starting at the current position in window scr_id. The current position is not updated.
     """
     
     return lib1.wvline(scr_id, ch, n)
@@ -2386,6 +2474,10 @@ def erase():
 
 
 def timeout(delay):
+    """
+    Set blocking or non-blocking reads. If delay<0, blocking read is used, meaning waits indefinitely for input. If delay=0, non-blocking read is used. If delay>0, read blocks for delay milliseconds. If delay>=0, and returns ERR if there is no input after delay.
+    """
+
     return wtimeout(stdscr, delay)
 
 
@@ -2421,12 +2513,12 @@ def mvvline(y, x, ch, n):
     return mvwvline(stdscr, y, x, ch, n)
 
 
-def scroll(lines=1):
+def scroll(nlines=1):
     """
-    If line is positive, scroll the current window up, otherwise scroll the window down. The current position is not updated.
+    If line is positive, scroll window stdscr up, otherwise scroll the window down. The current position is not updated.
     """
 
-    return wscrl(stdscr, lines)
+    return wscrl(stdscr, nlines)
 
 
 def setscrreg(top, bottom):
@@ -2451,7 +2543,7 @@ def mvdelch(y, x):
 
 def move(y, x):
     """
-    Move the position in the current window to position (y, x). The cursor won't move until refresh is called.
+    Move the position in window stdscr to position (y, x). The cursor won't move until refresh is called.
     """
 
     return wmove(stdscr, y, x)
@@ -2618,10 +2710,18 @@ def echochar(ch, attr=A_NORMAL):
 
 
 def standout():
+    """
+    Same as attron(A_STANDOUT).
+    """
+
     return wstandout(stdscr)
 
 
 def standend():
+    """
+    Same as attrset(A_NORMAL) or attrset(0), turn off all attributes.
+    """
+
     return wstandend(stdscr)
 
 
@@ -2659,7 +2759,7 @@ def mvdeleteln(y, x):
 
 def enclose(y, x):
     """
-    Return True if the pair (y, x) is enclosed by the current window, ortherwise return False.
+    Return True if the pair (y, x) is enclosed by window stdscr, ortherwise return False.
     """
 
     return wenclose(stdscr, y, x)
@@ -2731,10 +2831,18 @@ def redrawln(beg, num):
 
 
 def syncdown():
+    """
+    Touch each location in window stdscr that has been touched in any of its ancestor windows.
+    """
+
     return wsyncdown(stdscr)
 
 
 def syncup():
+    """
+    Call touchwin to all parents of window stdscr.
+    """
+
     return wsyncup(stdscr)
 
 

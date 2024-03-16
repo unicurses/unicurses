@@ -24,6 +24,8 @@
 
 - make it easier for users to find attributes (for example print them with a specific function or add them to the wiki)
 
+- (done) add some missing functions such as is_scrollok or is_leaveok, they are cross-platform
+
 # note
 
 to get numbers that are originally passed as pointers, so something like this
