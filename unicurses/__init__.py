@@ -1226,8 +1226,8 @@ def wgetkey(scr_id, y=-1, x=-1): # NEEDS_CHECK?
     """
 
     if (y == -1) or (x == -1):
-        return lib1.keyname(wgetch(scr_id))
-    return lib1.keyname(mvwgetch(scr_id, y, x)).decode()
+        return keyname(wgetch(scr_id))
+    return keyname(mvwgetch(scr_id, y, x))
 
 
 def getmaxyx(scr_id):
