@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 
 # UniCurses -- A unified multiplatform Curses provider library for Python 2.x/3.x
 # Copyright (C) 2010 by Michael Kamensky.
@@ -29,7 +29,7 @@ import os
 
 global lib1
 global NCURSES   # Not needed but makes things more visually appealing? it could just be 'if not PDCURSES'
-global PDCURSES 
+global PDCURSES
 global PYCURSES  # Not sure if i would want to keep the support for the native python's module-ncurses
 global PDC_LEAVEOK
 global IS_CURSES_LIBRARY_UTF8
@@ -38,7 +38,7 @@ PDC_LEAVEOK            = False  # LeaveOK emulation in PDC
 NCURSES                = False  # Native curses support
 PDCURSES               = False  # Public Domain Curses support
 UCS_DEFAULT_WRAPPER    = ""	    # A constant for the default wrapper (ucs_reconfigure)
-IS_CURSES_LIBRARY_UTF8 = True   # Determine if the library iscompiled with UTF-8 support 
+IS_CURSES_LIBRARY_UTF8 = True   # Determine if the library iscompiled with UTF-8 support
 stdscr                 = -1	    # A pointer to the standard screen
 lib1                   = None   # PD\NCurses library (dll/.so)
 lib2                   = None   # For NCurses's panel.so library else lib2=lib1
@@ -73,7 +73,7 @@ def get_libncursesw_paths():
         lib_paths = [find_library('ncurses'),find_library('panel')]
     else:
         lib_paths = [find_library('ncursesw'),find_library('panelw')]
-    
+
     if not lib_paths[0] or not lib_paths[1]:
         if OPERATING_SYSTEM == 'Darwin':
             msg = 'No version of shared-libraries of ncurses found on this system, please try `brew install ncurses` if this won\'t work please create an issue'
@@ -96,12 +96,12 @@ except ImportError:
         """.format(sys.platform))
 
 
-if OPERATING_SYSTEM == 'Windows':    
+if OPERATING_SYSTEM == 'Windows':
     if platform.architecture()[0] == '64bit':
         pdcurses = "64 bit binaries/pdcdllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
     else:
         pdcurses = "32 bit binaries/pdcdllu/pdcurses.dll"  # wide-character (Unicode) &  UTF-8
-    
+
     current_dir = os.path.dirname(os.path.realpath(__file__))
     path_to_pdcurses = os.path.join(current_dir, pdcurses)
     if not (os.access(pdcurses, os.F_OK)
@@ -111,7 +111,7 @@ if OPERATING_SYSTEM == 'Windows':
             Make sure PDCurses is in the same folder as UniCurses
             if you want to use UniCurses on a {} platform.
             """.format(sys.platform))
-    
+
     # We're on winXX, use pdcurses instead of native ncurses
     lib2 = lib1 = ctypes.CDLL(path_to_pdcurses)
 
@@ -123,7 +123,7 @@ else:
 
     lib1 = ctypes.CDLL(ncurses,mode=ctypes.RTLD_GLOBAL)
     lib2 = ctypes.CDLL(panel)
- 
+
     PDCURSES = False
     NCURSES  = True
 
@@ -134,17 +134,17 @@ else:
 # !!! THIS IS NOT FOR GENERAL USE AND WILL IN MOST CASES BREAK UNICURSES !!!
 # !!! EVEN IF IT DOESN'T MAKE YOUR APP CRASH OR HANG, IT MAY BREAK PORTABILITY !!!
 # !!! IF YOU DON'T KNOW WHAT THIS MAY BE USED FOR, YOU DON'T NEED TO USE IT !!!
-    
+
 def ucs_reconfigure(wrapper_pdcurses = None, wrapper_ncurses = None, wrapper_ncurses_panel = None, is_utf8_dll = True):
     global IS_CURSES_LIBRARY_UTF8
     global lib1
     global lib2
     IS_CURSES_LIBRARY_UTF8 = is_utf8_dll
-    
+
     if wrapper_ncurses and wrapper_ncurses_panel:
         lib1 = ctypes.CDLL(wrapper_ncurses,mode=ctypes.RTLD_GLOBAL)
         lib2 = ctypes.CDLL(wrapper_ncurses_panel)
-  
+
     if wrapper_pdcurses:
         lib2 = lib1 = ctypes.CDLL(wrapper_pdcurses)	
 #endregion +++ Main ++
@@ -161,7 +161,7 @@ class MEVENT(ctypes.Structure):
                 ("z", ctypes.c_int),
                 ("bstate", ctypes.c_ulong)]
 
-# A NC structure for cchar_t    
+# A NC structure for cchar_t
 if NCURSES:
     CCHARW_MAX = 5
     WCHAR_5    = ctypes.c_wchar * CCHARW_MAX
@@ -169,7 +169,7 @@ if NCURSES:
         _fields_ = [("attr", ctypes.c_int),
                     ("chars", WCHAR_5)]
 #endregion -- STRUCTS --
-    
+
 
 def CSTR(s):
     """
@@ -178,7 +178,7 @@ def CSTR(s):
     """
 
     global IS_CURSES_LIBRARY_UTF8
-    
+
     if IS_CURSES_LIBRARY_UTF8:
         return str(s).encode()
     else:
@@ -213,13 +213,13 @@ elif NCURSES:
     NCURSES_ATTR_SHIFT = 8
 
 
-    def NCURSES_BITS(mask,shift): 
+    def NCURSES_BITS(mask,shift):
         return (mask << ((shift) + NCURSES_ATTR_SHIFT))
 
 
-    def NC_COLOR_PAIR(n): 
+    def NC_COLOR_PAIR(n):
         return (NCURSES_BITS((n), 0) & A_COLOR)
-    
+
     # TODO: implement getcursor in NCURSES and make the call platform independent
 #endregion --- PDCurses/NCurses ncurses.h macro wrappers and other prereqs ---
 
@@ -229,7 +229,7 @@ if PDCURSES:
     #region ++ Attributs & Colors (PDC) ++
     PDC_COLOR_SHIFT  = 24
     PDC_ATTR_SHIFT   = 19
- 
+
     # Attributes
     A_ALTCHARSET = 0x00010000
     A_RIGHT      = 0x00020000
@@ -251,10 +251,10 @@ if PDCURSES:
     A_ATTRIBUTES = 0xffff0000
     A_COLOR      = 0xff000000
     A_CHARTEXT   = 0x0000ffff
- 
+
     A_RIGHTLINE  = A_RIGHT
     A_LEFTLINE   = A_LEFT
- 
+
     # Colors
     COLOR_BLACK   = 0
     COLOR_BLUE    = 1
@@ -265,8 +265,8 @@ if PDCURSES:
     COLOR_YELLOW  = (COLOR_RED  | COLOR_GREEN)
     COLOR_WHITE   = 7
     #endregion -- Attributs & Colors (PDC) --
- 
-    
+
+
     #region ++ Key mapping (PDC) ++
     KEY_CODE_YES  = 0x100  # If get_wch() gives a key code
     KEY_BREAK     = 0x101  # Not on PC KBD
@@ -361,14 +361,14 @@ if PDCURSES:
     KEY_B2        = 0x1c5
     KEY_C1        = 0x1c7
     KEY_C3        = 0x1c9
-    KEY_MOUSE     = 0x21b  
+    KEY_MOUSE     = 0x21b
     KEY_RESIZE    = 0x222
     KEY_SDOWN     = 0x224
     KEY_MAX       = KEY_SDOWN
-    #KEY_EVENT    = PDC_KEY_EVENT 
+    #KEY_EVENT    = PDC_KEY_EVENT
     #endregion -- Key mapping (PDC) --
-  
-  
+
+
     #region ++ Mouse mapping (PDC) ++
     BUTTON1_RELEASED       = 0x00000001
     BUTTON1_PRESSED        = 0x00000002
@@ -407,7 +407,7 @@ if PDCURSES:
     ALL_MOUSE_EVENTS       = 0x1fffffff
     REPORT_MOUSE_POSITION  = 0x20000000
     #endregion -- Mouse mapping (PDC) --
- 
+
 elif NCURSES:
     #region ++ Attributs & Colors (NC) ++
     # Attributes
@@ -431,7 +431,7 @@ elif NCURSES:
     A_TOP        = NCURSES_BITS(1,21)
     A_VERTICAL   = NCURSES_BITS(1,22)
     A_ITALIC	 = NCURSES_BITS(1,23)
- 
+
     # Colors
     COLOR_BLACK   = 0
     COLOR_RED     = 1
@@ -442,8 +442,8 @@ elif NCURSES:
     COLOR_CYAN    = 6
     COLOR_WHITE   = 7
     #endregion -- Attributs & Colors (NC) --
-    
-    
+
+
     #region ++ Key mapping (NC) ++
     KEY_CODE_YES  = 0o400  # A wchar_t contains a key code
     KEY_MIN       = 0o401  # Minimum curses key
@@ -541,17 +541,17 @@ elif NCURSES:
     KEY_EVENT     = 0o633  # We were interrupted by an event
     KEY_MAX       = 0o777  # Maximum key value is 0633
     #endregion -- Key mapping (NC) --
-    
- 
+
+
     #region ++ Mouse mapping (NC) ++
     NCURSES_MOUSE_VERSION = 2  # TODO: Understand how it is defined
- 
+
     def NCURSES_MOUSE_MASK(b,m):
         if NCURSES_MOUSE_VERSION > 1:
             return ((m) << (((b) - 1) * 5))
         else:
             return ((m) << (((b) - 1) * 6))
-   
+
     NCURSES_BUTTON_RELEASED =  1
     NCURSES_BUTTON_PRESSED  =  2
     NCURSES_BUTTON_CLICKED  =  4
@@ -582,13 +582,13 @@ elif NCURSES:
     BUTTON4_CLICKED        = NCURSES_MOUSE_MASK(4, NCURSES_BUTTON_CLICKED)
     BUTTON4_DOUBLE_CLICKED = NCURSES_MOUSE_MASK(4, NCURSES_DOUBLE_CLICKED)
     BUTTON4_TRIPLE_CLICKED = NCURSES_MOUSE_MASK(4, NCURSES_TRIPLE_CLICKED)
- 
+
     BUTTON5_RELEASED       = NCURSES_MOUSE_MASK(5, NCURSES_BUTTON_RELEASED)
     BUTTON5_PRESSED        = NCURSES_MOUSE_MASK(5, NCURSES_BUTTON_PRESSED)
     BUTTON5_CLICKED        = NCURSES_MOUSE_MASK(5, NCURSES_BUTTON_CLICKED)
     BUTTON5_DOUBLE_CLICKED = NCURSES_MOUSE_MASK(5, NCURSES_DOUBLE_CLICKED)
     BUTTON5_TRIPLE_CLICKED = NCURSES_MOUSE_MASK(5, NCURSES_TRIPLE_CLICKED)
- 
+
     if NCURSES_MOUSE_VERSION > 1:
         BUTTON_CTRL  = NCURSES_MOUSE_MASK(6, 1)
         BUTTON_SHIFT = NCURSES_MOUSE_MASK(6, 2)
@@ -596,18 +596,18 @@ elif NCURSES:
 
         REPORT_MOUSE_POSITION = NCURSES_MOUSE_MASK(6, 10)
     else:
-        BUTTON_CTRL  = NCURSES_MOUSE_MASK(5, 1) 
+        BUTTON_CTRL  = NCURSES_MOUSE_MASK(5, 1)
         BUTTON_SHIFT = NCURSES_MOUSE_MASK(5, 2)
         BUTTON_ALT   = NCURSES_MOUSE_MASK(5, 4)
-  
+
         REPORT_MOUSE_POSITION = NCURSES_MOUSE_MASK(5, 10)
 
     ALL_MOUSE_EVENTS = (REPORT_MOUSE_POSITION - 1)
     #endregion -- Mouse mapping (NC) --
 #endregion --- CONSTANTS: PDCurses\Ncurses ncurses.h ---
 
- 
- 
+
+
 #region +++ CONSTANTS: Platform-independent +++
 # General
 OK = 0
@@ -804,7 +804,7 @@ def waddch(scr_id, ch, attr=A_NORMAL):
 if PDCURSES:
     def wadd_wch(scr_id, wch, attr=A_NORMAL):  # NEEDS_CHECK?
         """
-        Write the complex character wch in window scr_id.
+        Write the wide character wch in window scr_id.
         """
 
         oldattr = lib1.getattrs(scr_id)
@@ -816,7 +816,7 @@ if PDCURSES:
 elif NCURSES:
     def wadd_wch(scr_id, wch, attr=A_NORMAL):  # NEEDS_CHECK?
         """
-        Write the complex character wch in window scr_id.
+        Write the wide character wch in window scr_id.
         """
 
         return lib1.wadd_wch(scr_id, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
@@ -838,7 +838,7 @@ def waddstr(scr_id, cstr, attr="NO_USE"):
 
 def waddwstr(scr_id, wstr, attr="NO_USE"):
     """
-    Write the complex string wstr in window scr_id.
+    Write the wide string wstr in window scr_id.
     """
 
     if wstr == '':
@@ -911,7 +911,7 @@ def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxco
     """
     Applies overlay if overlay is True otherwise overwrite. A rectangle is specified in window dest_id, via (dminrow, dmincol) and (dmaxrow, dmaxcol), and the upper-left-corner coordinates of window src_id, (sminrow, smincol).
     """
-    
+
     return lib1.copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay)
 
 
@@ -919,7 +919,7 @@ def wclear(scr_id):
     """
     Copy blanks to every position in window scr_id and call clearok.
     """
-    
+
     return lib1.wclear(scr_id)
 
 
@@ -927,7 +927,7 @@ def wclrtobot(scr_id):
     """
     Erase from the current line to the end of screen in window scr_id.
     """
-    
+
     return lib1.wclrtobot(scr_id)
 
 
@@ -935,7 +935,7 @@ def wclrtoeol(scr_id):
     """
     Erase the current line in window scr_id.
     """
-    
+
     return lib1.wclrtoeol(scr_id)
 
 
@@ -943,7 +943,7 @@ def clearok(scr_id, yes):
     """
     If yes is True, the next call to wrefresh with window scr_id will clear the screen and redraw.
     """
-    
+
     return lib1.clearok(scr_id, yes)
 
 
@@ -951,7 +951,7 @@ def curs_set(visibility):
     """
     Sets the cursor state to invisible (0), normal (1), or very visible (2).
     """
-    
+
     return lib1.curs_set(visibility)
 
 
@@ -967,7 +967,7 @@ def def_prog_mode():
     """
     Save the current terminal as the “program” (in curses) state for use by the reset_prog_mode.
     """
-    
+
     return lib1.def_prog_mode()
 
 
@@ -975,7 +975,7 @@ def def_shell_mode():
     """
     Save the current terminal as the “shell” (not in curses) state for use by the reset_shell_mode.
     """
-    
+
     return lib1.def_shell_mode()
 
 
@@ -983,7 +983,7 @@ def delay_output(ms):
     """
     Insert an ms millisecond pause in output.
     """
-    
+
     return lib1.delay_output(ms)
 
 
@@ -999,15 +999,15 @@ def wdeleteln(scr_id):
     """
     Delete the current line in window scr_id. All lines below are moved up one line.
     """
-    
+
     return lib1.wdeleteln(scr_id)
 
 
 def wbkgd(scr_id, ch, attr=A_NORMAL):
     """
-    Set the background ch of window scr_id and apply this setting to every character position. 
+    Set the background ch of window scr_id and apply this setting to every character position.
     """
-    
+
     return lib1.wbkgd(scr_id, CCHAR(ch) | attr)
 
 
@@ -1015,7 +1015,7 @@ def wbkgdset(scr_id, ch, attr=A_NORMAL):
     """
     Set the background ch for window scr_id.
     """
-    
+
     return lib1.wbkgdset(scr_id, CCHAR(ch) | attr)
 
 
@@ -1024,7 +1024,7 @@ def wborder(scr_id, ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE,
     """
     Draw a box around the edges of window scr_id with attributes ls (left side), rs (right side), ts (top side), bs (bottom side), tl (top left-hand corner), tr (top right-hand corner), bl (bottom left-hand corner), and br (bottom right-hand corner).
     """
-    
+
     return lib1.wborder(scr_id, ls, rs, ts, bs, tl, tr, bl, br) # same as wborder_set (it supports unicode by default)
 
 
@@ -1032,7 +1032,7 @@ def box(scr_id, verch=ACS_VLINE, horch=ACS_HLINE):
     """
     Shorthand for wborder(scr_id, verch, verch, horch, horch, 0, 0, 0, 0).
     """
-    
+
     return lib1.box(scr_id, verch, horch)
 
 
@@ -1040,7 +1040,7 @@ def can_change_color():
     """
     Return True if the programmer can change the colors of the terminal, otherwise return False.
     """
-    
+
     return bool( lib1.can_change_color() )
 
 
@@ -1048,7 +1048,7 @@ def cbreak():
     """
     Make characters typed by the user immediately available.
     """
-    
+
     return lib1.cbreak()
 
 
@@ -1056,7 +1056,7 @@ def wchgat(scr_id, num, attr, color, opts=None):
     """
     Set the attributes attr and color of num many characters in window scr_id. It does not update the current position and does not perform wrapping.
     """
-    
+
     return lib1.wchgat(scr_id, num, attr, color, None)
 
 
@@ -1065,7 +1065,7 @@ def color_content(color_number):
     """
     Return (r, g, b) of color_number.
     """
-    
+
     r = ctypes.c_short()
     g = ctypes.c_short()
     b = ctypes.c_short()
@@ -1093,7 +1093,7 @@ def delwin(scr_id):
     """
     Delete window scr_id. It does not erase window scr_id screen image.
     """
-    
+
     return lib1.delwin(scr_id)
 
 
@@ -1101,7 +1101,7 @@ def derwin(srcwin, nlines, ncols, y, x):
     """
     Return a new window with nlines and ncols, positioned at (y, x) relative to the origin of scrwin. The subwindow shares memory with window srcwin, so changes made to one window will affect both.
     """
-    
+
     return ctypes.c_void_p(lib1.derwin(srcwin, nlines, ncols, y, x))
 
 
@@ -1109,7 +1109,7 @@ def doupdate():
     """
     Update the physical screen compared to the virtual screen.
     """
-    
+
     return lib1.doupdate()
 
 
@@ -1117,7 +1117,7 @@ def echo():
     """
     Put getch in echo mode, so characters typed are echoed.
     """
-    
+
     return lib1.echo()
 
 
@@ -1133,7 +1133,7 @@ def wenclose(scr_id, y, x):
     """
     Return True if the pair (y, x) is enclosed by window scr_id, ortherwise return False.
     """
-    
+
     return lib1.wenclose(scr_id, y, x)
 
 
@@ -1141,7 +1141,7 @@ def endwin():
     """
     Must call endwin for each terminal being used before exiting from curses. If newterm is called more than once for the same terminal, the first terminal referred to must be the last one for which endwin is called.
     """
-    
+
     return lib1.endwin()
 
 
@@ -1149,7 +1149,7 @@ def werase(scr_id):
     """
     Copy blanks to every position in window scr_id.
     """
-    
+
     return lib1.werase(scr_id)
 
 
@@ -1157,7 +1157,7 @@ def erasechar():
     """
     Return the user's current erase character.
     """
-    
+
     return lib1.erasechar()
 
 # TODO implement erasewchar
@@ -1167,7 +1167,7 @@ def filter():
     """
     Called before initscr or newterm. Causes the following changes at initialization: LINES is set to 1, the capabilities clear, cud1, cud, cup, cuu1, cuu, vpa are disabled, the capability ed is disabled if bce is set, and the home string is set to the value of cr.
     """
-    
+
     return lib1.filter()
 
 if NCURSES:
@@ -1183,7 +1183,7 @@ def flash():
     """
     Flash the screen and, if not possible, sound an audible alarm.
     """
-    
+
     return lib1.flash()
 
 
@@ -1191,7 +1191,7 @@ def flushinp():
     """
     Throw away any typeahead typed by the user that has not yet been read by the program.
     """
-    
+
     return lib1.flushinp()
 
 
@@ -1199,7 +1199,7 @@ def getbegyx(scr_id):
     """
     Return the origin of the subwindow scr_id relative to the parent window.
     """
-    
+
     y = lib1.getbegy(scr_id)
     x = lib1.getbegx(scr_id)
     return (y, x)
@@ -1209,15 +1209,15 @@ def wgetch(scr_id):
     """
     Read a character from window scr_id.
     """
-    
-    return lib1.wgetch(scr_id) 
+
+    return lib1.wgetch(scr_id)
 
 
 def wget_wch(scr_id): # NEEDS_CHECK? # https://stackoverflow.com/questions/1081456/wchar-t-vs-wint-t
     """
-    Read a complex character from window scr_id.
+    Read a wide character from window scr_id.
     """
-    
+
     wint = ctypes.c_uint16()
     lib1.wget_wch(scr_id,ctypes.byref(wint))
     return wint.value
@@ -1227,7 +1227,7 @@ def wgetkey(scr_id, y=-1, x=-1): # NEEDS_CHECK?
     """
     Read a key from window scr_id after (optional) moving the current position to (y, x). Differently from getch, this function reads escape characters and transforms them into keys.
     """
-    
+
     if (y == -1) or (x == -1):
         return lib1.keyname(wgetch(scr_id))
     return lib1.keyname(mvwgetch(scr_id, y, x)).decode()
@@ -1239,7 +1239,7 @@ def getmaxyx(scr_id):
     """
     Return the dimensions (height, width) of window scr_id.
     """
-    
+
     y = lib1.getmaxy(scr_id)
     x = lib1.getmaxx(scr_id)
     return (y, x)
@@ -1265,9 +1265,9 @@ if PDCURSES:
         """
         Read a KEY_MOUSE event data queued in getch and pop the event off the queue.
         """
-        
+
         m_event = MEVENT()
-        lib1.nc_getmouse(ctypes.byref(m_event))  # ? https://github.com/wmcbrine/PDCurses/blob/f1cd4f4569451a5028ddf3d3c202f0ad6b1ae446/pdcurses/mouse.c#L105 
+        lib1.nc_getmouse(ctypes.byref(m_event))  # ? https://github.com/wmcbrine/PDCurses/blob/f1cd4f4569451a5028ddf3d3c202f0ad6b1ae446/pdcurses/mouse.c#L105
         return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.bstate)
 elif NCURSES:
     def getmouse():
@@ -1292,9 +1292,9 @@ def getparyx(scr_id):
 
 def wgetstr(scr_id):
     """
-    Perform a series of calls to getch in window scr_id until a newline is received. 
+    Perform a series of calls to getch in window scr_id until a newline is received.
     """
-    
+
     t_str = ctypes.create_string_buffer(1023)
     lib1.wgetstr(scr_id, ctypes.byref(t_str))
     return t_str.value.decode()
@@ -1305,7 +1305,7 @@ if PDCURSES:
         """
         Return the current position of the virtual screen.
         """
-        
+
         if is_leaveok():
             return (-1, -1)
         curscr = PD_GET_CURSCR()
@@ -1315,7 +1315,7 @@ elif NCURSES:
         """
         Return the current position of the virtual screen.
         """
-        
+
         if is_leaveok():
             return (-1, -1)
         return getyx(stdscr)
@@ -1325,7 +1325,7 @@ def getyx(scr_id):
     """
     Return the current position of window scr_id.
     """
-    
+
     cy = lib1.getcury(scr_id)
     cx = lib1.getcurx(scr_id)
     return (cy, cx)
@@ -1335,7 +1335,7 @@ def halfdelay(tenths):
     """
     Similar to cbreak, make characters typed by the user immediately available. After blocking for tenths tenths of seconds, ERR is returned if nothing has been typed.
     """
-    
+
     return lib1.halfdelay(tenths)
 
 
@@ -1343,7 +1343,7 @@ def has_colors():
     """
     Return True if the terminal has color capabilities, otherwise return False.
     """
-    
+
     return bool( lib1.has_colors() )
 
 
@@ -1351,7 +1351,7 @@ def has_ic():
     """
     Return true if the terminal has insert and delete character capabilities, otherwise return False.
     """
-    
+
     return bool( lib1.has_ic() )
 
 
@@ -1367,7 +1367,7 @@ def has_key(ch):
     Take a key-code value from the list as in (https://man7.org/linux/man-pages/man3/curs_getch.3x.html) and return True if the current terminal type recognizes a key with that value, otherwise return False.
 
     """
-    
+
     return bool( lib1.has_key(ch) )
 
 
@@ -1375,13 +1375,13 @@ def whline(scr_id, ch, n):
     """
     Draw a horizontal line of maximum n characters ch starting from the current position in window scr_id. The current position is not updated.
     """
-    
+
     return lib1.whline(scr_id, ch, n)
 
 
 def idcok(scr_id, flag): # does nothing in PDCURSES
     """
-    When the flag is False, unicurses no longer considers using the hardware insert/delete character feature of terminals so equipped in window scr_id. When the flag is True, it re-enables use of character insertion and deletion. (No effect in Windows)
+    When the flag is False, the library no longer considers using the hardware insert/delete character feature of terminals so equipped in window scr_id. When the flag is True, it re-enables use of character insertion and deletion. (No effect in Windows)
     """
 
     return lib1.idcok(scr_id, flag)
@@ -1389,7 +1389,7 @@ def idcok(scr_id, flag): # does nothing in PDCURSES
 
 def idlok(scr_id, yes): # does nothing in PDCURSES
     """
-    When the flag is True, unicurses considers using the hardware insert/delete line feature of terminals so equipped in window scr_id. When the flag is False, it disables use use of line insertion and deletion. (No effect in Windows)
+    When the flag is True, the library considers using the hardware insert/delete line feature of terminals so equipped in window scr_id. When the flag is False, it disables use use of line insertion and deletion. (No effect in Windows)
     """
 
     return lib1.idlok(scr_id, yes)
@@ -1397,9 +1397,9 @@ def idlok(scr_id, yes): # does nothing in PDCURSES
 
 def immedok(scr_id, flag):
     """
-    When the flag is True, any change in window scr_id image automatically cause a call to wrefresh. 
+    When the flag is True, any change in window scr_id image automatically cause a call to wrefresh.
     """
-    
+
     return lib1.immedok(scr_id, flag)
 
 
@@ -1407,7 +1407,7 @@ def winch(scr_id):
     """
     Return the character of type chtype in window scr_id. If any attributes are set, their values are OR'ed into the value returned.
     """
-    
+
     return lib1.winch(scr_id)
 
 
@@ -1415,7 +1415,7 @@ def init_color(color, r, g, b):
     """
     Change the definition of a color.
     """
-    
+
     return lib1.init_color(color, r, g, b)
 
 
@@ -1423,17 +1423,17 @@ def init_pair(pair_number, fg, bg):
     """
     Change the definition of a color-pair.
     """
-    
+
     return lib1.init_pair(pair_number, fg, bg)
 
 
 def initscr():
     """
-    Determine the terminal type and initializes all unicurses data structures. It then calls to refresh and returns a pointer to stdscr.
+    Determine the terminal type and initializes all library's data structures. It then calls to refresh and returns a pointer to stdscr.
     """
-    
+
     global stdscr
-    
+
     stdscr = ctypes.c_void_p(lib1.initscr())
     return stdscr
 
@@ -1442,7 +1442,7 @@ def winsch(scr_id, ch, attr=A_NORMAL):
     """
     Insert the character ch before the current position in window scr_id. All characters to the right are moved by one.
     """
-    
+
     return lib1.winsch(scr_id, ch | attr)
 
 
@@ -1450,7 +1450,7 @@ def winsdelln(scr_id, nlines):
     """
     For positive nlines, insert nlines line into window scr_id above the current position. For negative nlines, delete nlines lines.
     """
-    
+
     return lib1.winsdelln(scr_id, nlines)
 
 
@@ -1458,7 +1458,7 @@ def winsstr(scr_id, strn, attr="NO_USE"):
     """
     Insert the string strn before the current position in window scr_id. All characters to the right are moved by one.
     """
-    
+
     oldattr = 0
     if attr != "NO_USE":
         oldattr = lib1.getattrs(scr_id)
@@ -1489,7 +1489,7 @@ def winstr(scr_id, n=-1):
     """
     Return a string of at most n characters from the current position in window scr_id.
     """
-    
+
     t_str = ctypes.create_string_buffer(1023)
     lib1.winnstr(scr_id, ctypes.byref(t_str), n)
     return t_str.value.decode()
@@ -1499,7 +1499,7 @@ def isendwin():
     """
     Return True if endwin has been called without subsequent calls to wrefresh, otherwise return False.
     """
-    
+
     return bool( lib1.isendwin() )
 
 
@@ -1507,7 +1507,7 @@ def winsertln(scr_id):
     """
     Insert a line above the current position in window scr_id.
     """
-    
+
     return lib1.winsertln(scr_id)
 
 
@@ -1515,7 +1515,7 @@ def is_linetouched(scr_id, line):
     """
     Return True if the line line in window scr_id was modified since the last call to wrefresh; otherwise return False.
     """
-    
+
     return bool( lib1.is_linetouched(scr_id, line) )
 
 
@@ -1531,7 +1531,7 @@ def keyname(k):
     """
     Return the character string corresponding to the key k.
     """
-    
+
     k = lib1.keyname(k)
     return k.decode() if k else k
 # TODO: maybe add key_name?
@@ -1541,7 +1541,7 @@ def keypad(scr_id, yes):
     """
     With yes True, enable the keypad of the user's terminal. If enabled, the user can press a function key and wgetch returns a single value representing the function key.
     """
-    
+
     return lib1.keypad(scr_id, yes)
 
 
@@ -1549,7 +1549,7 @@ def killchar():
     """
     Return the user's current line kill character.
     """
-    
+
     return lib1.killchar()
 # TODO: implement killwchar
 
@@ -1575,7 +1575,7 @@ if PDCURSES: # here we see the reason why PDCURSES is different, the virtual scr
         """
         Allow the current position to be left wherever the update happens to leave it.
         """
-        
+
         global PDC_LEAVEOK
 
         curscr = PD_GET_CURSCR()
@@ -1587,7 +1587,7 @@ elif NCURSES:
         """
         Allow the current position to be left wherever the update happens to leave it.
         """
-        
+
         return lib1.leaveok(scr_id, yes)
 
 
@@ -1603,7 +1603,7 @@ elif NCURSES:
         """
         Return the value set in leaveok.
         """
-        
+
         return lib1.is_leaveok(stdscr)
 
 
@@ -1611,7 +1611,7 @@ def longname():
     """
     Return a pointer to a static area containing a verbose description of the current terminal.
     """
-    
+
     return lib1.longname().decode()
 
 
@@ -1619,7 +1619,7 @@ def meta(yes):
     """
     Force the terminal to return 8 significant bits if yes is False, otherwise 7 significant bits.
     """
-    
+
     return lib1.meta(stdscr, yes) # The argument scr_id is ignored.
 
 
@@ -1627,7 +1627,7 @@ def mouseinterval(interval):
     """
     Set the maximum time in milliseconds that can elapse between press and release events for them to be recognized as a click. 0 disables click resolution.
     """
-    
+
     return lib1.mouseinterval(interval)
 
 
@@ -1635,7 +1635,7 @@ def mousemask(mmask):
     """
     Make mouse events visible. By default, no mouse events are reported.
     """
-    
+
     return lib1.mousemask(mmask, None)
 
 
@@ -1643,7 +1643,7 @@ def wmove(scr_id, y, x):
     """
     Move the position associated with window scr_id to position (y, x). The cursor won't move until refresh is called.
     """
-    
+
     return lib1.wmove(scr_id, y, x)
 
 
@@ -1658,7 +1658,7 @@ def mvwaddch(scr_id, y, x, ch, attr=A_NORMAL):
 if PDCURSES:
     def mvwadd_wch(scr_id, y, x, wch, attr=A_NORMAL):
         """
-        Write the complex character wch in window scr_id at position (y, x).
+        Write the wide character wch in window scr_id at position (y, x).
         """
 
         oldattr = lib1.getattrs(scr_id)
@@ -1669,7 +1669,7 @@ if PDCURSES:
 elif NCURSES:
     def mvwadd_wch(scr_id, y, x, wch, attr=A_NORMAL):
         """
-        Write the complex character wch in window scr_id at position (y, x).
+        Write the wide character wch in window scr_id at position (y, x).
         """
 
         return lib1.mvwadd_wch(scr_id, y, x, ctypes.byref(cchar_t(attr, RCCHAR(wch))))
@@ -1691,7 +1691,7 @@ def mvwaddstr(scr_id, y, x, cstr, attr="NO_USE"):
 
 def mvwaddwstr(scr_id, y, x, wstr, attr="NO_USE"):
     """
-    Write the complex string wstr in window scr_id at position (y, x).
+    Write the wide string wstr in window scr_id at position (y, x).
     """
 
     if wstr == '':
@@ -1771,7 +1771,7 @@ def mvwgetch(scr_id, y, x):
 
 def mvwgetstr(scr_id, y, x):
     """
-    Perform a series of calls to getch in window scr_id at position (y, x) until a newline is received. 
+    Perform a series of calls to getch in window scr_id at position (y, x) until a newline is received.
     """
 
     t_str = ctypes.create_string_buffer(1023)
@@ -1845,9 +1845,9 @@ def mvwinstr(scr_id, y, x, n=-1):
 
 def mvwinwstr(scr_id, y, x, n=-1):
     """
-    Return a complex string of maximum n characters from position (y, x) in window scr_id.
+    Return a wide string of maximum n characters from position (y, x) in window scr_id.
     """
-    
+
     t_str = ctypes.create_unicode_buffer(2046) # not sure at all about the 2046 but it works? sorry for that
     if n ==-1:
         lib1.mvwinwstr(scr_id, y, x, ctypes.byref(t_str))
@@ -1868,7 +1868,7 @@ def mvwin(scr_id, y, x):
     """
     Move window scr_id so that the upper left-hand corner is at position (y, x).
     """
-    
+
     return lib1.mvwin(scr_id, y, x)
 
 
@@ -1884,7 +1884,7 @@ def newpad(nlines, ncols):
     """
     Return a new pad data structure with nlines lines and ncols columns.
     """
-    
+
     return ctypes.c_void_p(lib1.newpad(nlines, ncols))
 
 
@@ -1892,7 +1892,7 @@ def newwin(nlines, ncols, y, x):
     """
     Return a new window with nlines lines and ncols columnsm, whose upper left-hand corner is at (y, x).
     """
-    
+
     return ctypes.c_void_p(lib1.newwin(nlines, ncols, y, x))
 
 
@@ -1908,7 +1908,7 @@ def nocbreak():
     """
     Return the terminal to normal (cooked) mode. The tty driver buffers typed characters until a newline is typed.
     """
-    
+
     return lib1.nocbreak()
 
 
@@ -1916,7 +1916,7 @@ def nodelay(scr_id, yes):
     """
     Cause getch to be a non-blocking call.
     """
-    
+
     return lib1.nodelay(scr_id, yes)
 
 
@@ -1932,7 +1932,7 @@ def nonl():
     """
     Disable translation of the return key into newline on input.
     """
-    
+
     return lib1.nonl()
 
 
@@ -1940,7 +1940,7 @@ def noqiflush():
     """
     Normal flush of input and output queues associated with the INTR, QUIT and SUSP characters will not be done.
     """
-    
+
     return lib1.noqiflush()
 
 
@@ -1948,7 +1948,7 @@ def noraw():
     """
     Characters typed are not immediately passed through to the user program. Used to disable raw mode.
     """
-    
+
     return lib1.noraw()
 
 
@@ -1956,7 +1956,7 @@ def notimeout(scr_id, yes):
     """
     If yes is True, disable timer in window scr_id that the function wgetch waits for when interpreting an escape sequence. If yes is False, restore the timer.
     """
-    
+
     return lib1.notimeout(scr_id, yes)
 
 
@@ -1964,7 +1964,7 @@ def noutrefresh(scr_id):
     """
     Copy window scr_id to the virtual screen. To be used followed by doupdate.
     """
-    
+
     return lib1.wnoutrefresh(scr_id)
 
 
@@ -1972,7 +1972,7 @@ def overlay(src_id, dest_id):
     """
     Overlay src_id on top of dest_id in a non-destructive way.
     """
-    
+
     return lib1.overlay(src_id, dest_id)
 
 
@@ -1980,7 +1980,7 @@ def overwrite(src_id, dest_id):
     """
     Overwrite src_id on top of dest_id in a destructive way.
     """
-    
+
     return lib1.overwrite(src_id, dest_id)
 
 
@@ -1988,7 +1988,7 @@ def pair_content(pair_number):
     """
     Return what colors pair_number consists of.
     """
-    
+
     fg = ctypes.c_short()
     bg = ctypes.c_short()
     lib1.pair_content(pair_number, ctypes.byref(fg), ctypes.byref(bg))
@@ -2000,7 +2000,7 @@ if PDCURSES:
         """
         Extract the color value from attrs.
         """
-        
+
         return PD_PAIR_NUMBER(attr)
 elif NCURSES:
     # TODO: write the Linux function
@@ -2011,7 +2011,7 @@ def prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol):
     """
     Similar to wrefresh but for pads instead of windows. pminrow and pmincol specify the upper left-hand corner of the rectangle to be displayed in the pad. sminrow, smincol, smaxrow, and smaxcol specify the edges of the rectangle to be displayed on the screen.
     """
-    
+
     return lib1.prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol) # TODO: fix | https://github.com/wmcbrine/PDCurses/pull/121 # NEEDS_CHECK?
 
 
@@ -2042,7 +2042,7 @@ def qiflush():
     """
     Normal flush of input and output queues associated with the INTR, QUIT and SUSP characters are read.
     """
-    
+
     return lib1.qiflush()
 
 
@@ -2056,7 +2056,7 @@ def raw():
 
 def wredrawln(scr_id, beg, num):
     """
-    Indicate to unicurses that num many lines in window scr_id, starting from beg line, should be discarded before anything is written over them.
+    Indicate to the library that num many lines in window scr_id, starting from beg line, should be discarded before anything is written over them.
     """
 
     return lib1.wredrawln(scr_id, beg, num)
@@ -2064,7 +2064,7 @@ def wredrawln(scr_id, beg, num):
 
 def redrawwin(scr_id):
     """
-    Indicate to unicurses that window scr_id should be discarded before anything is written over it.
+    Indicate to the library that window scr_id should be discarded before anything is written over it.
     """
 
     return lib1.redrawwin(scr_id)
@@ -2074,7 +2074,7 @@ def wrefresh(scr_id):
     """
     Must be called to get window scr_id to output to the terminal.
     """
-    
+
     return lib1.wrefresh(scr_id)
 
 
@@ -2082,7 +2082,7 @@ def reset_prog_mode():
     """
     Restore the current terminal to “program” (in curses) state.
     """
-    
+
     return lib1.reset_prog_mode()
 
 
@@ -2098,7 +2098,7 @@ def wresize(scr_id, nlines, ncols):
     """
     Reallocate storage for window scr_id to adjust its dimensions to nlines lines and ncols columns.
     """
-    
+
     return lib1.wresize(scr_id, nlines, ncols)
 
 
@@ -2106,7 +2106,7 @@ def resize_term(nlines, ncols):
     """
     Attempt to resize all windows to nlines lines and ncols columns, recursively adjusting subwindows by keeping them within the updated parent window's limits.
     """
-    
+
     return lib1.resize_term(nlines, ncols)	
 
 
@@ -2114,7 +2114,7 @@ def wscrl(scr_id, nlines=1):
     """
     If nlines is positive, scroll window scr_id up, otherwise scroll the window down. The current position is not updated.
     """
-    
+
     return lib1.wscrl(scr_id, nlines)
 
 
@@ -2122,7 +2122,7 @@ def scrollok(scr_id, flag):
     """
     When the cursor of window scr_id is moved off the edge as a result of adding lines or characters, if flag is False the cursor is left on the bottom line, otherwise if flag is True, window scr_id is scrolled up one line.
     """
-    
+
     return lib1.scrollok(scr_id, flag)
 
 
@@ -2137,7 +2137,7 @@ def is_scrollok(scr_id):
 
 def wsetscrreg(scr_id, top, bottom):
     """
-    Set a software scrolling region in window scr_id between the top line and the bottom line.
+    Set window scr_id scrolling region margins between top line and bottom line.
     """
 
     return lib1.wsetscrreg(scr_id, top, bottom)
@@ -2149,9 +2149,9 @@ if PDCURSES:
         """"
         Set the virtual screen cursor to y, x. If y == x == -1, then leaveok is set.
         """
-        
+
         global PDC_LEAVEOK
-        
+
         curscr = PD_GET_CURSCR()
         if y == x == -1:
             PDC_LEAVEOK = True
@@ -2163,16 +2163,16 @@ elif NCURSES:
         """"
         Set the virtual screen cursor to y, x. If y == x == -1, then leaveok is set.
         """
-        
+
         if y == x == -1:
             return leaveok(stdscr, True)
         return lib1.setsyx(y, x)
 
 def setupterm(termstr, fd):
     """
-    Read in the terminfo database, initializing the terminfo structures via term (terminal type, a string) and fd (file descriptor). Does not set up the output virtualization structures used by unicurses.
+    Read in the terminfo database, initializing the terminfo structures via term (terminal type, a string) and fd (file descriptor). Does not set up the output virtualization structures used by the library.
     """
-    
+
     return lib1.setupterm(termstr, fd, None)
 
 
@@ -2180,7 +2180,7 @@ def wstandend(scr_id):
     """
     Same as wattrset(scr_id, A_NORMAL) or wattrset(scr_id, 0), turn off all attributes in window scr_id.
     """
-    
+
     return lib1.wstandend(scr_id)
 
 
@@ -2188,7 +2188,7 @@ def wstandout(scr_id):
     """
     Same as wattron(scr_id, A_STANDOUT).
     """
-    
+
     return lib1.wstandout(scr_id)
 
 
@@ -2196,7 +2196,7 @@ def start_color():
     """
     Must be called if want to use colors in the program.
     """
-    
+
     return lib1.start_color()
 
 
@@ -2204,7 +2204,7 @@ def subpad(scrwin, nlines, ncols, y, x):
     """
     Return a pointer to a subwindow, positioned at (y, x) and with nlines lines and ncols columns, within a pad.
     """
-    
+
     return ctypes.c_void_p(lib1.subpad(scrwin, nlines, ncols, y, x))
 
 
@@ -2212,7 +2212,7 @@ def subwin(srcwin, nlines, ncols, y, x):
     """
     Return a new window with nlines and ncols, positioned at (y, x). The subwindow shares memory with window srcwin, so changes made to one window will affect both.
     """
-    
+
     return ctypes.c_void_p(lib1.subwin(srcwin, nlines, ncols, y, x))
 
 
@@ -2220,7 +2220,7 @@ def wsyncdown(scr_id):
     """
     Touch each location in window scr_id that has been touched in any of its ancestor windows.
     """
-    
+
     return lib1.wsyncdown(scr_id)
 
 
@@ -2228,7 +2228,7 @@ def syncok(scr_id, flag):
     """
     If flag is True, then wsyncup(scr_id) is called automatically whenever there is a change in the window.
     """
-    
+
     return lib1.syncok(scr_id, flag)
 
 
@@ -2236,7 +2236,7 @@ def is_syncok(scr_id):
     """
     Return the value set in syncok(scr_id).
     """
-    
+
     return  lib1.is_syncok(scr_id)
 
 
@@ -2244,7 +2244,7 @@ def wsyncup(scr_id):
     """
     Call touchwin to all parents of window scr_id.
     """
-    
+
     return lib1.wsyncup(scr_id)
 
 
@@ -2260,7 +2260,7 @@ def termname():
     """
     Return the terminal name used by setupterm.
     """
-    
+
     return lib1.termname().decode()
 
 
@@ -2269,7 +2269,7 @@ if NCURSES:
         """
         Return the value of the capability corresponding to the terminfo capname.
         """
-        
+
         return lib1.tigetflag(CSTR(capname))
 
 
@@ -2293,23 +2293,39 @@ def wtimeout(scr_id, delay):
     """
     Set blocking or non-blocking reads for window scr_id. If delay<0, blocking read is used, meaning waits indefinitely for input. If delay=0, non-blocking read is used. If delay>0, read blocks for delay milliseconds. If delay>=0, and returns ERR if there is no input after delay.
     """
-    
+
     return lib1.wtimeout(scr_id, delay)
 
 
-def wtouchline(scr_id, start, count, changed=1):
-    return lib1.wtouchln(scr_id, start, count, changed)
+def wtouchline(scr_id, start, nlines, changed=1):
+    """
+    Make nlines lines in window scr_id, starting at line start, look as if they have changed (=1) or have not changed (=0) since the last call to wrefresh(scr_id).
+    """
+
+    return lib1.wtouchln(scr_id, start, nlines, changed)
 
 
 def touchwin(scr_id):
+    """
+    Make window scr_id look as if it changed since the last call to wrefresh(scr_id).
+    """
+
     return lib1.touchwin(scr_id)
 
 
-def tparm(str, p1=0, p2=0, p3=0, p4=0, p5=0, p6=0, p7=0, p8=0, p9=0):
-    return lib1.tparm(CSTR(str), p1, p2, p3, p4, p5, p6, p7, p8, p9)
+def tparm(string, p1=0, p2=0, p3=0, p4=0, p5=0, p6=0, p7=0, p8=0, p9=0):
+    """
+    Instantiate the expression string with parameters pi.
+    """
+
+    return lib1.tparm(CSTR(string), p1, p2, p3, p4, p5, p6, p7, p8, p9)
 
 
 def typeahead(fd):
+    """
+    Specify that the file descriptor fd is to be used to check for typeahead. If fd is -1, no typeahead checking is done.
+    """
+
     return lib1.typeahead(fd)
 
 
@@ -2317,19 +2333,31 @@ def wvline(scr_id, ch, n):
     """
     Draw a vertical line of maximum n characters ch starting at the current position in window scr_id. The current position is not updated.
     """
-    
+
     return lib1.wvline(scr_id, ch, n)
 
 
 def unctrl(ch):
+    """
+    Return a string which is a printable representation of the character ch, ignoring attributes.
+    """
+
     return lib1.unctrl(ch)
+
+
+def wunctrl(ch):
+    """
+    Return a string which is a printable representation of the wide character ch, ignoring attributes.
+    """
+
+    return lib1.wunctrl(ch)
 
 
 def ungetch(ch):
     """
     Place ch back onto the input queue to be returned by the next call to getch/wgetch.
     """
-    
+
     return lib1.PDC_ungetch(ch)
 
 
@@ -2337,7 +2365,7 @@ def ungetmouse(id, x, y, z, bstate):
     """
     Pushes a KEY_MOUSE event onto the input queue. This event has the associates input data.
     """
-    
+
     m_event = MEVENT()
     m_event.id = id
     m_event.x = x
@@ -2348,14 +2376,26 @@ def ungetmouse(id, x, y, z, bstate):
 
 
 def untouchwin(scr_id):
+    """
+    Make window scr_id look as if it has not changed since the last call to wrefresh(scr_id).
+    """
+
     return lib1.untouchwin(scr_id)
 
 
 def use_default_colors():
+    """
+    Tell the library to assign terminal default foreground/background colors to color number -1.
+    """
+
     return lib1.use_default_colors()
 
 
 def use_env(flag):
+    """
+    Must be called before initscr or newterm are called. It modifies the way the library treats environment variables when determining the screen size. (No effect in Windows)
+    """
+
     return lib1.use_env(flag)
 #endregion -- Functions --
 
@@ -2403,7 +2443,7 @@ def getch():
 
 def get_wch():
     """
-    Read a complex character.d
+    Read a wide character.
     """
 
     return wget_wch(stdscr)
@@ -2437,7 +2477,7 @@ def refresh():
     """
     Must be called to get stdscr to output to the terminal.
     """
-    
+
     return wrefresh(stdscr)
 
 
@@ -2451,7 +2491,7 @@ def border(ls=ACS_VLINE, rs=ACS_VLINE, ts=ACS_HLINE, bs=ACS_HLINE, tl=ACS_ULCORN
 
 def bkgd(ch, attr=A_NORMAL):
     """
-    Set the background ch and apply this setting to every character position. 
+    Set the background ch and apply this setting to every character position.
     """
 
     return wbkgd(stdscr, ch, attr)
@@ -2522,6 +2562,10 @@ def scroll(nlines=1):
 
 
 def setscrreg(top, bottom):
+    """
+    Set scrolling region margins between top line and bottom line.
+    """
+
     return wsetscrreg(stdscr, top, bottom)
 
 
@@ -2623,7 +2667,7 @@ def mvaddch(y, x, ch, attr=A_NORMAL):
 
 def add_wch(wch, attr=A_NORMAL):
     """
-    Write the complex character wch.
+    Write the wide character wch.
     """
 
     return wadd_wch(stdscr, wch, attr)
@@ -2631,9 +2675,9 @@ def add_wch(wch, attr=A_NORMAL):
 
 def mvadd_wch(y, x, wch, attr=A_NORMAL):
     """
-    Write the complex character wch at position (y, x).
+    Write the wide character wch at position (y, x).
     """
-    
+
     return mvwadd_wch(stdscr, y, x, wch, attr)
 
 
@@ -2647,7 +2691,7 @@ def addstr(cstr, attr="NO_USE"):
 
 def addwstr(wstr, attr="NO_USE"):
     """
-    Write the complex string wstr.
+    Write the wide string wstr.
     """
 
     return waddwstr(stdscr, wstr, attr)
@@ -2663,7 +2707,7 @@ def mvaddstr(y, x, cstr, attr="NO_USE"):
 
 def mvaddwstr(y, x, wstr, attr="NO_USE"):
     """
-    Write the complex string wstr at position (y, x).
+    Write the wide string wstr at position (y, x).
     """
 
     return mvwaddwstr(stdscr, y, x, wstr, attr)
@@ -2767,7 +2811,7 @@ def enclose(y, x):
 
 def getstr():
     """
-    Perform a series of calls to getch until a newline is received. 
+    Perform a series of calls to getch until a newline is received.
     """
 
     return wgetstr(stdscr)
@@ -2775,7 +2819,7 @@ def getstr():
 
 def mvgetstr(y, x):
     """
-    Perform a series of calls to getch at position (y, x) until a newline is received. 
+    Perform a series of calls to getch at position (y, x) until a newline is received.
     """
 
     return mvwgetstr(stdscr, y, x)
@@ -2799,17 +2843,17 @@ def mvinstr(y, x, n=-1):
 
 def mvinwstr(y, x, n=-1):
     """
-    Return a complex string of maximum n characters at position (y, x).
+    Return a wide string of maximum n characters at position (y, x).
     """
 
     return mvwinwstr(stdscr, y, x, n)
 
 
 def touchline(y, x, changed=1):
-    return wtouchline(stdscr, y, x, changed)
+    """
+    Make nlines lines, starting at line start, look as if they have changed (=1) or have not changed (=0) since the last call to refresh.
+    """
 
-
-def touchln(y, x, changed=1):
     return wtouchline(stdscr, y, x, changed)
 
 
@@ -2823,10 +2867,9 @@ def mvinsch(y, x, ch, attr=A_NORMAL):
 
 def redrawln(beg, num):
     """
-    Indicate to unicurses that num many lines, starting from beg line, should be discarded before anything is written over them.
+    Indicate the library that num many lines, starting from beg line, should be discarded before anything is written over them.
     """
 
-    
     return wredrawln(stdscr, beg, num)
 
 
@@ -2854,10 +2897,14 @@ def getkey(y=-1, x=-1):
     return wgetkey(stdscr, y, x)
 
 
-def wrapper(fun, *args, **kwargs):
+def wrapper(function, *args, **kwargs):
+    """
+    Call to initscr and execute function with positional and keyword parameters, respectively, *args and **kwargs. If error is raised, call to endwin before raising the error, preventing the terminal from becoming unusable.
+    """
+
     initscr()
     try:
-        return fun(stdscr, *args, **kwargs)
+        return function(stdscr, *args, **kwargs)
     except Exception as error:
         raise error
     finally:
@@ -2867,63 +2914,123 @@ def wrapper(fun, *args, **kwargs):
 
 #region ++ UNIFIED CURSES: PANEL MODULE ++
 def panel_above(pan_id):
+    """
+    Return a pointer to the panel above pan_id. If pan_id==0, return a pointer to the bottom panel in the stack.
+    """
+
     return ctypes.c_void_p(lib2.panel_above(pan_id))
 
 
 def panel_below(pan_id):
+    """
+    Return a pointer to the panel below pan_id. If pan_id==0, return a pointer to the top panel in the stack.
+    """
+
     return ctypes.c_void_p(lib2.panel_below(pan_id))
 
 
 def bottom_panel(pan_id):
+    """
+    Put panel pan_id at the bottom of all panels.
+    """
+
     return lib2.bottom_panel(pan_id)
 
 
 def del_panel(pan_id):
+    """
+    Remove panel pan_id from the stack.
+    """
+
     return lib2.del_panel(pan_id)
 
 
-def panel_hidden(pan_id):	
+def panel_hidden(pan_id):
+    """
+    Return True if panel pan_id is in the panel stack, otherwise return False.
+    """
+
     mode = lib2.panel_hidden(pan_id)
     return mode == OK
 
 
 def hide_panel(pan_id):
+    """
+    Remove the panel pan_id from the panel stack and hide it from view.
+    """
+
     return lib2.hide_panel(pan_id)
 
 
 def move_panel(pan_id, y, x):
+    """
+    Move panel pan_id's window so that its upper-left corner is at y, x.
+    """
+
     return lib2.move_panel(pan_id, y, x)
 
 
 def new_panel(scr_id):
+    """
+    Return a new panel structure which is associated with window scr_id and placed on the top of the stack.
+    """
+
     return ctypes.c_void_p(lib2.new_panel(scr_id))
 
 
 def replace_panel(pan_id, win):
+    """
+    Replace the window of panel pan_id with window scr_id.
+    """
+
     return lib2.replace_panel(pan_id, win)
 
 
 def set_panel_userptr(pan_id, obj):
+    """
+    Set the panel pan_id user pointer.
+    """
+
     return lib2.set_panel_userptr(pan_id, obj)
 
 
 def show_panel(pan_id):
+    """
+    Make a hidden panel pan_id visible by placing it on top of the panel stack.
+    """
+
     return lib2.show_panel(pan_id)
 
 
 def top_panel(pan_id):
+    """
+    Put a visible panel pan_id on top of all panels in the stack.
+    """
+
     return lib2.top_panel(pan_id)
 
 
 def update_panels():
+    """
+    Refresh the virtual screen to reflect the relations between the panels in the stack, but does not call doupdate.
+    """
+
     return lib2.update_panels()
 
 
 def panel_userptr(pan_id):
+    """
+    Return the user pointer for a given panel pan_id.
+    """
+
     return ctypes.c_void_p(lib2.panel_userptr(pan_id))
 
 
 def panel_window(pan_id):
+    """
+    Return a pointer to the window of the panel pan_id.
+    """
+
     return ctypes.c_void_p(lib2.panel_window(pan_id))
 #endregion -- UNIFIED CURSES: PANEL MODULE --
 #endregion --- UNIFIED CURSES ---

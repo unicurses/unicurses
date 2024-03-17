@@ -26,6 +26,10 @@
 
 - (done) add some missing functions such as is_scrollok or is_leaveok, they are cross-platform
 
+- (done) remove touchln because it's identical to touchline
+
+- (done) added wunctrl
+
 # note
 
 to get numbers that are originally passed as pointers, so something like this
