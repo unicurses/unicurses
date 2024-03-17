@@ -1060,7 +1060,6 @@ def wchgat(scr_id, num, attr, color, opts=None):
     return lib1.wchgat(scr_id, num, attr, color, None)
 
 
-# TODO: not working, returns (0, 0, 0) always
 def color_content(color_number):
     """
     Return (r, g, b) of color_number.
@@ -1160,8 +1159,6 @@ def erasechar():
 
     return lib1.erasechar()
 
-# TODO implement erasewchar
-
 
 def filter():
     """
@@ -1231,8 +1228,6 @@ def wgetkey(scr_id, y=-1, x=-1): # NEEDS_CHECK?
     if (y == -1) or (x == -1):
         return lib1.keyname(wgetch(scr_id))
     return lib1.keyname(mvwgetch(scr_id, y, x)).decode()
-
-# TODO: either split this into mvwgetkey or remove all unnecessary mv before and make everything into one function optional positional arguments.
 
 
 def getmaxyx(scr_id):
@@ -1534,7 +1529,6 @@ def keyname(k):
 
     k = lib1.keyname(k)
     return k.decode() if k else k
-# TODO: maybe add key_name?
 
 
 def keypad(scr_id, yes):
@@ -1551,7 +1545,6 @@ def killchar():
     """
 
     return lib1.killchar()
-# TODO: implement killwchar
 
 
 def get_tabsize():
@@ -2145,6 +2138,7 @@ def wsetscrreg(scr_id, top, bottom):
 
 if PDCURSES:
     # TODO check why it creates a variable that is garbage collected on function return
+    # even if we want to keep this extra variable, why not simply calling leaveok?
     def setsyx(y, x):
         """"
         Set the virtual screen cursor to y, x. If y == x == -1, then leaveok is set.
