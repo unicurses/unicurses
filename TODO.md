@@ -36,6 +36,8 @@
 
 - some functions such as __erasewchar__ and __killwchar__ require a pointer to be passed. How about we "translate" this class of functions into functions that accept vectors as pointers, and store whatever they have to store into the first coordinate? This approach would make porting C code to Python really easy.
 
+- make so that, if you only use one scr, you DON'T NEED to store stdscr anywhere
+
 # note
 
 to get numbers that are originally passed as pointers, so something like this
