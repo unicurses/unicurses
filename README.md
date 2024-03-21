@@ -1,4 +1,4 @@
-UNICURSES (C) 2010 by Michael Kamensky (Agetian) | Maintainer, George Chousos since 2021 | [v2.1.7](./changelog.md)  
+UNICURSES (C) 2010 by Michael Kamensky (Agetian) | Maintained by George Chousos since 2021 | [v3.0.0](https://github.com/unicurses/unicurses/releases)
 Released as Free Software under the terms of General Public License (GPL) v3
 
 
@@ -22,7 +22,8 @@ Depending on whether you want your applications to run in a real Windows termina
 if you want to experiment with or use a newer version of PDCurses, you can build your own binaries by downloading the source code from the official link below:
 http://pdcurses.sourceforge.net
 
-NOTE: While it may be possible to use UniCurses with an older version of Python (v2.6.1) or PDCurses (v3.4) than officially listed as compatible, it has not been tested with such versions of software and as such it's impossible to guarantee that your configuration will work correctly or that you would not have to take extra steps and install additional packages in order to make your configuration work at least in part. It's highly recommended that you upgrade to the latest versions of Python and PDCurses before you install and start using UniCurses.
+> [!NOTE]
+>  While it may be possible to use UniCurses with an older version of Python (v2.6.1) or PDCurses (v3.4) than officially listed as compatible, it has not been tested with such versions of software and as such it's impossible to guarantee that your configuration will work correctly or that you would not have to take extra steps and install additional packages in order to make your configuration work at least in part. It's highly recommended that you upgrade to the latest versions of Python and PDCurses before you install and start using UniCurses.
 
 
 ## Installing UniCurses
