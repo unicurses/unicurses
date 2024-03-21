@@ -1088,6 +1088,14 @@ elif NCURSES:
         return NC_COLOR_PAIR(color_number)
 
 
+def COLOR_PAIR(color_number):
+    """
+    Convert color_number to an attribute.
+    """
+
+    return  color_pair(color_number)
+
+
 def delwin(scr_id):
     """
     Delete window scr_id. It does not erase window scr_id screen image.
