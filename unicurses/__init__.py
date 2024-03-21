@@ -955,7 +955,7 @@ def curs_set(visibility):
     return lib1.curs_set(visibility)
 
 
-def cursyncup(scr_id):
+def wcursyncup(scr_id):
     """
     Update the current position of all window scr_id parents to reflect the current position of window stdscr.
     """
@@ -1166,6 +1166,17 @@ def erasechar():
     """
 
     return lib1.erasechar()
+
+
+def erasewchar(array):
+    """
+    Store the user's current erase character in array.
+    """
+
+    char = ctypes.c_wchar()
+    return_value = lib1.erasewchar(ctypes.byref(char))
+    array[0] = char.value
+    return return_value
 
 
 def filter():
@@ -1553,6 +1564,17 @@ def killchar():
     """
 
     return lib1.killchar()
+
+
+def killwchar(array):
+    """
+    Store the user's current kill character in array.
+    """
+
+    char = ctypes.c_wchar()
+    return_value = lib1.killwchar(ctypes.byref(char))
+    array[0] = char.value
+    return return_value
 
 
 def get_tabsize():
@@ -1961,7 +1983,7 @@ def notimeout(scr_id, yes):
     return lib1.notimeout(scr_id, yes)
 
 
-def noutrefresh(scr_id):
+def wnoutrefresh(scr_id):
     """
     Copy window scr_id to the virtual screen. To be used followed by doupdate.
     """
