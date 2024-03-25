@@ -1060,7 +1060,7 @@ def wchgat(scr_id, num, attr, color, opts=None):
     return lib1.wchgat(scr_id, num, attr, color, None)
 
 
-def color_content(color_number):
+def color_content(color_number): # TODO: not working
     """
     Return (r, g, b) of color_number.
     """
@@ -1226,7 +1226,10 @@ def wgetch(scr_id):
     Read a character from window scr_id.
     """
 
-    return lib1.wgetch(scr_id)
+    ch = lib1.wgetch(scr_id)
+    if ch == -1:
+        raise TimeoutError("Time elapsed")
+    return ch
 
 
 def wget_wch(scr_id): # NEEDS_CHECK? # https://stackoverflow.com/questions/1081456/wchar-t-vs-wint-t
@@ -1294,7 +1297,7 @@ elif NCURSES:
         return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.bstate)
 
 
-def getparyx(scr_id):
+def getparyx(scr_id): # TODO: not working
     """
     Return the origin of the subwindow scr_id relative to its parent window.
     """
@@ -1343,7 +1346,7 @@ def getyx(scr_id):
     return (cy, cx)
 
 
-def halfdelay(tenths):
+def halfdelay(tenths): # TODO: error is -1, so how about actually raising an error in python if that's the ouput?
     """
     Similar to cbreak, make characters typed by the user immediately available. After blocking for tenths tenths of seconds, ERR is returned if nothing has been typed.
     """
@@ -1374,13 +1377,12 @@ def has_il():
     return bool( lib1.has_il() )
 
 
-def has_key(ch):
+def has_key(ch): # TODO: maybe not working? Not sure..
     """
     Take a key-code value from the list as in (https://man7.org/linux/man-pages/man3/curs_getch.3x.html) and return True if the current terminal type recognizes a key with that value, otherwise return False.
-
     """
 
-    return bool( lib1.has_key(ch) )
+    return bool( lib1.has_key( CCHAR(ch) ) )
 
 
 def whline(scr_id, ch, n):
@@ -1388,7 +1390,7 @@ def whline(scr_id, ch, n):
     Draw a horizontal line of maximum n characters ch starting from the current position in window scr_id. The current position is not updated.
     """
 
-    return lib1.whline(scr_id, ch, n)
+    return lib1.whline(scr_id, CCHAR(ch), n)
 
 
 def idcok(scr_id, flag): # does nothing in PDCURSES
@@ -1417,10 +1419,10 @@ def immedok(scr_id, flag):
 
 def winch(scr_id):
     """
-    Return the character of type chtype in window scr_id. If any attributes are set, their values are OR'ed into the value returned.
+    Return the character of type chtype at the current position in window scr_id. If any attributes are set, their values are OR'ed into the value returned.
     """
 
-    return lib1.winch(scr_id)
+    return RCCHAR( lib1.winch(scr_id) )
 
 
 def init_color(color, r, g, b):
@@ -1455,7 +1457,7 @@ def winsch(scr_id, ch, attr=A_NORMAL):
     Insert the character ch before the current position in window scr_id. All characters to the right are moved by one.
     """
 
-    return lib1.winsch(scr_id, ch | attr)
+    return lib1.winsch(scr_id, CCHAR(ch) | attr)
 
 
 def winsdelln(scr_id, nlines):
@@ -2666,7 +2668,10 @@ def mvgetch(y, x):
     Move the current position to (y, x) and read a character.
     """
 
-    return mvwgetch(stdscr, y, x)
+    ch = mvwgetch(stdscr, y, x)
+    if ch == -1:
+        raise TimeoutError("Time elapsed")
+    return ch
 
 
 def addch(ch, attr=A_NORMAL):

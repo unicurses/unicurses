@@ -124,7 +124,7 @@ def main(stdscr, command: str) -> None:
             uc.waddstr(new_win, "@")
         case "doupdate":
             uc.addstr("test1")
-            uc.noutrefresh(stdscr)
+            uc.wnoutrefresh(stdscr)
             uc.doupdate()
             uc.napms(1000)
             uc.move(0, 0)
@@ -187,6 +187,62 @@ def main(stdscr, command: str) -> None:
         case "getmaxx":
             x = uc.getmaxx(stdscr)
             uc.addstr("x = " + str(x))
+        case "getmouse":
+            uc.getch()
+            a,b,c,d,e = uc.getmouse()
+            uc.addstr(f"{a} {b} {c} {d} {e}")
+        case "getparyx":
+            subwin = uc.subwin(stdscr, 20, 20, 1, 1)
+            y, x = uc.getparyx(subwin)
+            uc.addstr(f"x={x}, y={y}")
+        case "wgetstr":
+            string = uc.wgetstr(stdscr)
+            uc.mvaddstr(1, 0, string)
+        case "getsyx":
+            uc.move(1,1)
+            y, x = uc.getsyx()
+            uc.addstr(f"x={x}, y={y}")
+        case "getyx":
+            uc.move(1, 1)
+            y, x = uc.getyx(stdscr)
+            uc.addstr(f"x={x}, y={y}")
+        case "halfdelay":
+            uc.halfdelay(10)
+            err = uc.getch()
+            uc.addstr(err)
+            uc.napms(2)
+        case "has_colors":
+            uc.addstr(uc.has_colors())
+        case "has_ic":
+            uc.addstr(uc.has_ic())
+        case "has_il":
+            uc.addstr(uc.has_il())
+        case "has_key":
+            uc.addwstr(f"e : {uc.has_key('e')}")
+        case "whline":
+            uc.whline(stdscr, "e",100)
+        case "idcok":
+            pass
+        case "idlok":
+            pass
+        case "immedok":
+            uc.immedok(stdscr, True)
+            uc.addstr("writing..")
+            uc.napms(1000)
+            uc.addstr("done")
+        case "winch":
+            uc.addstr("h🌱llo")
+            uc.move(0,1)
+            char = uc.winch(stdscr)
+            uc.mvaddstr(1, 0, char)
+        case "init_color":
+            pass
+        case "init_pair":
+            pass
+        case "winsch":
+            uc.addstr("ello world")
+            uc.move(0, 0)
+            uc.winsch(stdscr, "h")
         case _:
             uc.addstr("command not found")
 
@@ -194,5 +250,5 @@ def main(stdscr, command: str) -> None:
 
 
 if __name__ == "__main__":
-    while (command := input("(q to exit) command: ")) != "q":
+    while (command := input("(ENTER to exit) command: ")) != "":
         uc.wrapper(main, command)
