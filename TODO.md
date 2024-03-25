@@ -8,6 +8,8 @@
 
 - (done) some functions such as __erasewchar__ and __killwchar__ require a pointer to be passed. How about we "translate" this class of functions into functions that accept vectors as pointers, and store whatever they have to store into the first coordinate? This approach would make porting C code to Python really easy.
 
+- check all functions
+
 - Turning wch and wstr into ch and str and keep those. Strings in python have utf-8 encoding anyway, it does not makes much sense to keep every standard library. The official curses module for Python only supports addch and addstr (https://docs.python.org/3/library/curses.html#module-curses)
 
 - __CCHAR__: why do we let users pass in the number (ord) of the ascii character? CCHAR gets only either called by user, or called within the code with strings, not integers. Moreover ord of bytestring and ord of string return the same value, so I think we should just return ord or raise a custom error if ord fails, and avoid type checking

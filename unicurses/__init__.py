@@ -619,22 +619,22 @@ def RCCHAR(ch):
     Reverse of CCHAR function.
     """
 
-    if type(ch) == int:
+    if isinstance(ch, int):
         return chr(ch)
-    if type(ch) == str:
+    if isinstance(ch, str) or isinstance(ch, bytes):
         return ch
-    raise Exception("RCCHAR: can't parse a non-char/non-int value.")
+    raise ValueError("RCCHAR: can't parse a non-char/non-int value.")
 
 def CCHAR(ch):
     """
     Get a C character.
     """
 
-    if type(ch) == str:
+    if isinstance(ch, str) or isinstance(ch, bytes):
         return ord(ch)
-    if type(ch) == int:
+    if isinstance(ch, int):
         return ch
-    raise Exception("CCHAR: can't parse a non-char/non-int value.")
+    raise ValueError("CCHAR: can't parse a non-char/non-int value.")
 
 
 def ALTCHAR(ch):
@@ -642,11 +642,11 @@ def ALTCHAR(ch):
     Alternate character set.
     """
 
-    if type(ch) == str:
+    if isinstance(ch, str) or isinstance(ch, bytes):
         return ord(ch) | A_ALTCHARSET
-    if type(ch) ==  int:
+    if isinstance(ch, int):
         return ch | A_ALTCHARSET
-    raise Exception("ALTCHAR: can't parse a non-char/non-int value.")
+    raise ValueError("ALTCHAR: can't parse a non-char/non-int value.")
 
 
 def CTRL(ch):  #1
@@ -1330,8 +1330,6 @@ elif NCURSES:
         Return the current position of the virtual screen.
         """
 
-        if is_leaveok():
-            return (-1, -1)
         return getyx(stdscr)
 
 
@@ -1546,8 +1544,8 @@ def keyname(k):
     Return the character string corresponding to the key k.
     """
 
-    k = lib1.keyname(k)
-    return k.decode() if k else k
+    key = lib1.keyname(k)
+    return key.decode() if key else key
 
 
 def keypad(scr_id, yes):
@@ -1913,7 +1911,7 @@ def newpad(nlines, ncols):
 
 def newwin(nlines, ncols, y, x):
     """
-    Return a new window with nlines lines and ncols columnsm, whose upper left-hand corner is at (y, x).
+    Return a new window with nlines lines and ncols columns, whose upper left-hand corner is at (y, x).
     """
 
     return ctypes.c_void_p(lib1.newwin(nlines, ncols, y, x))
@@ -2188,8 +2186,6 @@ elif NCURSES:
         Set the virtual screen cursor to y, x. If y == x == -1, then leaveok is set.
         """
 
-        if y == x == -1:
-            return leaveok(stdscr, True)
         return lib1.setsyx(y, x)
 
 def setupterm(termstr, fd):
