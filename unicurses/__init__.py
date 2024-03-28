@@ -1498,7 +1498,6 @@ def winsnstr(scr_id, strn, n, attr="NO_USE"):
     return ret
 
 
-# TODO: investigate what happens when n<=0, if found out change description of all other functions
 def winstr(scr_id, n=-1):
     """
     Return a string of at most n characters from the current position in window scr_id.
@@ -1627,7 +1626,7 @@ elif NCURSES:
         Return the value set in leaveok.
         """
 
-        return lib1.is_leaveok(stdscr)
+        return bool( lib1.is_leaveok(stdscr) )
 
 
 def longname():
@@ -1640,12 +1639,13 @@ def longname():
 
 def meta(yes):
     """
-    Force the terminal to return 8 significant bits if yes is False, otherwise 7 significant bits.
+    If yes is False, force the terminal to return 8 significant bits, otherwise 7 significant bits if yes is True.
     """
 
-    return lib1.meta(stdscr, yes) # The argument scr_id is ignored.
+    return lib1.meta(stdscr, yes) # The argument stdscr is ignored.
 
 
+# TODO: test again, not sure it works
 def mouseinterval(interval):
     """
     Set the maximum time in milliseconds that can elapse between press and release events for them to be recognized as a click. 0 disables click resolution.
@@ -1654,6 +1654,7 @@ def mouseinterval(interval):
     return lib1.mouseinterval(interval)
 
 
+# TODO: test again, not sure it works
 def mousemask(mmask):
     """
     Make mouse events visible. By default, no mouse events are reported.
@@ -1807,12 +1808,12 @@ def mvwhline(scr_id, y, x, ch, n):
     Draw a horizontal line of maximum n characters ch starting from position (y, x) in window scr_id. The current position is not updated.
     """
 
-    return lib1.mvwhline(scr_id, y, x, ch, n)
+    return lib1.mvwhline(scr_id, y, x, CCHAR(ch), n)
 
 
 def mvwinch(scr_id, y, x):
     """
-    Return the character of type chtype at position (y, x) in window scr_id. If any attributes are set, their values are OR'ed into the value returned.
+    Return the character at position (y, x) in window scr_id. If any attributes are set, their values are OR'ed into the value returned.
     """
 
     return lib1.mvwinch(scr_id, y, x)
@@ -1823,7 +1824,7 @@ def mvwinsch(scr_id, y, x, ch, attr=A_NORMAL):
     Insert the character ch before position (y, x) in window scr_id. All characters to the right are moved by one.
     """
 
-    return lib1.mvwinsch(scr_id, y, x, ch | attr)
+    return lib1.mvwinsch(scr_id, y, x, CCHAR(ch) | attr)
 
 
 def mvwinsstr(scr_id, y, x, strn, attr="NO_USE"):
@@ -1884,7 +1885,7 @@ def mvwvline(scr_id, y, x, ch, n):
     Draw a vertical line of maximum n characters ch starting at position (y, x) in window scr_id. The current position is not updated.
     """
 
-    return lib1.mvwvline(scr_id, y, x, ch, n)
+    return lib1.mvwvline(scr_id, y, x, CCHAR(ch), n)
 
 
 def mvwin(scr_id, y, x):
@@ -2335,12 +2336,12 @@ def touchwin(scr_id):
     return lib1.touchwin(scr_id)
 
 
-def tparm(string, p1=0, p2=0, p3=0, p4=0, p5=0, p6=0, p7=0, p8=0, p9=0):
+def tparm(strn, p1=0, p2=0, p3=0, p4=0, p5=0, p6=0, p7=0, p8=0, p9=0):
     """
     Instantiate the expression string with parameters pi.
     """
 
-    return lib1.tparm(CSTR(string), p1, p2, p3, p4, p5, p6, p7, p8, p9)
+    return lib1.tparm(CSTR(strn), p1, p2, p3, p4, p5, p6, p7, p8, p9)
 
 
 def typeahead(fd):

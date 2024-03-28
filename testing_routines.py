@@ -2,10 +2,6 @@
 
 import unicurses as uc
 
-# some variables
-
-A_BOLD = uc.NCURSES_BITS(1, 13)
-
 # --- functions ---
 
 
@@ -24,14 +20,14 @@ def main(stdscr, command: str) -> None:
         case "waddnstr":
             uc.waddnstr(stdscr, "long test", 6)
         case "wattron":
-            uc.wattron(stdscr, A_BOLD)
+            uc.wattron(stdscr, uc.A_BOLD)
             uc.addstr("test")
         case "wattroff":
-            uc.wattron(stdscr, A_BOLD)
+            uc.wattron(stdscr, uc.A_BOLD)
             uc.addstr("test")
             uc.refresh()
             uc.napms(1000)
-            uc.wattroff(stdscr, A_BOLD)
+            uc.wattroff(stdscr, uc.A_BOLD)
             uc.addstr("test")
         case "wattrset":
             pass
@@ -99,7 +95,7 @@ def main(stdscr, command: str) -> None:
         case "wchgat":
             uc.addstr("test1 test2")
             uc.move(0, 0)
-            uc.wchgat(stdscr, 5, A_BOLD, 1)
+            uc.wchgat(stdscr, 5, uc.A_BOLD, 1)
         case "color_content":
             color = 100
             uc.addstr("rbg of " + str(color) + " is " + str(uc.color_content(color)))
@@ -192,9 +188,7 @@ def main(stdscr, command: str) -> None:
             a,b,c,d,e = uc.getmouse()
             uc.addstr(f"{a} {b} {c} {d} {e}")
         case "getparyx":
-            subwin = uc.subwin(stdscr, 20, 20, 1, 1)
-            y, x = uc.getparyx(subwin)
-            uc.addstr(f"x={x}, y={y}")
+            1
         case "wgetstr":
             string = uc.wgetstr(stdscr)
             uc.mvaddstr(1, 0, string)
@@ -243,6 +237,151 @@ def main(stdscr, command: str) -> None:
             uc.addstr("ello world")
             uc.move(0, 0)
             uc.winsch(stdscr, "h")
+        case "winsdelln":
+            for i in range(10):
+                uc.mvaddstr(i, 0, f"{i} line")
+            uc.move(0, 0)
+            uc.winsdelln(stdscr, 1)
+            uc.mvaddstr(0, 0, "new line here")
+            uc.move(2, 0)
+            uc.winsdelln(stdscr, -1)
+        case "winsstr":
+            uc.addstr("world")
+            uc.move(0, 0)
+            uc.winsstr(stdscr, "hello ")
+        case "winsnstr":
+            uc.addstr("orld")
+            uc.move(0, 0)
+            uc.winsnstr(stdscr, "hello world", 6)
+        case "winstr":
+            uc.addstr("hello world")
+            uc.move(0, 0)
+            string = uc.winstr(stdscr)
+            uc.mvaddstr(1, 0, string)
+        case "isendwin":
+            uc.addstr(uc.isendwin())
+        case "winsertln":
+            uc.addstr("test")
+            uc.winsertln(stdscr)
+        case "is_linetouched":
+            uc.wrefresh(stdscr)
+            uc.addstr("test")
+            line1 = uc.is_linetouched(stdscr, 0)
+            line2 = uc.is_linetouched(stdscr, 1)
+            uc.mvaddstr(1, 0, f"line1 = {line1}, line2 = {line2}")
+        case "is_wintouched":
+            uc.wrefresh(stdscr)
+            val = uc.is_wintouched(stdscr)
+            uc.addstr(f"touched? {val}")
+            val = uc.is_wintouched(stdscr)
+            uc.mvaddstr(1, 0, f"touched? {val}")
+        case "keyname":
+            uc.addstr(f"101 = {uc.keyname(101)}")
+        case "keypad":
+            uc.keypad(stdscr, True)
+            uc.addstr( uc.getkey() )
+        case "killchar":
+            uc.addstr( uc.killchar() )
+        case "killwchar":
+            v = [None]
+            uc.killwchar(v)
+            uc.addstr(v[0])
+        case "get_tabsize":
+            uc.addstr(uc.get_tabsize())
+        case "set_tabsize":
+            uc.addstr(uc.get_tabsize())
+            uc.set_tabsize(4)
+            uc.addstr(f" {uc.get_tabsize()}")
+        case "leaveok":
+            uc.leaveok(stdscr, True)
+            uc.addstr("hello world")
+        case "is_leaveok":
+            uc.addstr(uc.is_leaveok())
+            uc.leaveok(stdscr, True)
+            uc.addstr(f" {uc.is_leaveok()}")
+        case "longname":
+            uc.addstr(uc.longname())
+        case "meta":
+            pass
+        case "mouseinterval":
+            for _ in range(50):
+                uc.addstr(uc.getch())
+            uc.mouseinterval(1000)
+            for _ in range(50):
+                uc.addstr(uc.getch())
+        case "mousemask":
+            pass
+        case "wmove":
+            uc.wmove(stdscr, 10, 1)
+        case "mvwaddch":
+            uc.mvwaddch(stdscr, 3, 3, "e")
+        case "mvwadd_wch":
+            uc.mvwadd_wch(stdscr, 3, 3, "🌱")
+        case "mvwaddstr":
+            uc.mvwaddstr(stdscr, 3, 3, "hello world")
+        case "mvwaddwstr":
+            uc.mvwaddwstr(stdscr, 3, 3, "hello world 🌱")
+        case "mvwaddnstr":
+            uc.mvwaddnstr(stdscr, 3, 3, "hello world", 5)
+        case "mvwchgat":
+            uc.addstr("hello world")
+            uc.mvwchgat(stdscr, 0, 0, 5, uc.A_BOLD, uc.COLOR_RED)
+        case "mvwdelch":
+            uc.addstr("hello world")
+            uc.mvwdelch(stdscr, 0, 0)
+        case "mvwdeleteln":
+            uc.addstr("line1")
+            uc.mvaddstr(1, 0, "line2")
+            uc.mvwdeleteln(stdscr, 0, 0)
+        case "mvderwin":
+            for i in range(10):
+                uc.mvaddstr(i, 0, "----------")
+            subwin = uc.subwin(stdscr, 5, 5, 0, 0)
+            uc.mvderwin(subwin, 2, 2)
+            uc.mvwaddstr(subwin, 0, 0, "@")
+        case "mvwgetch":
+            uc.mvwgetch(stdscr, 2, 2)
+        case "mvwgetstr":
+            string = uc.mvwgetstr(stdscr, 1, 1)
+            uc.mvaddstr(0, 0, string)
+        case "mvwhline":
+            uc.mvwhline(stdscr, 1, 0, "-", 20)
+        case "mvwinch":
+            uc.addstr("hello world")
+            char = uc.mvwinch(stdscr, 0, 1)
+            uc.mvaddch(1, 0, char)
+        case "mvwinsch":
+            uc.addstr("ello world")
+            uc.mvwinsch(stdscr, 0, 0, "h")
+        case "mvwinsstr":
+            uc.addstr("world")
+            uc.mvwinsstr(stdscr, 0, 0, "hello ")
+        case "mvwinsnstr":
+            uc.addstr("world")
+            uc.mvwinsnstr(stdscr, 0, 0, "hello John", 6)
+        case "mvwinstr":
+            uc.addstr("hello world!")
+            string = uc.mvwinstr(stdscr, 0, 6, 5)
+            uc.mvaddstr(1, 0, string)
+        case "mvwinwstr":
+            uc.addstr("hello worl🌱!")
+            string = uc.mvwinwstr(stdscr, 0, 6, 5)
+            uc.mvaddstr(1, 0, string)
+        case "mvwvline":
+            uc.mvwvline(stdscr, 0, 0, "@", 5)
+        case "mvwin":
+            pass # test later after checking how to draw the new window
+        case "napms":
+            uc.addstr("hello ")
+            uc.refresh()
+            uc.napms(2000)
+            uc.addstr("world")
+        case "newpad":
+            pass
+        case "newpad":
+            pass
+        case "nl":
+            pass
         case _:
             uc.addstr("command not found")
 
