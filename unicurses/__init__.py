@@ -219,6 +219,10 @@ elif NCURSES:
 
     def NC_COLOR_PAIR(n):
         return (NCURSES_BITS((n), 0) & A_COLOR)
+    
+    def NC_PAIR_NUMBER(n):
+
+        return lib1.PAIR_NUMBER(n)
 
     # TODO: implement getcursor in NCURSES and make the call platform independent
 #endregion --- PDCurses/NCurses ncurses.h macro wrappers and other prereqs ---
@@ -1168,17 +1172,6 @@ def erasechar():
     return lib1.erasechar()
 
 
-def erasewchar(array):
-    """
-    Store the user's current erase character in array.
-    """
-
-    char = ctypes.c_wchar()
-    return_value = lib1.erasewchar(ctypes.byref(char))
-    array[0] = char.value
-    return return_value
-
-
 def filter():
     """
     Called before initscr or newterm. Causes the following changes at initialization: LINES is set to 1, the capabilities clear, cud1, cud, cup, cuu1, cuu, vpa are disabled, the capability ed is disabled if bce is set, and the home string is set to the value of cr.
@@ -1563,17 +1556,6 @@ def killchar():
     """
 
     return lib1.killchar()
-
-
-def killwchar(array):
-    """
-    Store the user's current kill character in array.
-    """
-
-    char = ctypes.c_wchar()
-    return_value = lib1.killwchar(ctypes.byref(char))
-    array[0] = char.value
-    return return_value
 
 
 def get_tabsize():
@@ -1978,7 +1960,7 @@ def noraw():
 
 def notimeout(scr_id, yes):
     """
-    If yes is True, disable timer in window scr_id that the function wgetch waits for when interpreting an escape sequence. If yes is False, restore the timer.
+    If yes is True, disable the timer in window scr_id that the function wgetch waits for when interpreting an escape sequence. If yes is False, restore the timer.
     """
 
     return lib1.notimeout(scr_id, yes)
@@ -2008,14 +1990,14 @@ def overwrite(src_id, dest_id):
     return lib1.overwrite(src_id, dest_id)
 
 
-def pair_content(pair_number):
+def pair_content(number_pair):
     """
     Return what colors pair_number consists of.
     """
 
     fg = ctypes.c_short()
     bg = ctypes.c_short()
-    lib1.pair_content(pair_number, ctypes.byref(fg), ctypes.byref(bg))
+    lib1.pair_content(number_pair, ctypes.byref(fg), ctypes.byref(bg))
     return (fg.value, bg.value)
 
 
@@ -2027,9 +2009,12 @@ if PDCURSES:
 
         return PD_PAIR_NUMBER(attr)
 elif NCURSES:
-    # TODO: write the Linux function
-    pass
+    def pair_number(attr):
+        """
+        Extract the color value from attrs.
+        """
 
+        return NC_PAIR_NUMBER(attr)
 
 def prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol):
     """

@@ -30,13 +30,13 @@ def main(stdscr, command: str) -> None:
             uc.wattroff(stdscr, uc.A_BOLD)
             uc.addstr("test")
         case "wattrset":
-            pass
+            ...
         case "baudrate":
             uc.addstr(stdscr, uc.baudrate())
         case "beep":
             uc.beep()
         case "copywin":
-            pass
+            ...
         case "wclear":
             uc.addstr("previous test")
             uc.wclear(stdscr)
@@ -52,17 +52,17 @@ def main(stdscr, command: str) -> None:
             uc.move(0, 0)
             uc.wclrtoeol(stdscr)
         case "clearok":
-            pass
+            ...
         case "curs_set":
             uc.curs_set(0)
             uc.addstr("test")
             uc.curs_set(1)
         case "cursyncup":
-            pass
+            ...
         case "def_prog_mode":
-            pass
+            ...
         case "def_shell_mode":
-            pass
+            ...
         case "delay_output":
             uc.addstr("test1")
             uc.refresh()
@@ -126,7 +126,9 @@ def main(stdscr, command: str) -> None:
             uc.move(0, 0)
             uc.addstr("test2")
         case "echo":
-            pass
+            uc.noecho()
+            button = uc.getkey()
+            uc.addstr(f"button pressed {button}")
         case "wechochar":
             uc.wechochar(stdscr, "e")
             uc.napms(1000)
@@ -150,9 +152,9 @@ def main(stdscr, command: str) -> None:
             uc.erasewchar(l)
             uc.addstr(l[0])
         case "filter":
-            pass
+            ...
         case "nofilter":
-            pass
+            ...
         case "flash":
             uc.refresh()
             uc.flash()
@@ -162,7 +164,7 @@ def main(stdscr, command: str) -> None:
             uc.flushinp()
             uc.mvaddstr(1, 0, "works!")
         case "getbegyx":
-            pass
+            ...
         case "wgetch":
             key = uc.wgetch(stdscr)
             uc.mvaddch(1, 0, key)
@@ -188,7 +190,7 @@ def main(stdscr, command: str) -> None:
             a,b,c,d,e = uc.getmouse()
             uc.addstr(f"{a} {b} {c} {d} {e}")
         case "getparyx":
-            1
+            ...
         case "wgetstr":
             string = uc.wgetstr(stdscr)
             uc.mvaddstr(1, 0, string)
@@ -216,9 +218,9 @@ def main(stdscr, command: str) -> None:
         case "whline":
             uc.whline(stdscr, "e",100)
         case "idcok":
-            pass
+            ...
         case "idlok":
-            pass
+            ...
         case "immedok":
             uc.immedok(stdscr, True)
             uc.addstr("writing..")
@@ -230,9 +232,9 @@ def main(stdscr, command: str) -> None:
             char = uc.winch(stdscr)
             uc.mvaddstr(1, 0, char)
         case "init_color":
-            pass
+            ...
         case "init_pair":
-            pass
+            ...
         case "winsch":
             uc.addstr("ello world")
             uc.move(0, 0)
@@ -302,7 +304,7 @@ def main(stdscr, command: str) -> None:
         case "longname":
             uc.addstr(uc.longname())
         case "meta":
-            pass
+            ...
         case "mouseinterval":
             for _ in range(50):
                 uc.addstr(uc.getch())
@@ -310,7 +312,7 @@ def main(stdscr, command: str) -> None:
             for _ in range(50):
                 uc.addstr(uc.getch())
         case "mousemask":
-            pass
+            ...
         case "wmove":
             uc.wmove(stdscr, 10, 1)
         case "mvwaddch":
@@ -370,18 +372,51 @@ def main(stdscr, command: str) -> None:
         case "mvwvline":
             uc.mvwvline(stdscr, 0, 0, "@", 5)
         case "mvwin":
-            pass # test later after checking how to draw the new window
+            ... # test later after checking how to draw the new window
         case "napms":
             uc.addstr("hello ")
             uc.refresh()
             uc.napms(2000)
             uc.addstr("world")
         case "newpad":
-            pass
+            ...
         case "newpad":
-            pass
+            ...
         case "nl":
-            pass
+            ...
+        case "nocbreak":
+            uc.cbreak()
+            uc.getkey()
+            uc.mvaddstr(1, 0, "now nocbreak: ")
+            uc.nocbreak()
+            uc.getkey()
+        case "nodelay":
+            uc.nodelay(stdscr, True)
+        case "noecho":
+            uc.noecho()
+            button = uc.getkey()
+            uc.addstr(f"typed {button}")
+        case "nonl":
+            ...
+        case "noqiflush":
+            ...
+        case "noraw":
+            ...
+        case "notimeout":
+            uc.notimeout(stdscr, True)
+            button = uc.getch()
+            uc.addstr(button)
+            uc.napms(1000)
+        case "wnoutrefresh":
+            ...
+        case "overlay":
+            ...
+        case "overwrite":
+            ...
+        case "pair_content":
+            ...
+        case "pair_number":
+            ...
         case _:
             uc.addstr("command not found")
 
