@@ -401,7 +401,13 @@ def main(stdscr, command: str) -> None:
         case "noqiflush":
             ...
         case "noraw":
-            ...
+            uc.raw()
+            uc.addstr("press ctrl+c: ")
+            strn = uc.getstr()
+            uc.mvaddstr(1, 0, strn)
+            uc.noraw()
+            uc.mvaddstr(2, 0, "press ctrl+c again: ")
+            strn = uc.getstr()
         case "notimeout":
             uc.notimeout(stdscr, True)
             button = uc.getch()
@@ -416,6 +422,40 @@ def main(stdscr, command: str) -> None:
         case "pair_content":
             ...
         case "pair_number":
+            ...
+        case "prefresh":
+            ...
+        case "putp":
+            ...
+        case "putwin":
+            ...
+        case "getwin":
+            ...
+        case "qiflush":
+            ...
+        case "raw":
+            uc.raw()
+            uc.addstr("press ctrl+c: ")
+            strn = uc.getstr()
+            uc.mvaddstr(1, 0, strn)
+        case "wredrawln":
+            ...
+        case "redrawwin":
+            ...
+        case "wrefresh":
+            uc.addstr("hello")
+            uc.wrefresh(stdscr)
+            uc.napms(1000)
+            uc.addstr(" world")
+        case "reset_prog_mode":
+            ...
+        case "reset_shell_mode":
+            ...
+        case "wresize":
+            ...
+        case "resize_term":
+            ...
+        case "wscrl":
             ...
         case _:
             uc.addstr("command not found")

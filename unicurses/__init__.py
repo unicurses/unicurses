@@ -2063,12 +2063,12 @@ def raw():
     return lib1.raw()
 
 
-def wredrawln(scr_id, beg, num):
+def wredrawln(scr_id, beginning, nlines):
     """
-    Indicate to the library that num many lines in window scr_id, starting from beg line, should be discarded before anything is written over them.
+    Indicate the library that nlines lines in window scr_id, starting from beginning line, should be discarded before anything is written over them.
     """
 
-    return lib1.wredrawln(scr_id, beg, num)
+    return lib1.wredrawln(scr_id, beginning, nlines)
 
 
 def redrawwin(scr_id):
@@ -2141,7 +2141,6 @@ def is_scrollok(scr_id):
     """
 
     return lib1.is_scrollok(scr_id)
-
 
 
 def wsetscrreg(scr_id, top, bottom):
