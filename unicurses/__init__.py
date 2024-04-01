@@ -1221,7 +1221,7 @@ def wgetch(scr_id):
 
     ch = lib1.wgetch(scr_id)
     if ch == -1:
-        raise TimeoutError("Time elapsed")
+        raise TimeoutError("Time elapsed.")
     return ch
 
 
@@ -2189,7 +2189,7 @@ def setupterm(termstr, fd):
 
 def wstandend(scr_id):
     """
-    Same as wattrset(scr_id, A_NORMAL) or wattrset(scr_id, 0), turn off all attributes in window scr_id.
+    Same as wattrset(scr_id, A_NORMAL), turn off all attributes in window scr_id.
     """
 
     return lib1.wstandend(scr_id)
@@ -2248,7 +2248,7 @@ def is_syncok(scr_id):
     Return the value set in syncok(scr_id).
     """
 
-    return  lib1.is_syncok(scr_id)
+    return bool( lib1.is_syncok(scr_id) )
 
 
 def wsyncup(scr_id):
@@ -2302,7 +2302,7 @@ if NCURSES:
 
 def wtimeout(scr_id, delay):
     """
-    Set blocking or non-blocking reads for window scr_id. If delay<0, blocking read is used, meaning waits indefinitely for input. If delay=0, non-blocking read is used. If delay>0, read blocks for delay milliseconds. If delay>=0, and returns ERR if there is no input after delay.
+    Set blocking or non-blocking reads for window scr_id. If delay<0, waits indefinitely for input (blocking). If delay>=0, returns ERR if there is no input after delay milliseconds (non-blocking).
     """
 
     return lib1.wtimeout(scr_id, delay)
@@ -2310,7 +2310,7 @@ def wtimeout(scr_id, delay):
 
 def wtouchline(scr_id, start, nlines, changed=1):
     """
-    Make nlines lines in window scr_id, starting at line start, look as if they have changed (=1) or have not changed (=0) since the last call to wrefresh(scr_id).
+    Make nlines lines in window scr_id, starting at line start, look as if they have changed (1) or have not changed (0) since the last call to wrefresh(scr_id).
     """
 
     return lib1.wtouchln(scr_id, start, nlines, changed)
@@ -2345,7 +2345,7 @@ def wvline(scr_id, ch, n):
     Draw a vertical line of maximum n characters ch starting at the current position in window scr_id. The current position is not updated.
     """
 
-    return lib1.wvline(scr_id, ch, n)
+    return lib1.wvline(scr_id, CCHAR(ch), n)
 
 
 def unctrl(ch):
@@ -2353,32 +2353,41 @@ def unctrl(ch):
     Return a string which is a printable representation of the character ch, ignoring attributes.
     """
 
-    return lib1.unctrl(ch)
+    return lib1.unctrl( CCHAR(ch) ).decode()
 
 
+# TODO: fix this, the problem is that wunctrl needs cchar_t as function argument, which is internal type of ncurses
 def wunctrl(ch):
     """
     Return a string which is a printable representation of the wide character ch, ignoring attributes.
     """
 
-    return lib1.wunctrl(ch)
+    return lib1.wunctrl( ch )
 
 
-def ungetch(ch):
-    """
-    Place ch back onto the input queue to be returned by the next call to getch/wgetch.
-    """
+if PDCURSES:
+    def ungetch(ch):
+        """
+        Place ch back onto the input queue to be returned by the next call to getch/wgetch.
+        """
 
-    return lib1.PDC_ungetch(ch)
+        return lib1.PDC_ungetch( CCHAR(ch) )
+elif NCURSES:
+    def ungetch(ch):
+        """
+        Place ch back onto the input queue to be returned by the next call to getch/wgetch.
+        """
+
+        return lib1.ungetch( CCHAR(ch) )
 
 
-def ungetmouse(id, x, y, z, bstate):
+def ungetmouse(id_mouse, x, y, z, bstate):
     """
     Pushes a KEY_MOUSE event onto the input queue. This event has the associates input data.
     """
 
     m_event = MEVENT()
-    m_event.id = id
+    m_event.id = id_mouse
     m_event.x = x
     m_event.y = y
     m_event.z = z

@@ -30,13 +30,13 @@ def main(stdscr, command: str) -> None:
             uc.wattroff(stdscr, uc.A_BOLD)
             uc.addstr("test")
         case "wattrset":
-            ...
+            raise NotImplementedError
         case "baudrate":
             uc.addstr(stdscr, uc.baudrate())
         case "beep":
             uc.beep()
         case "copywin":
-            ...
+            raise NotImplementedError
         case "wclear":
             uc.addstr("previous test")
             uc.wclear(stdscr)
@@ -52,17 +52,17 @@ def main(stdscr, command: str) -> None:
             uc.move(0, 0)
             uc.wclrtoeol(stdscr)
         case "clearok":
-            ...
+            raise NotImplementedError
         case "curs_set":
             uc.curs_set(0)
             uc.addstr("test")
             uc.curs_set(1)
         case "cursyncup":
-            ...
+            raise NotImplementedError
         case "def_prog_mode":
-            ...
+            raise NotImplementedError
         case "def_shell_mode":
-            ...
+            raise NotImplementedError
         case "delay_output":
             uc.addstr("test1")
             uc.refresh()
@@ -148,9 +148,9 @@ def main(stdscr, command: str) -> None:
         case "erasechar":
             uc.addstr(uc.erasechar())
         case "filter":
-            ...
+            raise NotImplementedError
         case "nofilter":
-            ...
+            raise NotImplementedError
         case "flash":
             uc.refresh()
             uc.flash()
@@ -160,7 +160,7 @@ def main(stdscr, command: str) -> None:
             uc.flushinp()
             uc.mvaddstr(1, 0, "works!")
         case "getbegyx":
-            ...
+            raise NotImplementedError
         case "wgetch":
             key = uc.wgetch(stdscr)
             uc.mvaddch(1, 0, key)
@@ -186,7 +186,7 @@ def main(stdscr, command: str) -> None:
             a,b,c,d,e = uc.getmouse()
             uc.addstr(f"{a} {b} {c} {d} {e}")
         case "getparyx":
-            ...
+            raise NotImplementedError
         case "wgetstr":
             string = uc.wgetstr(stdscr)
             uc.mvaddstr(1, 0, string)
@@ -214,9 +214,9 @@ def main(stdscr, command: str) -> None:
         case "whline":
             uc.whline(stdscr, "e",100)
         case "idcok":
-            ...
+            raise NotImplementedError
         case "idlok":
-            ...
+            raise NotImplementedError
         case "immedok":
             uc.immedok(stdscr, True)
             uc.addstr("writing..")
@@ -228,9 +228,9 @@ def main(stdscr, command: str) -> None:
             char = uc.winch(stdscr)
             uc.mvaddstr(1, 0, char)
         case "init_color":
-            ...
+            raise NotImplementedError
         case "init_pair":
-            ...
+            raise NotImplementedError
         case "winsch":
             uc.addstr("ello world")
             uc.move(0, 0)
@@ -296,7 +296,7 @@ def main(stdscr, command: str) -> None:
         case "longname":
             uc.addstr(uc.longname())
         case "meta":
-            ...
+            raise NotImplementedError
         case "mouseinterval":
             for _ in range(50):
                 uc.addstr(uc.getch())
@@ -304,7 +304,7 @@ def main(stdscr, command: str) -> None:
             for _ in range(50):
                 uc.addstr(uc.getch())
         case "mousemask":
-            ...
+            uc.mousemask(uc.ALL_MOUSE_EVENTS)
         case "wmove":
             uc.wmove(stdscr, 10, 1)
         case "mvwaddch":
@@ -364,18 +364,18 @@ def main(stdscr, command: str) -> None:
         case "mvwvline":
             uc.mvwvline(stdscr, 0, 0, "@", 5)
         case "mvwin":
-            ... # test later after checking how to draw the new window
+            raise NotImplementedError # test later after checking how to draw the new window
         case "napms":
             uc.addstr("hello ")
             uc.refresh()
             uc.napms(2000)
             uc.addstr("world")
         case "newpad":
-            ...
+            raise NotImplementedError
         case "newpad":
-            ...
+            raise NotImplementedError
         case "nl":
-            ...
+            raise NotImplementedError
         case "nocbreak":
             uc.cbreak()
             uc.getkey()
@@ -389,9 +389,9 @@ def main(stdscr, command: str) -> None:
             button = uc.getkey()
             uc.addstr(f"typed {button}")
         case "nonl":
-            ...
+            raise NotImplementedError
         case "noqiflush":
-            ...
+            raise NotImplementedError
         case "noraw":
             uc.raw()
             uc.addstr("press ctrl+c: ")
@@ -406,62 +406,136 @@ def main(stdscr, command: str) -> None:
             uc.addstr(button)
             uc.napms(1000)
         case "wnoutrefresh":
-            ...
+            raise NotImplementedError
         case "overlay":
-            ...
+            raise NotImplementedError
         case "overwrite":
-            ...
+            raise NotImplementedError
         case "pair_content":
-            ...
+            raise NotImplementedError
         case "pair_number":
-            ...
+            raise NotImplementedError
         case "prefresh":
-            ...
+            raise NotImplementedError
         case "putp":
-            ...
+            raise NotImplementedError
         case "putwin":
-            ...
+            raise NotImplementedError
         case "getwin":
-            ...
+            raise NotImplementedError
         case "qiflush":
-            ...
+            raise NotImplementedError
         case "raw":
             uc.raw()
             uc.addstr("press ctrl+c: ")
             strn = uc.getstr()
             uc.mvaddstr(1, 0, strn)
         case "wredrawln":
-            ...
+            raise NotImplementedError
         case "redrawwin":
-            ...
+            raise NotImplementedError
         case "wrefresh":
             uc.addstr("hello")
             uc.wrefresh(stdscr)
             uc.napms(1000)
             uc.addstr(" world")
         case "reset_prog_mode":
-            ...
+            raise NotImplementedError
         case "reset_shell_mode":
-            ...
+            raise NotImplementedError
         case "wresize":
-            ...
+            raise NotImplementedError
         case "resize_term":
-            ...
+            raise NotImplementedError
         case "wscrl":
-            ...
+            raise NotImplementedError
         case "scrollok":
-            ...
+            raise NotImplementedError
         case "is_scrollok":
             uc.scrollok(stdscr, True)
             uc.addstr( uc.is_scrollok(stdscr) )
         case "wsetscrreg":
-            ...
+            raise NotImplementedError
         case "setsyx":
             uc.addstr("hello")
             uc.setsyx(1, 6)
             uc.addstr(" world")
         case "setupterm":
-            ...
+            raise NotImplementedError
+        case "wstandend":
+            uc.wattrset(stdscr, uc.A_BOLD)
+            uc.addstr("hello")
+            uc.wstandend(stdscr)
+            uc.addstr(" world")
+        case "wstandout":
+            uc.wstandout(stdscr)
+            uc.addstr("hello world")
+        case "start_color":
+            uc.start_color()
+            uc.addstr("hello world")
+        case "subpad":
+            raise NotImplementedError
+        case "subwin":
+            subwin = uc.subwin(stdscr, 5, 10, 0, 6)
+            uc.addstr("hello")
+            uc.waddstr(subwin, "world")
+        case "wsyncdown":
+            raise NotImplementedError
+        case "syncok":
+            raise NotImplementedError
+        case "is_syncok":
+            uc.addstr(uc.is_syncok(stdscr))
+            uc.syncok(stdscr, True)
+            uc.addstr(f" {uc.is_syncok(stdscr)}")
+        case "wsyncup":
+            raise NotImplementedError
+        case "termattrs":
+            uc.addstr(uc.termattrs())
+        case "termname":
+            uc.addstr(uc.termname())
+        case "tigetflag":
+            raise NotImplementedError
+        case "tigetnum":
+            raise NotImplementedError
+        case "tigetstr":
+            raise NotImplementedError
+        case "wtimeout":
+            uc.wtimeout(stdscr, 1000)
+            uc.getch()
+        case "wtouchline":
+            uc.addstr("line1")
+            uc.mvaddstr(1, 0, "line2")
+            uc.wtouchline(stdscr, 0, 1, 0)
+        case "touchwin":
+            raise NotImplementedError
+        case "tparm":
+            raise NotImplementedError
+        case "typeahead":
+            raise NotImplementedError
+        case "wvline":
+            uc.wvline(stdscr, "@", 20)
+        case "unctrl":
+            uc.addstr(uc.unctrl("e"))
+        case "wunctrl":
+            raise NotImplementedError
+        case "ungetch":
+            uc.ungetch("e")
+            button = uc.getkey()
+            uc.addstr(f"input = {button}")
+        case "ungetmouse":
+            uc.mousemask(uc.ALL_MOUSE_EVENTS)
+            uc.ungetmouse(1, 1, 1, 1, 1)
+            button = uc.getch()
+            uc.addstr(f"input = {button}")
+        case "untouchwin":
+            uc.addstr("hello")
+            uc.refresh()
+            uc.addstr(" world")
+            uc.untouchwin(stdscr)
+        case "use_default_colors":
+            raise NotImplementedError
+        case "use_env":
+            raise NotImplementedError
         case _:
             uc.addstr("command not found")
 
