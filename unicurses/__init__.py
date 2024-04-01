@@ -2361,7 +2361,7 @@ def wunctrl(ch):
     """
     Return a string which is a printable representation of the wide character ch, ignoring attributes.
     """
-
+    
     return lib1.wunctrl( ch )
 
 
