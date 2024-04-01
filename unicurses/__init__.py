@@ -2140,7 +2140,7 @@ def is_scrollok(scr_id):
     Return the value set in scrollok.
     """
 
-    return lib1.is_scrollok(scr_id)
+    return bool( lib1.is_scrollok(scr_id) )
 
 
 def wsetscrreg(scr_id, top, bottom):
@@ -2156,12 +2156,11 @@ if PDCURSES:
     # even if we want to keep this extra variable, why not simply calling leaveok?
     def setsyx(y, x):
         """"
-        Set the virtual screen cursor to y, x. If y == x == -1, then leaveok is set.
+        If y == x == -1 leaveok is set, otherwise set the virtual screen cursor to y, x.
         """
 
         global PDC_LEAVEOK
 
-        curscr = PD_GET_CURSCR()
         if y == x == -1:
             PDC_LEAVEOK = True
         else:
@@ -2170,10 +2169,15 @@ if PDCURSES:
 elif NCURSES:
     def setsyx(y, x):
         """"
-        Set the virtual screen cursor to y, x. If y == x == -1, then leaveok is set.
+        If y == x == -1 leaveok is set, otherwise set the virtual screen cursor to y, x.
         """
 
-        return lib1.setsyx(y, x)
+        if y == x == -1:
+            leaveok(stdscr, True)
+        else:
+            leaveok(stdscr, False)
+            move(y, x)
+
 
 def setupterm(termstr, fd):
     """

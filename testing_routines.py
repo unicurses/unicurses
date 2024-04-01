@@ -147,10 +147,6 @@ def main(stdscr, command: str) -> None:
             uc.werase(stdscr)
         case "erasechar":
             uc.addstr(uc.erasechar())
-        case "erasewchar":
-            l = [None]
-            uc.erasewchar(l)
-            uc.addstr(l[0])
         case "filter":
             ...
         case "nofilter":
@@ -284,10 +280,6 @@ def main(stdscr, command: str) -> None:
             uc.addstr( uc.getkey() )
         case "killchar":
             uc.addstr( uc.killchar() )
-        case "killwchar":
-            v = [None]
-            uc.killwchar(v)
-            uc.addstr(v[0])
         case "get_tabsize":
             uc.addstr(uc.get_tabsize())
         case "set_tabsize":
@@ -456,6 +448,19 @@ def main(stdscr, command: str) -> None:
         case "resize_term":
             ...
         case "wscrl":
+            ...
+        case "scrollok":
+            ...
+        case "is_scrollok":
+            uc.scrollok(stdscr, True)
+            uc.addstr( uc.is_scrollok(stdscr) )
+        case "wsetscrreg":
+            ...
+        case "setsyx":
+            uc.addstr("hello")
+            uc.setsyx(1, 6)
+            uc.addstr(" world")
+        case "setupterm":
             ...
         case _:
             uc.addstr("command not found")

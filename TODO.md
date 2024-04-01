@@ -6,6 +6,8 @@
  
 - __PDC_LEAVEOK__: change leaveok so that it actually behaves like ncurses, not sure why we need to use PDC_LEAVEOK, and do we actually need curscr at all? This can still be called by the user anyway, so that is the need? I suggest we make a function that returns curscr and let eveything else depend on scr_id instead. Is it not how curses functions are designed to start with anyway? Also, curscr is in ncurses too!
 
+actually, don't use this gimmicky variable but only rely on leaveok
+
 - (done) wgetch and mvwgetch now return error if the return key = -1. Upon inspecting halfdelay, it looks like -1 corresponds to the value for error when waiting time
 
 # note
