@@ -911,12 +911,12 @@ def beep():
     return lib1.beep()
 
 
-def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay):
+def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay_flag):
     """
-    Applies overlay if overlay is True otherwise overwrite. A rectangle is specified in window dest_id, via (dminrow, dmincol) and (dmaxrow, dmaxcol), and the upper-left-corner coordinates of window src_id, (sminrow, smincol).
+    If overlay_flag is True apply overlay, otherwise overwrite. A rectangle is specified in window dest_id, via (dminrow, dmincol) and (dmaxrow, dmaxcol), and the upper-left-corner coordinates of window src_id, (sminrow, smincol).
     """
 
-    return lib1.copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay)
+    return lib1.copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay_flag)
 
 
 def wclear(scr_id):
@@ -1426,12 +1426,12 @@ def init_color(color, r, g, b):
     return lib1.init_color(color, r, g, b)
 
 
-def init_pair(pair_number, fg, bg):
+def init_pair(number_pair, fg, bg):
     """
     Change the definition of a color-pair.
     """
 
-    return lib1.init_pair(pair_number, fg, bg)
+    return lib1.init_pair(number_pair, fg, bg)
 
 
 def initscr():
@@ -2928,8 +2928,8 @@ def wrapper(function, *args, **kwargs):
     initscr()
     try:
         return function(stdscr, *args, **kwargs)
-    except Exception as error:
-        raise error
+    except Exception as exception:
+        raise exception
     finally:
         endwin()
 #endregion -- REGULAR\MACRO FUNCTIONS THAT DO NOT TAKE A WINDOW AS AN ARGUMENT --

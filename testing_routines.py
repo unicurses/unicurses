@@ -30,7 +30,8 @@ def main(stdscr, command: str) -> None:
             uc.wattroff(stdscr, uc.A_BOLD)
             uc.addstr("test")
         case "wattrset":
-            raise NotImplementedError
+            uc.wattrset(stdscr, uc.A_BOLD)
+            uc.addstr("hello world")
         case "baudrate":
             uc.addstr(stdscr, uc.baudrate())
         case "beep":
@@ -52,17 +53,24 @@ def main(stdscr, command: str) -> None:
             uc.move(0, 0)
             uc.wclrtoeol(stdscr)
         case "clearok":
-            raise NotImplementedError
+            uc.clearok(stdscr, True)
+            uc.addstr("hello")
+            uc.wrefresh(stdscr)
+            uc.addstr(" world")
+            uc.wrefresh(stdscr)
         case "curs_set":
             uc.curs_set(0)
             uc.addstr("test")
             uc.curs_set(1)
-        case "cursyncup":
-            raise NotImplementedError
+        case "wcursyncup":
+            subwin = uc.subwin(stdscr, 10, 10, 0, 6)
+            uc.addstr("hello")
+            uc.waddstr(subwin, "world")
+            uc.wcursyncup(stdscr)
         case "def_prog_mode":
-            raise NotImplementedError
+            uc.def_prog_mode()
         case "def_shell_mode":
-            raise NotImplementedError
+            uc.def_shell_mode()
         case "delay_output":
             uc.addstr("test1")
             uc.refresh()
@@ -128,7 +136,7 @@ def main(stdscr, command: str) -> None:
         case "echo":
             uc.noecho()
             button = uc.getkey()
-            uc.addstr(f"button pressed {button}")
+            uc.addstr("button pressed " + str(button))
         case "wechochar":
             uc.wechochar(stdscr, "e")
             uc.napms(1000)
@@ -147,10 +155,6 @@ def main(stdscr, command: str) -> None:
             uc.werase(stdscr)
         case "erasechar":
             uc.addstr(uc.erasechar())
-        case "filter":
-            raise NotImplementedError
-        case "nofilter":
-            raise NotImplementedError
         case "flash":
             uc.refresh()
             uc.flash()
@@ -160,7 +164,9 @@ def main(stdscr, command: str) -> None:
             uc.flushinp()
             uc.mvaddstr(1, 0, "works!")
         case "getbegyx":
-            raise NotImplementedError
+            subwin = uc.subwin(stdscr, 10, 10, 1, 1)
+            y, x = uc.getbegyx(subwin)
+            uc.addstr("y=" + str(y) + " x=" + str(x))
         case "wgetch":
             key = uc.wgetch(stdscr)
             uc.mvaddch(1, 0, key)
@@ -184,20 +190,22 @@ def main(stdscr, command: str) -> None:
         case "getmouse":
             uc.getch()
             a,b,c,d,e = uc.getmouse()
-            uc.addstr(f"{a} {b} {c} {d} {e}")
+            uc.addstr(str(a) + " " + str(b) + " " + str(c) + " " + str(d) + " " + str(e))
         case "getparyx":
-            raise NotImplementedError
+            subwin = uc.subwin(stdscr, 10, 10, 1, 1)
+            y, x = uc.getparyx(subwin)
+            uc.addstr("y=" + str(y) + " x=" + str(x))
         case "wgetstr":
             string = uc.wgetstr(stdscr)
             uc.mvaddstr(1, 0, string)
         case "getsyx":
             uc.move(1,1)
             y, x = uc.getsyx()
-            uc.addstr(f"x={x}, y={y}")
+            uc.addstr("x=" + str(x) + " y=" + str(y))
         case "getyx":
             uc.move(1, 1)
             y, x = uc.getyx(stdscr)
-            uc.addstr(f"x={x}, y={y}")
+            uc.addstr("x=" + str(x) + " y=" + str(y))
         case "halfdelay":
             uc.halfdelay(10)
             err = uc.getch()
@@ -210,13 +218,13 @@ def main(stdscr, command: str) -> None:
         case "has_il":
             uc.addstr(uc.has_il())
         case "has_key":
-            uc.addwstr(f"e : {uc.has_key('e')}")
+            uc.addwstr("e" + str(uc.has_key('e')))
         case "whline":
             uc.whline(stdscr, "e",100)
         case "idcok":
-            raise NotImplementedError
+            uc.idcok(stdscr, True)
         case "idlok":
-            raise NotImplementedError
+            uc.idlok(stdscr, True)
         case "immedok":
             uc.immedok(stdscr, True)
             uc.addstr("writing..")
@@ -237,7 +245,7 @@ def main(stdscr, command: str) -> None:
             uc.winsch(stdscr, "h")
         case "winsdelln":
             for i in range(10):
-                uc.mvaddstr(i, 0, f"{i} line")
+                uc.mvaddstr(i, 0, str(i) + " line")
             uc.move(0, 0)
             uc.winsdelln(stdscr, 1)
             uc.mvaddstr(0, 0, "new line here")
@@ -266,15 +274,15 @@ def main(stdscr, command: str) -> None:
             uc.addstr("test")
             line1 = uc.is_linetouched(stdscr, 0)
             line2 = uc.is_linetouched(stdscr, 1)
-            uc.mvaddstr(1, 0, f"line1 = {line1}, line2 = {line2}")
+            uc.mvaddstr(1, 0, "line1=" + str(line1) + " line2=" + str(line2))
         case "is_wintouched":
             uc.wrefresh(stdscr)
             val = uc.is_wintouched(stdscr)
-            uc.addstr(f"touched? {val}")
+            uc.addstr("touched? " + str(val))
             val = uc.is_wintouched(stdscr)
-            uc.mvaddstr(1, 0, f"touched? {val}")
+            uc.mvaddstr(1, 0, "touched? " + str(val))
         case "keyname":
-            uc.addstr(f"101 = {uc.keyname(101)}")
+            uc.addstr("101= " + str(uc.keyname(101)))
         case "keypad":
             uc.keypad(stdscr, True)
             uc.addstr( uc.getkey() )
@@ -285,18 +293,18 @@ def main(stdscr, command: str) -> None:
         case "set_tabsize":
             uc.addstr(uc.get_tabsize())
             uc.set_tabsize(4)
-            uc.addstr(f" {uc.get_tabsize()}")
+            uc.addstr(" " + str(uc.get_tabsize()))
         case "leaveok":
             uc.leaveok(stdscr, True)
             uc.addstr("hello world")
         case "is_leaveok":
             uc.addstr(uc.is_leaveok())
             uc.leaveok(stdscr, True)
-            uc.addstr(f" {uc.is_leaveok()}")
+            uc.addstr(" " + str(uc.is_leaveok()))
         case "longname":
             uc.addstr(uc.longname())
         case "meta":
-            raise NotImplementedError
+            uc.meta(True)
         case "mouseinterval":
             for _ in range(50):
                 uc.addstr(uc.getch())
@@ -387,7 +395,7 @@ def main(stdscr, command: str) -> None:
         case "noecho":
             uc.noecho()
             button = uc.getkey()
-            uc.addstr(f"typed {button}")
+            uc.addstr("typed " + str(button))
         case "nonl":
             raise NotImplementedError
         case "noqiflush":
@@ -486,7 +494,7 @@ def main(stdscr, command: str) -> None:
         case "is_syncok":
             uc.addstr(uc.is_syncok(stdscr))
             uc.syncok(stdscr, True)
-            uc.addstr(f" {uc.is_syncok(stdscr)}")
+            uc.addstr(" " + str(uc.is_syncok(stdscr)))
         case "wsyncup":
             raise NotImplementedError
         case "termattrs":
@@ -521,12 +529,12 @@ def main(stdscr, command: str) -> None:
         case "ungetch":
             uc.ungetch("e")
             button = uc.getkey()
-            uc.addstr(f"input = {button}")
+            uc.addstr("input= " + str(button))
         case "ungetmouse":
             uc.mousemask(uc.ALL_MOUSE_EVENTS)
             uc.ungetmouse(1, 1, 1, 1, 1)
             button = uc.getch()
-            uc.addstr(f"input = {button}")
+            uc.addstr("input= " + str(button))
         case "untouchwin":
             uc.addstr("hello")
             uc.refresh()
@@ -543,5 +551,22 @@ def main(stdscr, command: str) -> None:
 
 
 if __name__ == "__main__":
-    while (command := input("(ENTER to exit) command: ")) != "":
-        uc.wrapper(main, command)
+    print("ENTER to exit")
+    while (command := input("command: ")) != "":
+        # some routines are to be run before initscr
+        match command:
+            case "filter":
+                uc.filter()
+                uc.initscr()
+                uc.addstr("hello world")
+                uc.getkey()
+                uc.endwin()
+            case "nofilter":
+                uc.filter()
+                uc.nofilter()
+                uc.initscr()
+                uc.addstr("hello world")
+                uc.getkey()
+                uc.endwin()
+            case _:
+                uc.wrapper(main, command)
