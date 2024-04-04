@@ -1650,6 +1650,14 @@ def wmove(scr_id, y, x):
     return lib1.wmove(scr_id, y, x)
 
 
+def mvcur(oldrow, oldcol, newrow, newcol): # TODO: check this with putp and puts todo
+    """
+    low-level cursor motion. It takes effect immediately (rather than at the next refresh). X/Open notes that after calling mvcur, the curses state may not match the actual terminal state | NCURSES ONLY as of 2024-04-04 07:31:24 PM
+    """
+
+    return lib1.mvcur(oldrow, oldcol, newrow, newcol)
+
+
 def mvwaddch(scr_id, y, x, ch, attr=A_NORMAL):
     """
     Write the character ch in window scr_id at position (y, x).
