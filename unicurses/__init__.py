@@ -1219,10 +1219,7 @@ def wgetch(scr_id):
     Read a character from window scr_id.
     """
 
-    ch = lib1.wgetch(scr_id)
-    if ch == -1:
-        raise TimeoutError("Time elapsed.")
-    return ch
+    return lib1.wgetch(scr_id)
 
 
 def wget_wch(scr_id): # NEEDS_CHECK? # https://stackoverflow.com/questions/1081456/wchar-t-vs-wint-t
@@ -1339,7 +1336,7 @@ def getyx(scr_id):
     return (cy, cx)
 
 
-def halfdelay(tenths): # TODO: error is -1, so how about actually raising an error in python if that's the ouput?
+def halfdelay(tenths):
     """
     Similar to cbreak, make characters typed by the user immediately available. After blocking for tenths tenths of seconds, ERR is returned if nothing has been typed.
     """
@@ -2666,10 +2663,7 @@ def mvgetch(y, x):
     Move the current position to (y, x) and read a character.
     """
 
-    ch = mvwgetch(stdscr, y, x)
-    if ch == -1:
-        raise TimeoutError("Time elapsed")
-    return ch
+    return mvwgetch(stdscr, y, x)
 
 
 def addch(ch, attr=A_NORMAL):
