@@ -219,6 +219,10 @@ elif NCURSES:
 
     def NC_COLOR_PAIR(n):
         return (NCURSES_BITS((n), 0) & A_COLOR)
+    
+    def NC_PAIR_NUMBER(n):
+
+        return lib1.PAIR_NUMBER(n)
 
     # TODO: implement getcursor in NCURSES and make the call platform independent
 #endregion --- PDCurses/NCurses ncurses.h macro wrappers and other prereqs ---
@@ -619,22 +623,22 @@ def RCCHAR(ch):
     Reverse of CCHAR function.
     """
 
-    if type(ch) == int:
+    if isinstance(ch, int):
         return chr(ch)
-    if type(ch) == str:
+    if isinstance(ch, str) or isinstance(ch, bytes):
         return ch
-    raise Exception("RCCHAR: can't parse a non-char/non-int value.")
+    raise ValueError("RCCHAR: can't parse a non-char/non-int value.")
 
 def CCHAR(ch):
     """
     Get a C character.
     """
 
-    if type(ch) == str:
+    if isinstance(ch, str) or isinstance(ch, bytes):
         return ord(ch)
-    if type(ch) == int:
+    if isinstance(ch, int):
         return ch
-    raise Exception("CCHAR: can't parse a non-char/non-int value.")
+    raise ValueError("CCHAR: can't parse a non-char/non-int value.")
 
 
 def ALTCHAR(ch):
@@ -642,11 +646,11 @@ def ALTCHAR(ch):
     Alternate character set.
     """
 
-    if type(ch) == str:
+    if isinstance(ch, str) or isinstance(ch, bytes):
         return ord(ch) | A_ALTCHARSET
-    if type(ch) ==  int:
+    if isinstance(ch, int):
         return ch | A_ALTCHARSET
-    raise Exception("ALTCHAR: can't parse a non-char/non-int value.")
+    raise ValueError("ALTCHAR: can't parse a non-char/non-int value.")
 
 
 def CTRL(ch):  #1
@@ -907,12 +911,12 @@ def beep():
     return lib1.beep()
 
 
-def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay):
+def copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay_flag):
     """
-    Applies overlay if overlay is True otherwise overwrite. A rectangle is specified in window dest_id, via (dminrow, dmincol) and (dmaxrow, dmaxcol), and the upper-left-corner coordinates of window src_id, (sminrow, smincol).
+    If overlay_flag is True apply overlay, otherwise overwrite. A rectangle is specified in window dest_id, via (dminrow, dmincol) and (dmaxrow, dmaxcol), and the upper-left-corner coordinates of window src_id, (sminrow, smincol).
     """
 
-    return lib1.copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay)
+    return lib1.copywin(src_id, dest_id, sminrow, smincol, dminrow, dmincol, dmaxrow, dmaxcol, overlay_flag)
 
 
 def wclear(scr_id):
@@ -955,7 +959,7 @@ def curs_set(visibility):
     return lib1.curs_set(visibility)
 
 
-def cursyncup(scr_id):
+def wcursyncup(scr_id):
     """
     Update the current position of all window scr_id parents to reflect the current position of window stdscr.
     """
@@ -1060,7 +1064,7 @@ def wchgat(scr_id, num, attr, color, opts=None):
     return lib1.wchgat(scr_id, num, attr, color, None)
 
 
-def color_content(color_number):
+def color_content(color_number): # TODO: not working
     """
     Return (r, g, b) of color_number.
     """
@@ -1283,7 +1287,7 @@ elif NCURSES:
         return (m_event.id, m_event.x, m_event.y, m_event.z, m_event.bstate)
 
 
-def getparyx(scr_id):
+def getparyx(scr_id): # TODO: not working
     """
     Return the origin of the subwindow scr_id relative to its parent window.
     """
@@ -1319,8 +1323,6 @@ elif NCURSES:
         Return the current position of the virtual screen.
         """
 
-        if is_leaveok():
-            return (-1, -1)
         return getyx(stdscr)
 
 
@@ -1365,13 +1367,12 @@ def has_il():
     return bool( lib1.has_il() )
 
 
-def has_key(ch):
+def has_key(ch): # TODO: maybe not working? Not sure..
     """
     Take a key-code value from the list as in (https://man7.org/linux/man-pages/man3/curs_getch.3x.html) and return True if the current terminal type recognizes a key with that value, otherwise return False.
-
     """
 
-    return bool( lib1.has_key(ch) )
+    return bool( lib1.has_key( CCHAR(ch) ) )
 
 
 def whline(scr_id, ch, n):
@@ -1379,7 +1380,7 @@ def whline(scr_id, ch, n):
     Draw a horizontal line of maximum n characters ch starting from the current position in window scr_id. The current position is not updated.
     """
 
-    return lib1.whline(scr_id, ch, n)
+    return lib1.whline(scr_id, CCHAR(ch), n)
 
 
 def idcok(scr_id, flag): # does nothing in PDCURSES
@@ -1408,10 +1409,10 @@ def immedok(scr_id, flag):
 
 def winch(scr_id):
     """
-    Return the character of type chtype in window scr_id. If any attributes are set, their values are OR'ed into the value returned.
+    Return the character of type chtype at the current position in window scr_id. If any attributes are set, their values are OR'ed into the value returned.
     """
 
-    return lib1.winch(scr_id)
+    return RCCHAR( lib1.winch(scr_id) )
 
 
 def init_color(color, r, g, b):
@@ -1422,12 +1423,12 @@ def init_color(color, r, g, b):
     return lib1.init_color(color, r, g, b)
 
 
-def init_pair(pair_number, fg, bg):
+def init_pair(number_pair, fg, bg):
     """
     Change the definition of a color-pair.
     """
 
-    return lib1.init_pair(pair_number, fg, bg)
+    return lib1.init_pair(number_pair, fg, bg)
 
 
 def initscr():
@@ -1446,7 +1447,7 @@ def winsch(scr_id, ch, attr=A_NORMAL):
     Insert the character ch before the current position in window scr_id. All characters to the right are moved by one.
     """
 
-    return lib1.winsch(scr_id, ch | attr)
+    return lib1.winsch(scr_id, CCHAR(ch) | attr)
 
 
 def winsdelln(scr_id, nlines):
@@ -1487,7 +1488,6 @@ def winsnstr(scr_id, strn, n, attr="NO_USE"):
     return ret
 
 
-# TODO: investigate what happens when n<=0, if found out change description of all other functions
 def winstr(scr_id, n=-1):
     """
     Return a string of at most n characters from the current position in window scr_id.
@@ -1535,8 +1535,8 @@ def keyname(k):
     Return the character string corresponding to the key k.
     """
 
-    k = lib1.keyname(k)
-    return k.decode() if k else k
+    key = lib1.keyname(k)
+    return key.decode() if key else key
 
 
 def keypad(scr_id, yes):
@@ -1605,7 +1605,7 @@ elif NCURSES:
         Return the value set in leaveok.
         """
 
-        return lib1.is_leaveok(stdscr)
+        return bool( lib1.is_leaveok(stdscr) )
 
 
 def longname():
@@ -1618,12 +1618,13 @@ def longname():
 
 def meta(yes):
     """
-    Force the terminal to return 8 significant bits if yes is False, otherwise 7 significant bits.
+    If yes is False, force the terminal to return 8 significant bits, otherwise 7 significant bits if yes is True.
     """
 
-    return lib1.meta(stdscr, yes) # The argument scr_id is ignored.
+    return lib1.meta(stdscr, yes) # The argument stdscr is ignored.
 
 
+# TODO: test again, not sure it works
 def mouseinterval(interval):
     """
     Set the maximum time in milliseconds that can elapse between press and release events for them to be recognized as a click. 0 disables click resolution.
@@ -1632,6 +1633,7 @@ def mouseinterval(interval):
     return lib1.mouseinterval(interval)
 
 
+# TODO: test again, not sure it works
 def mousemask(mmask):
     """
     Make mouse events visible. By default, no mouse events are reported.
@@ -1785,12 +1787,12 @@ def mvwhline(scr_id, y, x, ch, n):
     Draw a horizontal line of maximum n characters ch starting from position (y, x) in window scr_id. The current position is not updated.
     """
 
-    return lib1.mvwhline(scr_id, y, x, ch, n)
+    return lib1.mvwhline(scr_id, y, x, CCHAR(ch), n)
 
 
 def mvwinch(scr_id, y, x):
     """
-    Return the character of type chtype at position (y, x) in window scr_id. If any attributes are set, their values are OR'ed into the value returned.
+    Return the character at position (y, x) in window scr_id. If any attributes are set, their values are OR'ed into the value returned.
     """
 
     return lib1.mvwinch(scr_id, y, x)
@@ -1801,7 +1803,7 @@ def mvwinsch(scr_id, y, x, ch, attr=A_NORMAL):
     Insert the character ch before position (y, x) in window scr_id. All characters to the right are moved by one.
     """
 
-    return lib1.mvwinsch(scr_id, y, x, ch | attr)
+    return lib1.mvwinsch(scr_id, y, x, CCHAR(ch) | attr)
 
 
 def mvwinsstr(scr_id, y, x, strn, attr="NO_USE"):
@@ -1862,7 +1864,7 @@ def mvwvline(scr_id, y, x, ch, n):
     Draw a vertical line of maximum n characters ch starting at position (y, x) in window scr_id. The current position is not updated.
     """
 
-    return lib1.mvwvline(scr_id, y, x, ch, n)
+    return lib1.mvwvline(scr_id, y, x, CCHAR(ch), n)
 
 
 def mvwin(scr_id, y, x):
@@ -1891,7 +1893,7 @@ def newpad(nlines, ncols):
 
 def newwin(nlines, ncols, y, x):
     """
-    Return a new window with nlines lines and ncols columnsm, whose upper left-hand corner is at (y, x).
+    Return a new window with nlines lines and ncols columns, whose upper left-hand corner is at (y, x).
     """
 
     return ctypes.c_void_p(lib1.newwin(nlines, ncols, y, x))
@@ -1955,13 +1957,13 @@ def noraw():
 
 def notimeout(scr_id, yes):
     """
-    If yes is True, disable timer in window scr_id that the function wgetch waits for when interpreting an escape sequence. If yes is False, restore the timer.
+    If yes is True, disable the timer in window scr_id that the function wgetch waits for when interpreting an escape sequence. If yes is False, restore the timer.
     """
 
     return lib1.notimeout(scr_id, yes)
 
 
-def noutrefresh(scr_id):
+def wnoutrefresh(scr_id):
     """
     Copy window scr_id to the virtual screen. To be used followed by doupdate.
     """
@@ -1985,14 +1987,14 @@ def overwrite(src_id, dest_id):
     return lib1.overwrite(src_id, dest_id)
 
 
-def pair_content(pair_number):
+def pair_content(number_pair):
     """
     Return what colors pair_number consists of.
     """
 
     fg = ctypes.c_short()
     bg = ctypes.c_short()
-    lib1.pair_content(pair_number, ctypes.byref(fg), ctypes.byref(bg))
+    lib1.pair_content(number_pair, ctypes.byref(fg), ctypes.byref(bg))
     return (fg.value, bg.value)
 
 
@@ -2004,9 +2006,12 @@ if PDCURSES:
 
         return PD_PAIR_NUMBER(attr)
 elif NCURSES:
-    # TODO: write the Linux function
-    pass
+    def pair_number(attr):
+        """
+        Extract the color value from attrs.
+        """
 
+        return NC_PAIR_NUMBER(attr)
 
 def prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol):
     """
@@ -2055,12 +2060,12 @@ def raw():
     return lib1.raw()
 
 
-def wredrawln(scr_id, beg, num):
+def wredrawln(scr_id, beginning, nlines):
     """
-    Indicate to the library that num many lines in window scr_id, starting from beg line, should be discarded before anything is written over them.
+    Indicate the library that nlines lines in window scr_id, starting from beginning line, should be discarded before anything is written over them.
     """
 
-    return lib1.wredrawln(scr_id, beg, num)
+    return lib1.wredrawln(scr_id, beginning, nlines)
 
 
 def redrawwin(scr_id):
@@ -2132,8 +2137,7 @@ def is_scrollok(scr_id):
     Return the value set in scrollok.
     """
 
-    return lib1.is_scrollok(scr_id)
-
+    return bool( lib1.is_scrollok(scr_id) )
 
 
 def wsetscrreg(scr_id, top, bottom):
@@ -2149,12 +2153,11 @@ if PDCURSES:
     # even if we want to keep this extra variable, why not simply calling leaveok?
     def setsyx(y, x):
         """"
-        Set the virtual screen cursor to y, x. If y == x == -1, then leaveok is set.
+        If y == x == -1 leaveok is set, otherwise set the virtual screen cursor to y, x.
         """
 
         global PDC_LEAVEOK
 
-        curscr = PD_GET_CURSCR()
         if y == x == -1:
             PDC_LEAVEOK = True
         else:
@@ -2163,12 +2166,15 @@ if PDCURSES:
 elif NCURSES:
     def setsyx(y, x):
         """"
-        Set the virtual screen cursor to y, x. If y == x == -1, then leaveok is set.
+        If y == x == -1 leaveok is set, otherwise set the virtual screen cursor to y, x.
         """
 
         if y == x == -1:
-            return leaveok(stdscr, True)
-        return lib1.setsyx(y, x)
+            leaveok(stdscr, True)
+        else:
+            leaveok(stdscr, False)
+            move(y, x)
+
 
 def setupterm(termstr, fd):
     """
@@ -2180,7 +2186,7 @@ def setupterm(termstr, fd):
 
 def wstandend(scr_id):
     """
-    Same as wattrset(scr_id, A_NORMAL) or wattrset(scr_id, 0), turn off all attributes in window scr_id.
+    Same as wattrset(scr_id, A_NORMAL), turn off all attributes in window scr_id.
     """
 
     return lib1.wstandend(scr_id)
@@ -2239,7 +2245,7 @@ def is_syncok(scr_id):
     Return the value set in syncok(scr_id).
     """
 
-    return  lib1.is_syncok(scr_id)
+    return bool( lib1.is_syncok(scr_id) )
 
 
 def wsyncup(scr_id):
@@ -2293,7 +2299,7 @@ if NCURSES:
 
 def wtimeout(scr_id, delay):
     """
-    Set blocking or non-blocking reads for window scr_id. If delay<0, blocking read is used, meaning waits indefinitely for input. If delay=0, non-blocking read is used. If delay>0, read blocks for delay milliseconds. If delay>=0, and returns ERR if there is no input after delay.
+    Set blocking or non-blocking reads for window scr_id. If delay<0, waits indefinitely for input (blocking). If delay>=0, returns ERR if there is no input after delay milliseconds (non-blocking).
     """
 
     return lib1.wtimeout(scr_id, delay)
@@ -2301,7 +2307,7 @@ def wtimeout(scr_id, delay):
 
 def wtouchline(scr_id, start, nlines, changed=1):
     """
-    Make nlines lines in window scr_id, starting at line start, look as if they have changed (=1) or have not changed (=0) since the last call to wrefresh(scr_id).
+    Make nlines lines in window scr_id, starting at line start, look as if they have changed (1) or have not changed (0) since the last call to wrefresh(scr_id).
     """
 
     return lib1.wtouchln(scr_id, start, nlines, changed)
@@ -2315,12 +2321,12 @@ def touchwin(scr_id):
     return lib1.touchwin(scr_id)
 
 
-def tparm(string, p1=0, p2=0, p3=0, p4=0, p5=0, p6=0, p7=0, p8=0, p9=0):
+def tparm(strn, p1=0, p2=0, p3=0, p4=0, p5=0, p6=0, p7=0, p8=0, p9=0):
     """
     Instantiate the expression string with parameters pi.
     """
 
-    return lib1.tparm(CSTR(string), p1, p2, p3, p4, p5, p6, p7, p8, p9)
+    return lib1.tparm(CSTR(strn), p1, p2, p3, p4, p5, p6, p7, p8, p9)
 
 
 def typeahead(fd):
@@ -2336,7 +2342,7 @@ def wvline(scr_id, ch, n):
     Draw a vertical line of maximum n characters ch starting at the current position in window scr_id. The current position is not updated.
     """
 
-    return lib1.wvline(scr_id, ch, n)
+    return lib1.wvline(scr_id, CCHAR(ch), n)
 
 
 def unctrl(ch):
@@ -2344,32 +2350,41 @@ def unctrl(ch):
     Return a string which is a printable representation of the character ch, ignoring attributes.
     """
 
-    return lib1.unctrl(ch)
+    return lib1.unctrl( CCHAR(ch) ).decode()
 
 
+# TODO: fix this, the problem is that wunctrl needs cchar_t as function argument, which is internal type of ncurses
 def wunctrl(ch):
     """
     Return a string which is a printable representation of the wide character ch, ignoring attributes.
     """
-
-    return lib1.wunctrl(ch)
-
-
-def ungetch(ch):
-    """
-    Place ch back onto the input queue to be returned by the next call to getch/wgetch.
-    """
-
-    return lib1.PDC_ungetch(ch)
+    
+    return lib1.wunctrl( ch )
 
 
-def ungetmouse(id, x, y, z, bstate):
+if PDCURSES:
+    def ungetch(ch):
+        """
+        Place ch back onto the input queue to be returned by the next call to getch/wgetch.
+        """
+
+        return lib1.PDC_ungetch( CCHAR(ch) )
+elif NCURSES:
+    def ungetch(ch):
+        """
+        Place ch back onto the input queue to be returned by the next call to getch/wgetch.
+        """
+
+        return lib1.ungetch( CCHAR(ch) )
+
+
+def ungetmouse(id_mouse, x, y, z, bstate):
     """
     Pushes a KEY_MOUSE event onto the input queue. This event has the associates input data.
     """
 
     m_event = MEVENT()
-    m_event.id = id
+    m_event.id = id_mouse
     m_event.x = x
     m_event.y = y
     m_event.z = z
@@ -2907,8 +2922,8 @@ def wrapper(function, *args, **kwargs):
     initscr()
     try:
         return function(stdscr, *args, **kwargs)
-    except Exception as error:
-        raise error
+    except Exception as exception:
+        raise exception
     finally:
         endwin()
 #endregion -- REGULAR\MACRO FUNCTIONS THAT DO NOT TAKE A WINDOW AS AN ARGUMENT --
