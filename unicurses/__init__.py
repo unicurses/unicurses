@@ -2018,12 +2018,25 @@ def prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol):
     Similar to wrefresh but for pads instead of windows. pminrow and pmincol specify the upper left-hand corner of the rectangle to be displayed in the pad. sminrow, smincol, smaxrow, and smaxcol specify the edges of the rectangle to be displayed on the screen.
     """
 
-    return lib1.prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol) # TODO: fix | https://github.com/wmcbrine/PDCurses/pull/121 # NEEDS_CHECK?
+    return lib1.prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol)
 
 
+# TODO: Maybe pr or raise an issue at PDCureses because can't find it yet as of 2024-04-04 07:03:00 PM. A plain print() might do the trick, cause at the end of the day (for most users) its just an output to stqout with a mvcur-alternative... anyways... idk, see also https://github.com/wmcbrine/PDCurses/issues/55
 def putp(cstring):
-    # TODO: I don't fully understand what this function does
+    """
+    Low-level routine that always prints\sends the output to stdout. see also `puts` | NCURSES ONLY AS OF 2024-04-04 07:10:21 PM
+    """
+
     return lib1.putp(CSTR(cstring))
+
+
+# TODO: Maybe pr or raise an issue at PDCureses because can't find it yet as of 2024-04-04 07:03:00 PM. A plain print() might do the trick, cause at the end of the day (for most users) its just an output to stqout with a mvcur-alternative... anyways... idk, see also https://github.com/wmcbrine/PDCurses/issues/55
+def puts(cstring): 
+    """
+    Low-level routine that always prints\sends the output to stdout. Followed by a new line at the end | NCURSES ONLY AS OF 2024-04-04 07:10:21 PM
+    """
+
+    return lib1.puts(CSTR(cstring))
 
 
 if PDCURSES:
