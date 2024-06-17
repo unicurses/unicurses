@@ -1307,6 +1307,16 @@ def wgetstr(scr_id):
     return t_str.value.decode()
 
 
+def wgetnstr(scr_id, n):
+    """
+    Perform a series of calls to getch in window scr_id until a newline is received or n has been reached.
+    """
+
+    t_str = ctypes.create_string_buffer(1023)
+    lib1.wgetnstr(scr_id, ctypes.byref(t_str), n)
+    return t_str.value.decode()
+
+
 if PDCURSES:
     def getsyx():
         """
@@ -1787,6 +1797,16 @@ def mvwgetstr(scr_id, y, x):
 
     t_str = ctypes.create_string_buffer(1023)
     lib1.mvwgetstr(scr_id, y, x, ctypes.byref(t_str))
+    return t_str.value.decode()
+
+
+def mvwgetnstr(scr_id, y, x, n):
+    """
+    Perform a series of calls to getch in window scr_id at position (y, x) until a newline is received or n has been reached.
+    """
+
+    t_str = ctypes.create_string_buffer(1023)
+    lib1.mvwgetnstr(scr_id, y, x, ctypes.byref(t_str), n)
     return t_str.value.decode()
 
 
@@ -2855,12 +2875,28 @@ def getstr():
     return wgetstr(stdscr)
 
 
+def getnstr(n):
+    """
+    Perform a series of calls to getch until a newline is received or n has been reached.
+    """
+
+    return wgetnstr(stdscr, n)
+
+
 def mvgetstr(y, x):
     """
     Perform a series of calls to getch at position (y, x) until a newline is received.
     """
 
     return mvwgetstr(stdscr, y, x)
+
+
+def mvgetnstr(y, x, n):
+    """
+    Perform a series of calls to getch at position (y, x) until a newline is received or n has been reached.
+    """
+
+    return mvwgetnstr(stdscr, y, x, n)
 
 
 def instr(n=-1):
