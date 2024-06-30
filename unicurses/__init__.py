@@ -1346,6 +1346,14 @@ def getyx(scr_id):
     return (cy, cx)
 
 
+def getbkgd(scr_id):
+    """
+    Returns the given window's current background character/attribute pair.
+    """
+
+    return lib1.getbkgd(scr_id)
+
+
 def halfdelay(tenths):
     """
     Similar to cbreak, make characters typed by the user immediately available. After blocking for tenths tenths of seconds, ERR is returned if nothing has been typed.
