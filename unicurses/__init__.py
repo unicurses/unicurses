@@ -669,6 +669,39 @@ def KEY_F(n):
     return KEY_F0 + n
 
 
+def ALT(ch):
+    """
+    Returns cross-compatible alt-key value. Assuming you use `event = ALT_CONDITION(uc.getch())` or `...get_wch` when reading a character/event. Don't confuse it with `ALTCHAR()`
+    """
+
+    return CCHAR(ch) + 320
+
+
+if PDCURSES:
+    def ALT_CONDITION(event, is_default_nodelay=False):
+        """
+        Checks if escape-sequence is an alt-key combination and if so, returns a cross-compatible alt-value of the original event. Assumes you have `cbreak()`, `nodelay(stdscr, ...)` and that you will use it once per `getch`/`get_wch` *(for cross-compatibility)*. See also `set_escdelay()`. This is a custom UNI-CURSES function
+        """
+
+        # if (lib1.PDC_get_key_modifiers() & 4): # 4 = PDC_KEY_MODIFIER_ALT
+        #     return event # -320 = the actual character in pdcurses
+        return event
+elif NCURSES:
+    def ALT_CONDITION(event, is_default_nodelay=False): # https://stackoverflow.com/a/16248956/11465149
+        """
+        Checks if escape-sequence is an alt-key combination and if so, returns a cross-compatible alt-value of the original event. Assumes you have `cbreak()`, `nodelay(stdscr, ...)` and that you will use it once per `getch`/`get_wch` *(for cross-compatibility)*. See also `set_escdelay()`. This is a custom UNI-CURSES function
+        """
+
+        if event == 27: # Esc or Alt
+            nodelay(stdscr, True)
+            ch = getch() # why not get_wch?
+            nodelay(stdscr, is_default_nodelay)
+            if ch == -1: # Escape was pressed
+                return 27
+            return ch + 320 # shifting event 320 because that's what pdcurses returns for escape\alt events (plus it doesn't seem to result on anything too weird [at least if you use it properly and in the right order])
+        return event
+
+
 # ACS Alternate Character Set Symbols
 ACS_ULCORNER = ALTCHAR('l')
 ACS_LLCORNER = ALTCHAR('m')
@@ -2513,6 +2546,21 @@ def get_wch():
     """
 
     return wget_wch(stdscr)
+
+if PDCURSES:
+    def set_escdelay(ms):
+        """
+        Sets the delay for escape key. Usueful for reading alt or escape-sequences. If PDCURSES returns OK.
+        """
+
+        return OK
+elif NCURSES:
+    def set_escdelay(ms):
+        """
+        Sets the delay for escape key. Usueful for reading alt or escape-sequences. If PDCURSES returns OK.
+        """
+
+        return lib1.set_escdelay(ms)
 
 
 def mvinsnstr(y, x, strn, n, attr="NO_USE"):
