@@ -80,7 +80,7 @@ After the curses is initialized with an expression above, you can use any of the
 * * [unicurses demos](https://github.com/unicurses/unicurses/tree/master/demos)
 * * [An interactive cellular automaton](https://github.com/lifesci/deerlang)
 * * [A terminal-based file manager](https://github.com/GiorgosXou/TUIFIManager)
-* * An android debloating tool
+* * [An android debloating tool](https://github.com/GiorgosXou/hexapterygon)
 * ***Books (NCURSES):*** 
 * * [Programmer's Guide to NCurses](https://books.google.gr/books?id=Htff8VRO-UEC&printsec=frontcover&hl=el&source=gbs_ge_summary_r&cad=0#v=onepage&q&f=false)
 * ***Extra Resources:***
