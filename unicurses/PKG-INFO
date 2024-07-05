@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: Uni-Curses
-Version: 3.0.0
+Version: 3.1.2
 Summary: Unified Curses Wrapper for Python
 Home-page: https://github.com/unicurses/unicurses
 Author: Michael Kamensky

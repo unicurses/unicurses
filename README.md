@@ -1,4 +1,4 @@
-UNICURSES (C) 2010 by Michael Kamensky (Agetian) | Maintained by George Chousos since 2021 | [v3.0.0](https://github.com/unicurses/unicurses/releases)
+UNICURSES (C) 2010 by Michael Kamensky (Agetian) | Maintained by George Chousos since 2021 | [v3.1.2](https://github.com/unicurses/unicurses/releases)
 Released as Free Software under the terms of General Public License (GPL) v3
 
 
