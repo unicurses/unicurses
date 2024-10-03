@@ -56,7 +56,7 @@ while True:
     c = wgetch(menu_win)
     if c == KEY_MOUSE:
         id, x, y, z, bstate = getmouse()
-        if bstate & BUTTON1_PRESSED:
+        if bstate & BUTTON1_PRESSED: # For TERMUX see: https://github.com/GiorgosXou/TUIFIManager/issues/114#issuecomment-2392446592
             chosen = report_choice(x + 1, y + 1)
             if chosen != None:
                 mvaddstr(23, 0, str.format("MOUSE: {0}, {1}, {2}, Choice made is: {3}, Chosen string is: {4}", x, y, bstate, chosen, choices[chosen-1]))
