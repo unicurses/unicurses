@@ -2082,6 +2082,15 @@ elif NCURSES:
 
         return NC_PAIR_NUMBER(attr)
 
+
+def pnoutrefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol):
+    """
+    Copy pad scr_id to the virtual screen. Similar to wnoutrefresh but for pads instead of windows. pminrow and pmincol specify the upper left-hand corner of the rectangle to be displayed in the pad. sminrow, smincol, smaxrow, and smaxcol specify the edges of the rectangle to be displayed on the screen.
+    """
+
+    return lib1.pnoutrefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol)
+
+
 def prefresh(scr_id, pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol):
     """
     Similar to wrefresh but for pads instead of windows. pminrow and pmincol specify the upper left-hand corner of the rectangle to be displayed in the pad. sminrow, smincol, smaxrow, and smaxcol specify the edges of the rectangle to be displayed on the screen.
